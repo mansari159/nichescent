@@ -7,6 +7,7 @@ const nextConfig = {
       { protocol: 'https', hostname: '**.arabianoud.com' },
       { protocol: 'https', hostname: '**.ajmal.com' },
       { protocol: 'https', hostname: '**.lattafa-usa.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
 }

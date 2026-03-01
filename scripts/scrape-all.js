@@ -9,9 +9,15 @@
 
 require('dotenv').config({ path: '.env.local' })
 const { createClient } = require('@supabase/supabase-js')
-const { scrapeLattafa } = require('./scrapers/lattafa')
-const { scrapeAfnan } = require('./scrapers/afnan')
-const { scrapeDukhni } = require('./scrapers/dukhni')
+const { scrapeLattafa }      = require('./scrapers/lattafa')
+const { scrapeAfnan }        = require('./scrapers/afnan')
+const { scrapeDukhni }       = require('./scrapers/dukhni')
+const { scrapeSwissArabian } = require('./scrapers/swiss-arabian')
+const { scrapeAlHaramain }   = require('./scrapers/al-haramain')
+const { scrapeGissah }       = require('./scrapers/gissah')
+const { scrapeAssaf }        = require('./scrapers/assaf')
+const { scrapeRasasi }       = require('./scrapers/rasasi')
+const { scrapeAjmal }        = require('./scrapers/ajmal')
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -19,9 +25,15 @@ const supabase = createClient(
 )
 
 const SCRAPERS = {
-  'lattafa-usa': scrapeLattafa,
-  'afnan': scrapeAfnan,
-  'dukhni': scrapeDukhni,
+  'lattafa-usa':   scrapeLattafa,
+  'afnan':         scrapeAfnan,
+  'dukhni':        scrapeDukhni,
+  'swiss-arabian': scrapeSwissArabian,
+  'al-haramain':   scrapeAlHaramain,
+  'gissah':        scrapeGissah,
+  'assaf':         scrapeAssaf,
+  'rasasi':        scrapeRasasi,
+  'ajmal':         scrapeAjmal,
 }
 
 const DRY_RUN = process.argv.includes('--dry-run')
@@ -85,7 +97,7 @@ async function saveListings(retailerSlug, listings) {
 
 async function main() {
   console.log(`\n${'═'.repeat(50)}`)
-  console.log('  NicheScent Scraper')
+  console.log('  RareTrace Scraper')
   console.log(`  ${new Date().toLocaleString()}`)
   if (DRY_RUN) console.log('  DRY RUN MODE — no DB writes')
   console.log(`${'═'.repeat(50)}\n`)

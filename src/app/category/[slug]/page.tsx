@@ -35,18 +35,26 @@ async function getCategoryWithProducts(slug: string) {
     productsQuery = productsQuery.eq('fragrance_type', 'bakhoor')
   } else if (slug === 'new-arrivals') {
     productsQuery = productsQuery.order('created_at', { ascending: false })
+  } else if (slug === 'ouds') {
+    // Match products with 'oud' in the name or category_tags
+    productsQuery = productsQuery.or("name.ilike.%oud%,category_tags.cs.{oud}")
+  } else if (slug === 'floral') {
+    productsQuery = productsQuery.or("name.ilike.%floral%,notes_mid.cs.{rose},notes_mid.cs.{jasmine},category_tags.cs.{floral}")
+  } else if (slug === 'woody') {
+    productsQuery = productsQuery.or("category_tags.cs.{woody},notes_base.cs.{sandalwood},notes_base.cs.{cedar}")
   } else {
-    // Use product_categories join for tag-based categories
+    // Fallback: try product_categories join, then fall back to name search
     const { data: productIds } = await supabase
       .from('product_categories')
       .select('product_id')
       .eq('category_id', category.id)
 
-    if (!productIds?.length) {
-      return { category, products: [] }
+    if (productIds?.length) {
+      productsQuery = productsQuery.in('id', productIds.map(r => r.product_id))
+    } else {
+      // No join table entries — search by category slug as a name keyword
+      productsQuery = productsQuery.ilike('name', `%${category.name.split(' ')[0]}%`)
     }
-
-    productsQuery = productsQuery.in('id', productIds.map(r => r.product_id))
   }
 
   productsQuery = productsQuery

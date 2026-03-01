@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import SearchBar from '@/components/SearchBar'
 import ProductCard from '@/components/ProductCard'
 import FilterSidebar from '@/components/FilterSidebar'
+import SortSelect from '@/components/SortSelect'
 import type { Product } from '@/types'
 
 interface SearchPageProps {
@@ -51,11 +52,17 @@ async function searchProducts(params: SearchPageProps['searchParams']): Promise<
     query = query.textSearch('search_vector', q.trim(), { type: 'websearch' })
   }
 
-  // Brand filter
+  // Brand filter — must resolve brand names → IDs first (can't filter on joined cols)
   if (brand) {
-    const brands = Array.isArray(brand) ? brand : [brand]
-    // Join through brands table
-    query = query.in('brand.name', brands)
+    const brandNames = Array.isArray(brand) ? brand : [brand]
+    const { data: brandRows } = await supabase
+      .from('brands')
+      .select('id')
+      .in('name', brandNames)
+    const brandIds = (brandRows ?? []).map(b => b.id)
+    if (brandIds.length) {
+      query = query.in('brand_id', brandIds)
+    }
   }
 
   // Type filter
@@ -134,19 +141,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 : q ? `No results for "${q}"` : 'All fragrances'}
             </p>
 
-            <select
-              defaultValue={searchParams.sort ?? 'price_asc'}
-              onChange={e => {
-                const url = new URL(window.location.href)
-                url.searchParams.set('sort', e.target.value)
-                window.location.href = url.toString()
-              }}
-              className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-gold-500">
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="newest">Newest First</option>
-              <option value="name">Name A–Z</option>
-            </select>
+            <SortSelect value={searchParams.sort ?? 'price_asc'} />
           </div>
 
           {/* Grid */}

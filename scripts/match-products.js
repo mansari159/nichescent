@@ -26,18 +26,66 @@ const AUTO_CREATE = !process.argv.includes('--no-create')
 
 function inferType(text = '') {
   const t = text.toLowerCase()
-  if (t.includes('bakhoor') || t.includes('incense')) return 'bakhoor'
-  if (t.includes('attar') || t.includes(' oil') || t.includes('rollon')) return 'attar'
-  if (t.includes('parfum') && !t.includes('eau')) return 'parfum'
+  if (t.includes('bakhoor') || t.includes('incense') || t.includes('bukhoor')) return 'bakhoor'
+  if (t.includes('attar') || t.includes(' oil') || t.includes('rollon') || t.includes('roll-on') || t.includes('dahn al')) return 'attar'
+  if ((t.includes('parfum') || t.includes('perfume')) && !t.includes('eau')) return 'parfum'
   if (t.includes('edt') || t.includes('eau de toilette')) return 'edt'
-  if (t.includes('body mist') || t.includes('body spray')) return 'body-mist'
+  if (t.includes('body mist') || t.includes('body spray') || t.includes('body lotion')) return 'body-mist'
+  if (t.includes('edp') || t.includes('eau de parfum')) return 'edp'
   return 'edp'
 }
 
-function inferGender(text = '') {
-  const t = text.toLowerCase()
-  if (t.includes(' men') || t.includes(' him') || t.includes(' homme') || t.includes(' pour homme')) return 'men'
-  if (t.includes(' women') || t.includes(' her') || t.includes(' femme') || t.includes(' pour femme')) return 'women'
+// ── Gender inference (comprehensive MENA fragrance signals) ──────────────────
+
+function inferGender(name = '', productType = '', tags = '', description = '') {
+  const text = `${name} ${productType} ${tags} ${description}`.toLowerCase()
+
+  // Strong MALE signals
+  const maleSignals = [
+    'for men', 'pour homme', 'pour him', " men's", ' men ',
+    ' him ', ' his ', ' homme', ' masculin',
+    'tobacco', 'leather', 'smoky', 'woody', 'vetiver',
+    'oud for men', 'black oud', 'intense oud',
+    'sport', 'aqua ', 'blu ', 'king', 'sultan', 'sheikh',
+    'asad', // Arabic for lion — Lattafa Asad is mens
+    'hawas', 'egzotika', 'club de nuit homme',
+  ]
+
+  // Strong FEMALE signals
+  const femaleSignals = [
+    'for women', 'pour femme', 'pour elle', " women's", ' women ',
+    ' her ', ' hers ', ' femme', ' féminin',
+    'floral', 'rose', 'jasmine', 'gardenia', 'lily', 'violet',
+    'peony', 'magnolia', 'cherry blossom', 'fruity', 'frutal',
+    'pink', 'bloom', 'blush', 'soft powder', 'powder',
+    'lady', 'belle', 'femme fatale', 'princess', 'queen',
+    'flora', 'florale', 'blossom', 'petals', 'sweet',
+    'vanilla musk', 'candy', 'cotton',
+    'khamrah' // Lattafa Khamrah — it's actually unisex but tagged women often
+  ]
+
+  // Explicit unisex signals
+  const unisexSignals = [
+    'unisex', 'for all', 'everyone', 'gender neutral', 'gender free',
+    'him & her', 'her & him', 'men & women', 'women & men',
+    'oud', 'amber', 'musk', 'sandalwood', // these notes are inherently unisex
+  ]
+
+  let maleScore = 0
+  let femaleScore = 0
+  let unisexScore = 0
+
+  for (const sig of maleSignals)   if (text.includes(sig)) maleScore++
+  for (const sig of femaleSignals) if (text.includes(sig)) femaleScore++
+  for (const sig of unisexSignals) if (text.includes(sig)) unisexScore++
+
+  // Decisive wins
+  if (maleScore > femaleScore && maleScore >= 1) return 'men'
+  if (femaleScore > maleScore && femaleScore >= 1) return 'women'
+  if (unisexScore >= 2 || (maleScore === femaleScore && maleScore === 0)) return 'unisex'
+  if (unisexScore >= 1 && maleScore === 0 && femaleScore === 0) return 'unisex'
+
+  // Tiebreaker — MENA fragrances lean unisex by default
   return 'unisex'
 }
 

@@ -9,7 +9,7 @@ interface Props {
 
 export default function SearchBar({ compact = false, initialQuery = '' }: Props) {
   const [query, setQuery] = useState(initialQuery)
-  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestions, setSuggestions] = useState<Array<{ label: string; slug: string }>>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -17,7 +17,7 @@ export default function SearchBar({ compact = false, initialQuery = '' }: Props)
 
   const popularSearches = [
     'Arabian Oud', 'Lattafa Raghba', 'Armaf Club de Nuit',
-    'Ajmal Sacrifice', 'oud rose', 'attar', 'Swiss Arabian Shaghaf',
+    'Ajmal Sacrifice', 'Oud Rose', 'Swiss Arabian Shaghaf',
   ]
 
   useEffect(() => {
@@ -39,10 +39,10 @@ export default function SearchBar({ compact = false, initialQuery = '' }: Props)
     router.push(`/search?q=${encodeURIComponent(query.trim())}`)
   }
 
-  function handleSuggestionClick(suggestion: string) {
-    setQuery(suggestion)
+  function handleSuggestionClick(label: string) {
+    setQuery(label.split(' — ')[0])
     setShowSuggestions(false)
-    router.push(`/search?q=${encodeURIComponent(suggestion)}`)
+    router.push(`/search?q=${encodeURIComponent(label.split(' — ')[0])}`)
   }
 
   return (
@@ -55,40 +55,36 @@ export default function SearchBar({ compact = false, initialQuery = '' }: Props)
           onChange={e => { setQuery(e.target.value); setShowSuggestions(true) }}
           onFocus={() => setShowSuggestions(true)}
           onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-          placeholder={compact ? 'Search fragrances...' : 'Search by name, brand, or scent notes...'}
-          className={`w-full border border-gray-300 rounded-l-lg px-4 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500 focus:border-transparent bg-white ${compact ? 'py-2 text-sm' : 'py-3 text-base'}`}
+          placeholder="Search by name, brand, or scent notes..."
+          className="w-full bg-white/10 border border-white/20 text-cream placeholder-obsidian-500 px-5 py-3.5 text-sm focus:outline-none focus:border-gold-500 focus:bg-white/15 transition-colors"
         />
         <button
           type="submit"
-          className={`bg-gold-500 hover:bg-gold-600 text-white font-medium rounded-r-lg px-4 transition-colors shrink-0 ${compact ? 'py-2 text-sm' : 'py-3 px-6'}`}
+          className="bg-gold-500 hover:bg-gold-600 text-white text-xs tracking-widest2 uppercase px-6 shrink-0 transition-colors"
         >
-          {compact ? (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          ) : 'Search'}
+          Search
         </button>
       </form>
 
-      {/* Suggestions dropdown */}
+      {/* Suggestions */}
       {showSuggestions && (
-        <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg z-50 mt-1">
+        <div className="absolute top-full left-0 right-0 bg-obsidian-900 border border-obsidian-700 shadow-2xl z-50">
           {query.length < 2 ? (
-            <div className="p-3">
-              <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide">Popular searches</p>
+            <div className="p-4">
+              <p className="text-[10px] tracking-widest2 uppercase text-obsidian-500 mb-3">Popular searches</p>
               {popularSearches.map(s => (
                 <button key={s} onMouseDown={() => handleSuggestionClick(s)}
-                  className="block w-full text-left px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-50 rounded">
-                  🔍 {s}
+                  className="block w-full text-left px-2 py-2 text-sm text-obsidian-300 hover:text-cream transition-colors">
+                  {s}
                 </button>
               ))}
             </div>
           ) : suggestions.length > 0 ? (
-            <div className="py-1">
-              {suggestions.map(s => (
-                <button key={s} onMouseDown={() => handleSuggestionClick(s)}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                  {s}
+            <div className="py-2">
+              {suggestions.map((s, i) => (
+                <button key={i} onMouseDown={() => handleSuggestionClick(s.label)}
+                  className="block w-full text-left px-5 py-2.5 text-sm text-obsidian-300 hover:text-cream hover:bg-obsidian-800 transition-colors">
+                  {s.label}
                 </button>
               ))}
             </div>

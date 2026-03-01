@@ -4,21 +4,33 @@
 
 @layer base {
   html {
-    font-family: Inter, system-ui, sans-serif;
+    background-color: #FAF8F4;
+    color: #120F0B;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   body {
-    @apply bg-gray-50 text-gray-900;
+    background-color: #FAF8F4;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-cormorant), Georgia, serif;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-gold-500 hover:bg-gold-600 text-white font-medium px-4 py-2 rounded-lg transition-colors;
+    @apply inline-block bg-obsidian-900 text-cream text-xs tracking-widest2 uppercase px-8 py-3.5 hover:bg-obsidian-700 transition-colors duration-200;
   }
   .btn-secondary {
-    @apply bg-navy-900 hover:bg-navy-700 text-white font-medium px-4 py-2 rounded-lg transition-colors;
+    @apply inline-block border border-obsidian-900 text-obsidian-900 text-xs tracking-widest2 uppercase px-8 py-3.5 hover:bg-obsidian-900 hover:text-cream transition-colors duration-200;
+  }
+  .btn-gold {
+    @apply inline-block bg-gold-500 text-white text-xs tracking-widest2 uppercase px-8 py-3.5 hover:bg-gold-600 transition-colors duration-200;
   }
   .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm;
+    @apply bg-white border border-obsidian-100 hover:border-gold-300 transition-colors duration-200;
+  }
+  .label-overline {
+    @apply text-xs tracking-widest2 uppercase text-stone font-sans;
   }
 }

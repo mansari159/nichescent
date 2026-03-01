@@ -1,8 +1,55 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
-import SearchBar from '@/components/SearchBar'
 import ProductCard from '@/components/ProductCard'
+import SearchBar from '@/components/SearchBar'
 import type { Product } from '@/types'
+
+// Category cards with Unsplash imagery
+const CATEGORIES = [
+  {
+    name: 'Ouds',
+    slug: 'ouds',
+    subtitle: 'The essence of the East',
+    img: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    name: 'Attars',
+    slug: 'attars',
+    subtitle: 'Pure oil concentrates',
+    img: 'https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    name: 'Bakhoor',
+    slug: 'bakhoor',
+    subtitle: 'Incense traditions',
+    img: 'https://images.unsplash.com/photo-1547887538-047ad8c9c3a5?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    name: 'Under $30',
+    slug: 'under-30',
+    subtitle: 'Luxury without compromise',
+    img: 'https://images.unsplash.com/photo-1541643600914-78b084683702?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    name: 'Unisex',
+    slug: 'unisex',
+    subtitle: 'Beyond convention',
+    img: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=800&q=80',
+  },
+  {
+    name: 'New Arrivals',
+    slug: 'new-arrivals',
+    subtitle: 'Recently catalogued',
+    img: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=800&q=80',
+  },
+]
+
+const BRANDS = [
+  'Arabian Oud', 'Ajmal', 'Swiss Arabian', 'Rasasi',
+  'Al Haramain', 'Lattafa', 'Afnan', 'Armaf',
+  'Al Rehab', 'Amouage', 'Dukhni', 'Nabeel',
+]
 
 async function getFeaturedProducts(): Promise<Product[]> {
   const { data } = await supabase
@@ -15,136 +62,183 @@ async function getFeaturedProducts(): Promise<Product[]> {
   return (data ?? []) as Product[]
 }
 
-const CATEGORIES = [
-  { name: 'Ouds & Oud Blends', slug: 'ouds', emoji: '🌿', desc: 'Deep, rich, and complex' },
-  { name: 'Attars & Oils', slug: 'attars', emoji: '💧', desc: 'Traditional, alcohol-free' },
-  { name: 'Bakhoor', slug: 'bakhoor', emoji: '🔥', desc: 'Scented incense chips' },
-  { name: 'Under $30', slug: 'under-30', emoji: '💰', desc: 'Great value niche scents' },
-  { name: 'Under $50', slug: 'under-50', emoji: '⭐', desc: 'Premium quality, fair price' },
-  { name: 'Unisex', slug: 'unisex', emoji: '✨', desc: 'For everyone' },
-]
-
-const BRANDS = [
-  'Arabian Oud', 'Ajmal', 'Lattafa', 'Swiss Arabian',
-  'Rasasi', 'Al Haramain', 'Armaf', 'Amouage',
-]
-
 export default async function HomePage() {
   const featured = await getFeaturedProducts()
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="bg-navy-900 text-white py-16 px-4">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4 leading-tight">
-            Discover niche fragrances<br />
-            <span className="text-gold-500">mainstream sites ignore</span>
+    <div className="bg-cream">
+
+      {/* ── Hero ─────────────────────────────────────── */}
+      <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-obsidian-950">
+        {/* Background image */}
+        <div className="absolute inset-0">
+          <Image
+            src="https://images.unsplash.com/photo-1541643600914-78b084683702?auto=format&fit=crop&w=1920&q=80"
+            alt="Luxury fragrance"
+            fill
+            className="object-cover opacity-30"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-obsidian-950 via-obsidian-950/80 to-obsidian-950/40" />
+        </div>
+
+        {/* Content */}
+        <div className="relative max-w-7xl mx-auto px-6 py-24">
+          <p className="label-overline text-obsidian-500 mb-6">Price Comparison for Rare Fragrances</p>
+          <h1 className="font-serif text-5xl md:text-7xl font-light text-cream leading-tight mb-6 max-w-2xl">
+            Discover the<br />rarest scents<br />at the best price.
           </h1>
-          <p className="text-gray-300 text-lg mb-8">
-            Search across 20+ MENA retailers. Compare prices instantly. Find your next signature scent.
+          <p className="text-obsidian-400 text-lg mb-10 max-w-md leading-relaxed">
+            Track prices across 20+ retailers for Arabian Oud, Lattafa, Amouage, and hundreds of niche MENA fragrances.
           </p>
-          <div className="max-w-xl mx-auto">
+
+          {/* Search */}
+          <div className="max-w-lg">
             <SearchBar />
           </div>
-          <p className="text-gray-500 text-sm mt-4">
-            Arabian Oud · Ajmal · Lattafa · Swiss Arabian · Rasasi · Al Haramain · Amouage · and more
-          </p>
+
+          {/* Quick links */}
+          <div className="flex flex-wrap gap-3 mt-8">
+            {['Oud Maattar', 'Khamrah', 'Amouage Interlude', 'Rasasi Hawas'].map(q => (
+              <a
+                key={q}
+                href={`/search?q=${encodeURIComponent(q)}`}
+                className="text-xs text-obsidian-500 border border-obsidian-800 hover:border-obsidian-600 hover:text-obsidian-300 px-3 py-1.5 transition-colors"
+              >
+                {q}
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Value props */}
-      <section className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+      {/* ── Value strip ─────────────────────────────── */}
+      <section className="bg-obsidian-900 border-b border-obsidian-800">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap justify-center md:justify-between gap-6 text-center md:text-left">
           {[
-            { icon: '🔍', title: '20+ MENA Retailers', desc: 'One search across all of them' },
-            { icon: '💸', title: 'Compare Prices Instantly', desc: 'Always see the cheapest option' },
-            { icon: '🆓', title: 'Completely Free', desc: 'No account needed' },
-          ].map(p => (
-            <div key={p.title} className="py-2">
-              <span className="text-3xl">{p.icon}</span>
-              <p className="font-semibold text-gray-900 mt-2">{p.title}</p>
-              <p className="text-sm text-gray-500">{p.desc}</p>
+            ['20+ Retailers', 'Compared daily'],
+            ['500+ Fragrances', 'From MENA brands'],
+            ['Always Free', 'No sign-up required'],
+          ].map(([title, sub]) => (
+            <div key={title} className="flex items-center gap-3">
+              <div className="w-px h-6 bg-obsidian-700 hidden md:block" />
+              <div>
+                <p className="text-sm font-medium text-cream">{title}</p>
+                <p className="text-xs text-obsidian-500">{sub}</p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 py-12 space-y-14">
-
-        {/* Categories */}
-        <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {CATEGORIES.map(cat => (
-              <Link key={cat.slug} href={`/category/${cat.slug}`}
-                className="bg-white border border-gray-200 hover:border-gold-400 hover:shadow-sm rounded-xl p-4 text-center transition-all group">
-                <span className="text-2xl">{cat.emoji}</span>
-                <p className="font-medium text-gray-900 text-sm mt-2 group-hover:text-gold-600">{cat.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{cat.desc}</p>
-              </Link>
-            ))}
+      {/* ── Categories ──────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="label-overline text-obsidian-400 mb-2">Browse by type</p>
+            <h2 className="font-serif text-4xl text-obsidian-900 font-light">Collections</h2>
           </div>
-        </section>
+          <Link href="/search" className="text-xs tracking-widest2 uppercase text-gold-500 hover:text-gold-600 transition-colors hidden sm:block">
+            View all
+          </Link>
+        </div>
 
-        {/* Featured products */}
-        {featured.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Featured Fragrances</h2>
-              <Link href="/search" className="text-sm text-gold-600 hover:text-gold-700 font-medium">
-                View all →
-              </Link>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {CATEGORIES.map(cat => (
+            <Link
+              key={cat.slug}
+              href={`/category/${cat.slug}`}
+              className="group relative aspect-[4/3] overflow-hidden bg-obsidian-900"
+            >
+              <Image
+                src={cat.img}
+                alt={cat.name}
+                fill
+                className="object-cover opacity-60 group-hover:opacity-40 group-hover:scale-105 transition-all duration-500"
+                sizes="(max-width: 768px) 50vw, 33vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950/90 via-obsidian-950/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 p-5">
+                <p className="label-overline text-obsidian-500 mb-1">{cat.subtitle}</p>
+                <h3 className="font-serif text-2xl text-cream font-light">{cat.name}</h3>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Featured products ───────────────────────── */}
+      <section className="bg-parchment py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-end justify-between mb-10">
+            <div>
+              <p className="label-overline text-obsidian-400 mb-2">Most compared</p>
+              <h2 className="font-serif text-4xl text-obsidian-900 font-light">Featured Fragrances</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {featured.map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Empty state — shown when no products scraped yet */}
-        {featured.length === 0 && (
-          <section className="text-center py-16 bg-white rounded-xl border border-dashed border-gray-300">
-            <p className="text-4xl mb-4">🕌</p>
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">Catalog loading...</h2>
-            <p className="text-gray-500 mb-6">Run the scrapers to populate the product database.</p>
-            <code className="bg-gray-100 text-sm px-4 py-2 rounded font-mono">npm run scrape</code>
-          </section>
-        )}
-
-        {/* Browse by brand */}
-        <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Browse by Brand</h2>
-          <div className="flex flex-wrap gap-3">
-            {BRANDS.map(brand => (
-              <Link key={brand}
-                href={`/search?brand=${encodeURIComponent(brand)}`}
-                className="bg-white border border-gray-200 hover:border-gold-400 hover:bg-gold-50 text-gray-700 hover:text-gold-700 text-sm font-medium px-4 py-2 rounded-full transition-all">
-                {brand}
-              </Link>
-            ))}
-            <Link href="/search"
-              className="bg-navy-900 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-navy-700 transition-colors">
-              All brands →
+            <Link href="/search" className="text-xs tracking-widest2 uppercase text-gold-500 hover:text-gold-600 transition-colors hidden sm:block">
+              View all
             </Link>
           </div>
-        </section>
 
-        {/* SEO text block */}
-        <section className="bg-white rounded-xl border border-gray-100 p-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-3">
-            The niche fragrance search engine you&apos;ve been waiting for
+          {featured.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {featured.map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
+          ) : (
+            <div className="text-center py-20 border border-obsidian-100 bg-white">
+              <p className="font-serif text-2xl text-obsidian-400 font-light mb-3">No fragrances yet</p>
+              <p className="text-sm text-obsidian-400">Run the scrapers to populate the catalog.</p>
+              <code className="block mt-4 text-xs bg-obsidian-50 text-obsidian-600 px-4 py-2 inline-block">npm run scrape &amp;&amp; npm run match</code>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── Brands ──────────────────────────────────── */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <p className="label-overline text-obsidian-400 mb-2">Houses we cover</p>
+            <h2 className="font-serif text-4xl text-obsidian-900 font-light">The Brands</h2>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {BRANDS.map(brand => (
+            <Link
+              key={brand}
+              href={`/search?brand=${encodeURIComponent(brand)}`}
+              className="text-sm text-obsidian-600 border border-obsidian-200 hover:border-gold-400 hover:text-obsidian-900 px-4 py-2 transition-colors"
+            >
+              {brand}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Editorial strip ─────────────────────────── */}
+      <section
+        className="relative py-28 overflow-hidden bg-obsidian-950"
+        style={{
+          backgroundImage: 'url(https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1920&q=80)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-obsidian-950/75" />
+        <div className="relative max-w-2xl mx-auto px-6 text-center">
+          <p className="label-overline text-obsidian-500 mb-4">About RareTrace</p>
+          <h2 className="font-serif text-4xl md:text-5xl text-cream font-light leading-tight mb-6">
+            Niche fragrances deserve a dedicated search engine.
           </h2>
-          <p className="text-gray-600 leading-relaxed">
-            BestFragrancePrices tracks Dior and Chanel. Fragrantica covers reviews. But if you&apos;re looking
-            for the best price on a Lattafa Raghba, an Arabian Oud attar, or a rare Ajmal oud blend — those
-            sites can&apos;t help you. NicheScent searches across 20+ MENA fragrance retailers so you can
-            compare prices in one place and always buy at the best price.
+          <p className="text-obsidian-400 leading-relaxed mb-8">
+            RareTrace tracks pricing for Arabian Oud, Ajmal, Amouage, and hundreds of MENA-origin houses that mainstream fragrance sites overlook. Compare, track, and find the best price before you buy.
           </p>
-        </section>
-      </div>
+          <Link href="/search" className="btn-gold">
+            Start Exploring
+          </Link>
+        </div>
+      </section>
     </div>
   )
 }
