@@ -106,11 +106,11 @@ function inferGender(name = '', productType = '', tags = '', description = '') {
     'khamrah' // Lattafa Khamrah — it's actually unisex but tagged women often
   ]
 
-  // Explicit unisex signals
+  // Explicit unisex signals — only EXPLICIT gender-neutral language, NOT scent notes
   const unisexSignals = [
     'unisex', 'for all', 'everyone', 'gender neutral', 'gender free',
     'him & her', 'her & him', 'men & women', 'women & men',
-    'oud', 'amber', 'musk', 'sandalwood', // these notes are inherently unisex
+    'men and women', 'women and men',
   ]
 
   let maleScore = 0
@@ -231,7 +231,12 @@ async function main() {
           brand_id: brandId,
           description: listing.raw_description,
           fragrance_type: inferType(`${listing.raw_name} ${listing.raw_data?.product_type ?? ''}`),
-          gender: inferGender(listing.raw_name),
+          gender: inferGender(
+            listing.raw_name,
+            listing.raw_data?.product_type ?? '',
+            listing.raw_data?.tags ?? '',
+            listing.raw_description ?? ''
+          ),
           size_ml: extractSizeML(listing.raw_data?.variant_title ?? listing.raw_name),
           image_url: listing.raw_image_url,
           is_active: true,

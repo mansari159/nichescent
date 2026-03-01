@@ -15,10 +15,14 @@ export async function GET(request: NextRequest) {
     .ilike('name', `%${q}%`)
     .limit(8)
 
-  const suggestions = (data ?? []).map(p => ({
-    label: `${p.name}${p.brand ? ` — ${(p.brand as { name: string }).name}` : ''}`,
-    slug: p.slug,
-  }))
+  const suggestions = (data ?? []).map(p => {
+    const brand = p.brand as { name: string } | { name: string }[] | null
+    const brandName = Array.isArray(brand) ? brand[0]?.name : brand?.name
+    return {
+      label: `${p.name}${brandName ? ` — ${brandName}` : ''}`,
+      slug: p.slug,
+    }
+  })
 
   return NextResponse.json({ suggestions })
 }
