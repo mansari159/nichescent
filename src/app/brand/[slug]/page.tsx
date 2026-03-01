@@ -49,7 +49,7 @@ export default async function BrandPage({ params }: Props) {
 
   const { brand, products } = result
 
-  const types = [...new Set(products.map(p => p.fragrance_type))]
+  const types = Array.from(new Set(products.map(p => p.fragrance_type)))
   const priceRange = products
     .filter(p => p.lowest_price)
     .map(p => p.lowest_price as number)
