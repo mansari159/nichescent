@@ -8,11 +8,9 @@ const BRANDS = [
 ]
 
 const TYPES = [
-  { value: 'edp', label: 'Eau de Parfum' },
-  { value: 'edt', label: 'Eau de Toilette' },
   { value: 'attar', label: 'Attar / Oil' },
   { value: 'bakhoor', label: 'Bakhoor' },
-  { value: 'parfum', label: 'Parfum' },
+  { value: 'body-mist', label: 'Body Mist' },
 ]
 
 const GENDERS = [
@@ -80,7 +78,7 @@ export default function FilterSidebar() {
 
         {/* Fragrance type */}
         <div className="mb-5">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Type</h3>
+          <h3 className="text-sm font-medium text-gray-700 mb-2">Format</h3>
           <div className="space-y-1.5">
             {TYPES.map(t => (
               <label key={t.value} className="flex items-center gap-2 cursor-pointer group">
