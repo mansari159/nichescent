@@ -22,6 +22,48 @@ const supabase = createClient(
 const MATCH_THRESHOLD = 0.35    // Fuse.js score (lower = more similar; 0 = perfect)
 const AUTO_CREATE = !process.argv.includes('--no-create')
 
+// ── Currency conversion ───────────────────────────────────────────────────────
+
+const RATES_TO_USD = {
+  USD: 1,
+  AED: 0.2723,  // 1 AED = ~$0.27
+  SAR: 0.2667,  // 1 SAR = ~$0.27
+  KWD: 3.2500,  // 1 KWD = ~$3.25
+  BHD: 2.6525,
+  OMR: 2.5974,
+  QAR: 0.2747,
+  GBP: 1.2700,
+  EUR: 1.0850,
+  INR: 0.0119,
+}
+
+function toUSD(price, currency = 'USD') {
+  const rate = RATES_TO_USD[currency.toUpperCase()] ?? 1
+  return Math.round(price * rate * 100) / 100
+}
+
+// ── Non-fragrance filter ──────────────────────────────────────────────────────
+
+const NON_FRAGRANCE_KEYWORDS = [
+  'candle', 'diffuser', 'room spray', 'reed diffuser', 'wax melt',
+  'body lotion', 'body cream', 'body wash', 'shower gel', 'hand cream',
+  'lip balm', 'face cream', 'moisturizer', 'serum',
+  'gift set', 'gift box', 'gift bag', 'sample set', 'discovery set',
+  'bag', 'pouch', 'wallet', 'keychain', 'accessory', 'accessories',
+  'bottle stopper', 'funnel', 'atomizer refill', 'empty bottle',
+  'incense stick', 'incense cone', 'charcoal', 'burner', 'bakhoor burner',
+  'carpet freshener', 'fabric spray', 'laundry',
+  't-shirt', 'mug', 'notebook',
+]
+
+function isFragrance(name = '', productType = '', tags = '') {
+  const text = `${name} ${productType} ${tags}`.toLowerCase()
+  for (const kw of NON_FRAGRANCE_KEYWORDS) {
+    if (text.includes(kw)) return false
+  }
+  return true
+}
+
 // ── Fragrance type inference ──────────────────────────────────────────────────
 
 function inferType(text = '') {
@@ -109,21 +151,29 @@ async function main() {
   // 1. Load all existing products
   const { data: existingProducts } = await supabase
     .from('products')
-    .select('id, name, slug, brand_id, brand:brands(name)')
+    .select('id, name, slug, brand_id')
 
-  const fuse = new Fuse(existingProducts ?? [], {
-    keys: ['name'],
-    threshold: MATCH_THRESHOLD,
-    includeScore: true,
-  })
+  // Build per-brand Fuse indexes so matching never crosses brand boundaries
+  // brandFuseMap: brandId (string) -> Fuse instance scoped to that brand only
+  const brandFuseMap = new Map()
+  for (const p of existingProducts ?? []) {
+    const key = p.brand_id ?? '__unknown__'
+    if (!brandFuseMap.has(key)) {
+      brandFuseMap.set(key, new Fuse([], {
+        keys: ['name'],
+        threshold: MATCH_THRESHOLD,
+        includeScore: true,
+      }))
+    }
+    brandFuseMap.get(key).add(p)
+  }
 
   // 2. Load all brands (for brand lookup)
   const { data: brands } = await supabase.from('brands').select('id, name')
   const brandMap = Object.fromEntries((brands ?? []).map(b => [b.name.toLowerCase(), b.id]))
 
   // 3. Load all retailers
-  const { data: retailers } = await supabase.from('retailers').select('id, slug')
-  const retailerMap = Object.fromEntries((retailers ?? []).map(r => [r.slug, r.id]))
+  const { data: retailers } = await supabase.from('retailers').select('id, slug, base_currency')
 
   // 4. Load pending listings
   const { data: listings } = await supabase
@@ -142,17 +192,28 @@ async function main() {
   let matched = 0, created = 0, skipped = 0
 
   for (const listing of listings) {
-    const retailerId = retailerMap[listing.retailer_id] ?? listing.retailer_id
+    // Skip non-fragrance products
+    if (!isFragrance(listing.raw_name, listing.raw_data?.product_type, listing.raw_data?.tags)) {
+      await supabase.from('scraper_listings').update({ match_status: 'rejected' }).eq('id', listing.id)
+      skipped++
+      continue
+    }
 
-    // Try fuzzy match
-    const results = fuse.search(listing.raw_name)
+    // Resolve brand for this listing
+    const brandId = listing.raw_brand
+      ? brandMap[listing.raw_brand.toLowerCase()] ?? null
+      : null
+
+    // Brand-scoped fuzzy match — NEVER match across brands
+    const scopedFuse = brandFuseMap.get(brandId ?? '__unknown__')
+    const results = scopedFuse ? scopedFuse.search(listing.raw_name) : []
     const best = results[0]
-    const confidence = best ? 1 - best.score : 0
+    const confidence = best ? 1 - (best.score ?? 1) : 0
 
     let productId = null
 
     if (best && confidence >= (1 - MATCH_THRESHOLD)) {
-      // Matched!
+      // Matched within same brand
       productId = best.item.id
       matched++
     } else if (AUTO_CREATE) {
@@ -180,10 +241,13 @@ async function main() {
 
       if (!error && newProduct) {
         productId = newProduct.id
-        // Update Fuse index
-        fuse.remove(doc => doc.id === newProduct.id)
-        existingProducts.push({ id: newProduct.id, name: listing.raw_name, slug })
-        fuse.add({ id: newProduct.id, name: listing.raw_name, slug })
+        // Add new product to the brand-scoped Fuse index
+        const newEntry = { id: newProduct.id, name: listing.raw_name, slug, brand_id: brandId }
+        const fuseKey = brandId ?? '__unknown__'
+        if (!brandFuseMap.has(fuseKey)) {
+          brandFuseMap.set(fuseKey, new Fuse([], { keys: ['name'], threshold: MATCH_THRESHOLD, includeScore: true }))
+        }
+        brandFuseMap.get(fuseKey).add(newEntry)
         created++
       } else {
         console.warn(`  ⚠ Could not create product for: ${listing.raw_name}`, error?.message)
@@ -196,14 +260,15 @@ async function main() {
     }
 
     // Upsert current_prices
-    const retailer = retailers?.find(r => r.id === listing.retailer_id || r.slug === listing.retailer_id)
+    const retailer = retailers?.find(r => r.id === listing.retailer_id)
     if (retailer && productId) {
+      const currency = listing.raw_currency || retailer.base_currency || 'USD'
       await supabase.from('current_prices').upsert({
         product_id: productId,
         retailer_id: retailer.id,
         price: listing.raw_price,
-        currency: listing.raw_currency,
-        price_usd: listing.raw_price, // TODO: convert non-USD using currency.ts
+        currency,
+        price_usd: toUSD(listing.raw_price, currency),
         product_url: listing.raw_url,
         in_stock: true,
         last_updated: new Date().toISOString(),

@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 interface Props {
   compact?: boolean
   initialQuery?: string
+  variant?: 'dark' | 'light'
 }
 
-export default function SearchBar({ compact = false, initialQuery = '' }: Props) {
+export default function SearchBar({ compact = false, initialQuery = '', variant = 'dark' }: Props) {
   const [query, setQuery] = useState(initialQuery)
   const [suggestions, setSuggestions] = useState<Array<{ label: string; slug: string }>>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -56,7 +57,11 @@ export default function SearchBar({ compact = false, initialQuery = '' }: Props)
           onFocus={() => setShowSuggestions(true)}
           onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
           placeholder="Search by name, brand, or scent notes..."
-          className="w-full bg-white/10 border border-white/20 text-cream placeholder-obsidian-500 px-5 py-3.5 text-sm focus:outline-none focus:border-gold-500 focus:bg-white/15 transition-colors"
+          className={
+            variant === 'light'
+              ? "w-full bg-white border border-obsidian-200 text-obsidian-900 placeholder-obsidian-400 px-5 py-3.5 text-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500/30 transition-colors"
+              : "w-full bg-white/10 border border-white/20 text-cream placeholder-obsidian-500 px-5 py-3.5 text-sm focus:outline-none focus:border-gold-500 focus:bg-white/15 transition-colors"
+          }
         />
         <button
           type="submit"

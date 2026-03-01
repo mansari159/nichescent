@@ -87,6 +87,7 @@ async function searchProducts(params: SearchPageProps['searchParams']): Promise<
     case 'price_desc': query = query.order('lowest_price', { ascending: false, nullsFirst: false }); break
     case 'newest':     query = query.order('created_at', { ascending: false }); break
     case 'name':       query = query.order('name', { ascending: true }); break
+    default:           query = query.order('retailers_count', { ascending: false, nullsFirst: false }); break
   }
 
   query = query.range(from, to)
@@ -122,7 +123,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Search bar */}
       <div className="mb-6 max-w-2xl">
-        <SearchBar initialQuery={q} />
+        <SearchBar initialQuery={q} variant="light" />
       </div>
 
       <div className="flex gap-6">
@@ -172,9 +173,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </>
           ) : (
             <div className="text-center py-16">
-              <p className="text-4xl mb-4">🔍</p>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">No results found</h3>
-              <p className="text-gray-500 mb-4">Try a different search or browse by category.</p>
+              <h3 className="font-cormorant text-2xl text-obsidian-800 mb-2">No results found</h3>
+              <p className="text-sm text-obsidian-500 mb-6">Try a different search or browse by category.</p>
               <a href="/search" className="btn-primary inline-block">Browse all fragrances</a>
             </div>
           )}

@@ -52,13 +52,14 @@ const BRANDS = [
 ]
 
 async function getFeaturedProducts(): Promise<Product[]> {
-  const { data } = await supabase
+  const { data, error, count } = await supabase
     .from('products')
-    .select('*, brand:brands(name, slug)')
+    .select('*, brand:brands(name, slug)', { count: 'exact' })
     .eq('is_active', true)
     .not('lowest_price', 'is', null)
     .order('retailers_count', { ascending: false })
     .limit(8)
+  console.log('[homepage] products fetched:', data?.length, '| total:', count, '| error:', error?.message ?? 'none')
   return (data ?? []) as Product[]
 }
 
