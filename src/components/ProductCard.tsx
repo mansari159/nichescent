@@ -35,6 +35,14 @@ export default function ProductCard({ product }: Props) {
         <span className="absolute top-3 left-3 bg-obsidian-900/80 text-cream text-[10px] tracking-widest2 uppercase px-2.5 py-1">
           {getFragranceTypeLabel(product.fragrance_type)}
         </span>
+
+        {/* Vibe emoji badge — appears once backfill-vibes.js has been run */}
+        {product.primary_vibe_emoji && (
+          <span className="absolute top-3 right-3 bg-obsidian-900/80 text-sm px-1.5 py-0.5 rounded"
+            title={product.primary_vibe_slug?.replace(/-/g, ' ') ?? ''}>
+            {product.primary_vibe_emoji}
+          </span>
+        )}
       </div>
 
       {/* Info */}

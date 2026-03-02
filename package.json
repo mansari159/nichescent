@@ -11,6 +11,11 @@
     "scrape:lattafa": "node scripts/scrapers/lattafa.js",
     "scrape:afnan": "node scripts/scrapers/afnan.js",
     "scrape:dukhni": "node scripts/scrapers/dukhni.js",
+    "scrape:new": "node scripts/run-new-brands.js",
+    "scrape:new:dry": "node scripts/run-new-brands.js --dry-run",
+    "backfill:vibes": "node scripts/backfill-vibes.js",
+    "backfill:notes": "node scripts/backfill-notes.js",
+    "backfill:all": "node scripts/backfill-vibes.js && node scripts/backfill-notes.js",
     "rates": "node scripts/update-exchange-rates.js",
     "match": "node scripts/match-products.js"
   },

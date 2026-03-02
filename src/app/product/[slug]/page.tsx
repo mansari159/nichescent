@@ -2,8 +2,10 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import PriceTable from '@/components/PriceTable'
+import SimilarFragrances from '@/components/SimilarFragrances'
 import type { Product, PriceEntry } from '@/types'
 import { getFragranceTypeLabel, genderLabels, capitalize } from '@/lib/utils'
 
@@ -191,12 +193,17 @@ export default async function ProductPage({ params }: Props) {
           {/* Description */}
           {cleanDesc && (
             <div>
-              <h2 className="font-semibold text-gray-900 mb-2">About this fragrance</h2>
-              <p className="text-gray-600 text-sm leading-relaxed">{cleanDesc}</p>
+              <h2 className="font-semibold text-obsidian-900 mb-2">About this fragrance</h2>
+              <p className="text-obsidian-600 text-sm leading-relaxed">{cleanDesc}</p>
             </div>
           )}
         </div>
       </div>
+
+      {/* Similar fragrances */}
+      <Suspense fallback={<div className="mt-16 h-48 animate-pulse bg-obsidian-50 rounded" />}>
+        <SimilarFragrances productId={product.id} />
+      </Suspense>
     </div>
   )
 }

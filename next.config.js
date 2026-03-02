@@ -8,6 +8,15 @@ const nextConfig = {
       { protocol: 'https', hostname: '**.ajmal.com' },
       { protocol: 'https', hostname: '**.lattafa-usa.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      // New brand scrapers (Phase 1 additions)
+      { protocol: 'https', hostname: 'usaibrahimalqurashi.com' },
+      { protocol: 'https', hostname: '**.usaibrahimalqurashi.com' },
+      { protocol: 'https', hostname: 'emaratiscents.com' },
+      { protocol: 'https', hostname: '**.emaratiscents.com' },
+      { protocol: 'https', hostname: 'arabiascents.com' },
+      { protocol: 'https', hostname: '**.arabiascents.com' },
+      { protocol: 'https', hostname: 'kayaliofficial.com' },
+      { protocol: 'https', hostname: '**.kayaliofficial.com' },
     ],
   },
 }

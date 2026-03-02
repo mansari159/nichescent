@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!result) return { title: 'Brand Not Found' }
   const { brand, products } = result
   return {
-    title: `${brand.name} Fragrances — Price Comparison | NicheScent`,
+    title: `${brand.name} Fragrances — Price Comparison`,
     description: `Browse ${products.length} fragrances from ${brand.name}. Compare prices across retailers and find the best deals. ${brand.country ? `Based in ${brand.country}.` : ''}`,
   }
 }
@@ -63,7 +63,7 @@ export default async function BrandPage({ params }: Props) {
       <nav className="text-sm text-gray-400 mb-6 flex items-center gap-2">
         <Link href="/" className="hover:text-gray-600">Home</Link>
         <span>/</span>
-        <Link href="/search" className="hover:text-gray-600">All Brands</Link>
+        <Link href="/brands" className="hover:text-gray-600">All Brands</Link>
         <span>/</span>
         <span className="text-gray-700">{brand.name}</span>
       </nav>
@@ -78,7 +78,7 @@ export default async function BrandPage({ params }: Props) {
               className="h-16 w-auto object-contain"
             />
           ) : (
-            <div className="w-16 h-16 bg-navy-100 rounded-xl flex items-center justify-center text-navy-700 font-bold text-xl">
+            <div className="w-16 h-16 bg-obsidian-100 rounded-xl flex items-center justify-center text-obsidian-700 font-bold text-xl">
               {brand.name.charAt(0)}
             </div>
           )}
@@ -87,7 +87,7 @@ export default async function BrandPage({ params }: Props) {
             <div className="flex flex-wrap gap-2 items-center mb-2">
               <h1 className="text-2xl font-bold text-gray-900">{brand.name}</h1>
               {brand.region && (
-                <span className="bg-navy-100 text-navy-700 text-xs px-2.5 py-1 rounded-full font-medium">
+                <span className="bg-obsidian-100 text-obsidian-700 text-xs px-2.5 py-1 rounded-full font-medium">
                   {regionLabels[brand.region] ?? brand.region}
                 </span>
               )}

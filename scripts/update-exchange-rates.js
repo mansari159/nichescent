@@ -42,7 +42,7 @@ async function main() {
 
   // API returns rates relative to USD (e.g., 1 USD = 3.67 AED)
   // We need the inverse (1 AED = 0.272 USD)
-  const rates: Record<string, number> = {}
+  const rates = {}
   for (const currency of CURRENCIES) {
     const ratePerUSD = data.conversion_rates[currency]
     if (ratePerUSD) {
@@ -53,7 +53,7 @@ async function main() {
   await upsertRates(rates)
 }
 
-async function upsertRates(rates: Record<string, number>) {
+async function upsertRates(rates) {
   const rows = Object.entries(rates).map(([from_currency, rate]) => ({
     from_currency,
     to_currency: 'USD',

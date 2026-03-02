@@ -17,6 +17,17 @@
   }
 }
 
+@layer utilities {
+  /* Hide scrollbar while keeping scroll functionality — used by SimilarFragrances carousel */
+  .scrollbar-hide {
+    -ms-overflow-style: none;   /* IE / Edge */
+    scrollbar-width: none;      /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;              /* Chrome / Safari / Opera */
+  }
+}
+
 @layer components {
   .btn-primary {
     @apply inline-block bg-obsidian-900 text-cream text-xs tracking-widest2 uppercase px-8 py-3.5 hover:bg-obsidian-700 transition-colors duration-200;

@@ -5,7 +5,7 @@ import ProductCard from '@/components/ProductCard'
 import SearchBar from '@/components/SearchBar'
 import type { Product } from '@/types'
 
-// Category cards with Unsplash imagery
+// Category cards — replaced broken Unsplash IDs with verified working ones
 const CATEGORIES = [
   {
     name: 'Ouds',
@@ -23,13 +23,13 @@ const CATEGORIES = [
     name: 'Bakhoor',
     slug: 'bakhoor',
     subtitle: 'Incense traditions',
-    img: 'https://images.unsplash.com/photo-1547887538-047ad8c9c3a5?auto=format&fit=crop&w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1519755757-26bab8d70562?auto=format&fit=crop&w=800&q=80',
   },
   {
     name: 'Under $50',
     slug: 'under-50',
     subtitle: 'Luxury without compromise',
-    img: 'https://images.unsplash.com/photo-1541643600914-78b084683702?auto=format&fit=crop&w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80',
   },
   {
     name: 'Unisex',
@@ -43,6 +43,15 @@ const CATEGORIES = [
     subtitle: 'Recently catalogued',
     img: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=800&q=80',
   },
+]
+
+const VIBES = [
+  { name: 'Woody & Earthy',    emoji: '🌿', slug: 'woody-earthy' },
+  { name: 'Warm & Spicy',      emoji: '🔥', slug: 'warm-spicy' },
+  { name: 'Floral & Romantic', emoji: '🌹', slug: 'floral-romantic' },
+  { name: 'Smoky & Intense',   emoji: '🖤', slug: 'smoky-intense' },
+  { name: 'Sweet & Gourmand',  emoji: '🍯', slug: 'sweet-gourmand' },
+  { name: 'Fresh & Clean',     emoji: '💧', slug: 'fresh-clean' },
 ]
 
 const BRANDS = [
@@ -73,10 +82,10 @@ export default async function HomePage() {
         {/* Background image */}
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1541643600914-78b084683702?auto=format&fit=crop&w=1920&q=80"
-            alt="Luxury fragrance"
+            src="https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=1920&q=80"
+            alt="Luxury MENA fragrance"
             fill
-            className="object-cover opacity-30"
+            className="object-cover opacity-25"
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-r from-obsidian-950 via-obsidian-950/80 to-obsidian-950/40" />
@@ -84,12 +93,12 @@ export default async function HomePage() {
 
         {/* Content */}
         <div className="relative max-w-7xl mx-auto px-6 py-24">
-          <p className="label-overline text-obsidian-500 mb-6">Price Comparison for Rare Fragrances</p>
+          <p className="label-overline text-obsidian-500 mb-6">MENA Fragrance Price Comparison</p>
           <h1 className="font-serif text-5xl md:text-7xl font-light text-cream leading-tight mb-6 max-w-2xl">
-            Discover the<br />rarest scents<br />at the best price.
+            Every MENA<br />fragrance.<br />Best price.
           </h1>
           <p className="text-obsidian-400 text-lg mb-10 max-w-md leading-relaxed">
-            Track prices across 9 retailers for Arabian Oud, Lattafa, Amouage, and hundreds of niche MENA fragrances.
+            Compare prices across 9 retailers for Gissah, Assaf, Swiss Arabian, Rasasi, Ajmal, and hundreds more MENA fragrance houses — all in one place.
           </p>
 
           {/* Search */}
@@ -99,7 +108,7 @@ export default async function HomePage() {
 
           {/* Quick links */}
           <div className="flex flex-wrap gap-3 mt-8">
-            {['Oud Maattar', 'Khamrah', 'Amouage Interlude', 'Rasasi Hawas'].map(q => (
+            {['Gissah Saffron', 'Swiss Arabian Shaghaf', 'Rasasi Hawas', 'Ajmal Sacrifice'].map(q => (
               <a
                 key={q}
                 href={`/search?q=${encodeURIComponent(q)}`}
@@ -167,6 +176,30 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── Browse by Vibe ──────────────────────────── */}
+      <section className="bg-obsidian-900 py-16">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <p className="text-xs tracking-widest2 uppercase text-obsidian-500 mb-2">Find your signature</p>
+              <h2 className="font-serif text-4xl text-cream font-light">Browse by Vibe</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {VIBES.map(vibe => (
+              <Link
+                key={vibe.slug}
+                href={`/vibe/${vibe.slug}`}
+                className="group border border-obsidian-700 hover:border-gold-500 bg-obsidian-800 hover:bg-obsidian-700 p-4 text-center transition-all duration-200"
+              >
+                <span className="text-2xl block mb-2">{vibe.emoji}</span>
+                <span className="text-xs tracking-wide text-obsidian-300 group-hover:text-cream transition-colors leading-tight block">{vibe.name}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Featured products ───────────────────────── */}
       <section className="bg-parchment py-20">
         <div className="max-w-7xl mx-auto px-6">
@@ -198,16 +231,19 @@ export default async function HomePage() {
       <section className="max-w-7xl mx-auto px-6 py-20">
         <div className="flex items-end justify-between mb-10">
           <div>
-            <p className="label-overline text-obsidian-400 mb-2">Houses we cover</p>
+            <p className="text-xs tracking-widest2 uppercase text-obsidian-400 mb-2">Houses we cover</p>
             <h2 className="font-serif text-4xl text-obsidian-900 font-light">The Brands</h2>
           </div>
+          <Link href="/brands" className="text-xs tracking-widest2 uppercase text-gold-500 hover:text-gold-600 transition-colors hidden sm:block">
+            View all brands
+          </Link>
         </div>
 
         <div className="flex flex-wrap gap-2">
           {BRANDS.map(brand => (
             <Link
               key={brand}
-              href={`/search?brand=${encodeURIComponent(brand)}`}
+              href={`/brand/${brand.toLowerCase().replace(/\s+/g, '-')}`}
               className="text-sm text-obsidian-600 border border-obsidian-200 hover:border-gold-400 hover:text-obsidian-900 px-4 py-2 transition-colors"
             >
               {brand}
@@ -232,7 +268,7 @@ export default async function HomePage() {
             Niche fragrances deserve a dedicated search engine.
           </h2>
           <p className="text-obsidian-400 leading-relaxed mb-8">
-            RareTrace tracks pricing for Arabian Oud, Ajmal, Amouage, and hundreds of MENA-origin houses that mainstream fragrance sites overlook. Compare, track, and find the best price before you buy.
+            Gissah, Assaf, Swiss Arabian, Rasasi, Dukhni — MENA fragrance houses that mainstream sites ignore. RareTrace scrapes every retailer daily so you always know where to find the best price before you buy.
           </p>
           <Link href="/search" className="btn-gold">
             Start Exploring

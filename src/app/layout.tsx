@@ -21,14 +21,34 @@ export const metadata: Metadata = {
     default: 'RareTrace — Niche Fragrance Price Comparison',
     template: '%s | RareTrace',
   },
-  description: 'Search and compare prices for niche MENA fragrances across 9 retailers. Find the best deals on Arabian Oud, Lattafa, Ajmal, Amouage, and more.',
-  keywords: ['niche fragrance', 'MENA perfume', 'oud price comparison', 'Arabian Oud', 'Lattafa', 'attar'],
+  description: 'Compare prices for MENA fragrances across 9 retailers. Find the best deals on Gissah, Assaf, Swiss Arabian, Rasasi, Ajmal, and hundreds more.',
+  keywords: ['MENA fragrance', 'niche perfume', 'oud price comparison', 'Gissah', 'Assaf', 'Swiss Arabian', 'Rasasi', 'attar', 'bakhoor', 'Arabian Oud'],
+  metadataBase: new URL('https://raretrace.vercel.app'),
+  alternates: {
+    canonical: 'https://raretrace.vercel.app',
+  },
   icons: {
     icon: '/favicon.svg',
   },
   openGraph: {
     type: 'website',
     siteName: 'RareTrace',
+    title: 'RareTrace — Niche Fragrance Price Comparison',
+    description: 'Compare prices for MENA fragrances across 9 retailers. Find the best deals on rare Arabian Oud, Attars, Bakhoor and more.',
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=1200&h=630&q=80',
+        width: 1200,
+        height: 630,
+        alt: 'RareTrace — MENA Fragrance Price Comparison',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'RareTrace — Niche Fragrance Price Comparison',
+    description: 'Find the best prices on MENA fragrances across 9 retailers.',
+    images: ['https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=1200&h=630&q=80'],
   },
 }
 
@@ -48,7 +68,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="md:col-span-2">
                 <p className="font-serif text-2xl text-cream tracking-widest2 mb-4">RARETRACE</p>
                 <p className="text-sm leading-relaxed max-w-xs text-obsidian-400">
-                  The dedicated search engine for rare and niche MENA fragrances. Compare prices across 9 retailers, updated daily.
+                  The dedicated price comparison engine for MENA fragrances. Gissah, Assaf, Swiss Arabian, Rasasi, and more — compared daily across 9 retailers.
                 </p>
               </div>
               <div>
@@ -57,7 +77,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <li><a href="/category/ouds" className="hover:text-cream transition-colors">Ouds &amp; Oud Blends</a></li>
                   <li><a href="/category/attars" className="hover:text-cream transition-colors">Attars &amp; Oils</a></li>
                   <li><a href="/category/bakhoor" className="hover:text-cream transition-colors">Bakhoor &amp; Incense</a></li>
-                  <li><a href="/category/under-50" className="hover:text-cream transition-colors">Under $50</a></li>
+                  <li><a href="/notes" className="hover:text-cream transition-colors">Browse by Note</a></li>
+                  <li><a href="/brands" className="hover:text-cream transition-colors">All Brands</a></li>
                   <li><a href="/search" className="hover:text-cream transition-colors">All Fragrances</a></li>
                 </ul>
               </div>

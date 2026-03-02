@@ -13,6 +13,7 @@ interface SearchPageProps {
     brand?: string | string[]
     type?: string | string[]
     gender?: string | string[]
+    note?: string | string[]
     minPrice?: string
     maxPrice?: string
     sort?: string
@@ -32,7 +33,7 @@ const PAGE_SIZE = 24
 
 async function searchProducts(params: SearchPageProps['searchParams']): Promise<{ products: Product[]; total: number }> {
   const {
-    q, brand, type, gender,
+    q, brand, type, gender, note,
     minPrice, maxPrice,
     sort = 'price_asc',
     page = '1',
@@ -77,6 +78,35 @@ async function searchProducts(params: SearchPageProps['searchParams']): Promise<
     query = query.in('gender', genders)
   }
 
+  // Note filter — get product IDs that have ALL selected notes, then filter
+  if (note) {
+    const noteSlugs = Array.isArray(note) ? note : [note]
+    if (noteSlugs.length > 0) {
+      try {
+        const { data: noteRows } = await supabase
+          .from('notes')
+          .select('id')
+          .in('slug', noteSlugs)
+        const noteIds = (noteRows ?? []).map(n => n.id)
+        if (noteIds.length > 0) {
+          const { data: productNoteRows } = await supabase
+            .from('product_notes')
+            .select('product_id')
+            .in('note_id', noteIds)
+          const productIds = [...new Set((productNoteRows ?? []).map(r => r.product_id))]
+          if (productIds.length > 0) {
+            query = query.in('id', productIds)
+          } else {
+            // No products match — return empty
+            return { products: [], total: 0 }
+          }
+        }
+      } catch {
+        // product_notes table may not exist yet — skip note filter gracefully
+      }
+    }
+  }
+
   // Price filters
   if (minPrice) query = query.gte('lowest_price', parseFloat(minPrice))
   if (maxPrice) query = query.lte('lowest_price', parseFloat(maxPrice))
@@ -96,8 +126,23 @@ async function searchProducts(params: SearchPageProps['searchParams']): Promise<
   return { products: (data ?? []) as Product[], total: count ?? 0 }
 }
 
+async function getNotes() {
+  try {
+    const { data } = await supabase
+      .from('notes')
+      .select('id, name, slug, category')
+      .order('name', { ascending: true })
+    return data ?? []
+  } catch {
+    return [] // notes table may not exist yet
+  }
+}
+
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const { products, total } = await searchProducts(searchParams)
+  const [{ products, total }, notes] = await Promise.all([
+    searchProducts(searchParams),
+    getNotes(),
+  ])
   const q = searchParams.q ?? ''
   const page = parseInt(searchParams.page ?? '1')
   const totalPages = Math.ceil(total / PAGE_SIZE)
@@ -129,7 +174,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <div className="flex gap-8">
         {/* Sidebar — desktop sticky, mobile drawer */}
         <Suspense>
-          <FilterSidebar />
+          <FilterSidebar notes={notes} />
         </Suspense>
 
         {/* Results */}

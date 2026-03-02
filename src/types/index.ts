@@ -42,7 +42,29 @@ export interface Product {
   lowest_price: number | null
   retailers_count: number
   created_at: string
+  updated_at?: string
+  // Vibe columns — populated after running backfill-vibes.js
+  primary_vibe_slug?: string | null
+  primary_vibe_emoji?: string | null
   current_prices?: PriceEntry[]
+}
+
+export interface Vibe {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  emoji: string
+  color_hex: string
+  display_order: number
+}
+
+export interface Note {
+  id: string
+  name: string
+  slug: string
+  category: string
+  description: string | null
 }
 
 export interface PriceEntry {

@@ -1,10 +1,12 @@
 'use client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState, useEffect } from 'react'
+import NoteFilter from './NoteFilter'
 
 const BRANDS = [
-  'Arabian Oud', 'Ajmal', 'Swiss Arabian', 'Rasasi', 'Al Haramain',
-  'Lattafa', 'Afnan', 'Armaf', 'Al Rehab', 'Nabeel', 'Amouage', 'Dukhni',
+  'Gissah', 'Assaf', 'Dukhni', 'Swiss Arabian',
+  'Al Haramain', 'Rasasi', 'Ajmal', 'Afnan',
+  'Arabian Oud', 'Amouage', 'Lattafa', 'Al Rehab', 'Armaf', 'Nabeel',
 ]
 
 const TYPES = [
@@ -19,7 +21,10 @@ const GENDERS = [
   { value: 'unisex', label: 'Unisex' },
 ]
 
-export default function FilterSidebar() {
+interface Note { id: string; name: string; slug: string; category: string }
+interface FilterSidebarProps { notes?: Note[] }
+
+export default function FilterSidebar({ notes = [] }: FilterSidebarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -27,10 +32,11 @@ export default function FilterSidebar() {
   const currentBrands = searchParams.getAll('brand')
   const currentTypes = searchParams.getAll('type')
   const currentGenders = searchParams.getAll('gender')
+  const currentNotes = searchParams.getAll('note')
   const minPrice = searchParams.get('minPrice') ?? ''
   const maxPrice = searchParams.get('maxPrice') ?? ''
 
-  const activeCount = currentBrands.length + currentTypes.length + currentGenders.length + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0)
+  const activeCount = currentBrands.length + currentTypes.length + currentGenders.length + currentNotes.length + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0)
 
   // Lock body scroll when drawer open on mobile
   useEffect(() => {
@@ -121,6 +127,13 @@ export default function FilterSidebar() {
           ))}
         </div>
       </div>
+
+      {/* Notes */}
+      {notes.length > 0 && (
+        <div>
+          <NoteFilter notes={notes} />
+        </div>
+      )}
     </div>
   )
 
