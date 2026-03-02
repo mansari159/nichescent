@@ -200,6 +200,7 @@ async function main() {
   console.log(`Processing ${listings.length} pending listings...\n`)
 
   let matched = 0, created = 0, skipped = 0
+const newProductIds = []
 
   for (const listing of listings) {
     // Skip non-fragrance products
@@ -256,6 +257,7 @@ async function main() {
 
       if (!error && newProduct) {
         productId = newProduct.id
+        newProductIds.push(newProduct.id)
         // Add new product to the brand-scoped Fuse index
         const newEntry = { id: newProduct.id, name: listing.raw_name, slug, brand_id: brandId }
         const fuseKey = brandId ?? '__unknown__'
@@ -312,6 +314,71 @@ if (rpcError) {
     console.warn('refresh_product_stats failed:', rpcError.message)
   }
 }
+
+  // ── Auto-tag vibes for newly created products ────────────────────────────────
+  if (newProductIds.length > 0) {
+    console.log(`\n🌿 Tagging vibes for ${newProductIds.length} new product(s)...`)
+
+    const VIBE_RULES = [
+      { slug: 'woody-earthy',     keywords: ['oud','agarwood','sandalwood','cedar','vetiver','patchouli','wood','earthy','bakhoor','dehn','kalimat','incense'] },
+      { slug: 'warm-spicy',       keywords: ['saffron','amber','cardamom','cinnamon','spic','oriental','warm','pepper','clove','nutmeg','shaghaf','khaltat'] },
+      { slug: 'floral-romantic',  keywords: ['rose','jasmine','floral','flower','neroli','tuberose','orange blossom','peony','ylang','romantic','feminine','women'] },
+      { slug: 'sweet-gourmand',   keywords: ['vanilla','tonka','caramel','honey','sweet','gourmand','candy','sugar','praline','chocolate','musk'] },
+      { slug: 'smoky-intense',    keywords: ['leather','tobacco','smoke','intense','dark','noir','oud intense','extreme','black','midnight','tar','labdanum'] },
+      { slug: 'fresh-clean',      keywords: ['citrus','bergamot','lemon','lime','aquatic','fresh','clean','grapefruit','marine','green','mint','lavender'] },
+    ]
+
+    function scoreProduct(product) {
+      const text = [
+        product.name ?? '',
+        product.description ?? '',
+        ...(product.notes_top ?? []),
+        ...(product.notes_mid ?? []),
+        ...(product.notes_base ?? []),
+        ...(product.category_tags ?? []),
+      ].join(' ').toLowerCase()
+
+      return VIBE_RULES
+        .map(rule => ({ slug: rule.slug, score: rule.keywords.filter(kw => text.includes(kw)).length }))
+        .filter(r => r.score > 0)
+        .sort((a, b) => b.score - a.score)
+    }
+
+    const { data: vibes } = await supabase.from('vibes').select('id, slug, emoji')
+    const vibeMap = Object.fromEntries((vibes ?? []).map(v => [v.slug, v]))
+
+    const { data: newProds } = await supabase
+      .from('products')
+      .select('id, name, description, notes_top, notes_mid, notes_base, category_tags')
+      .in('id', newProductIds)
+
+    let vibeTagged = 0
+    for (const product of newProds ?? []) {
+      const scored = scoreProduct(product)
+      if (scored.length === 0) continue
+
+      const rows = []
+      const primaryVibe = vibeMap[scored[0].slug]
+      if (primaryVibe) rows.push({ product_id: product.id, vibe_id: primaryVibe.id, strength: 'primary' })
+      if (scored.length > 1) {
+        const secondaryVibe = vibeMap[scored[1].slug]
+        if (secondaryVibe) rows.push({ product_id: product.id, vibe_id: secondaryVibe.id, strength: 'secondary' })
+      }
+
+      if (rows.length > 0) {
+        await supabase.from('product_vibes').upsert(rows, { onConflict: 'product_id,vibe_id' })
+        if (primaryVibe) {
+          await supabase.from('products').update({
+            primary_vibe_slug: scored[0].slug,
+            primary_vibe_emoji: primaryVibe.emoji,
+          }).eq('id', product.id)
+        }
+        vibeTagged++
+      }
+    }
+
+    console.log(`  ✓ Vibes tagged: ${vibeTagged}/${newProductIds.length}`)
+  }
 
   console.log(`\n✓ Done!`)
   console.log(`  Matched:  ${matched}`)
