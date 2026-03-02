@@ -21,8 +21,11 @@ export const metadata: Metadata = {
     default: 'RareTrace — Niche Fragrance Price Comparison',
     template: '%s | RareTrace',
   },
-  description: 'Search and compare prices for niche MENA fragrances across 20+ retailers. Find the best deals on Arabian Oud, Lattafa, Ajmal, Amouage, and more.',
+  description: 'Search and compare prices for niche MENA fragrances across 9 retailers. Find the best deals on Arabian Oud, Lattafa, Ajmal, Amouage, and more.',
   keywords: ['niche fragrance', 'MENA perfume', 'oud price comparison', 'Arabian Oud', 'Lattafa', 'attar'],
+  icons: {
+    icon: '/favicon.svg',
+  },
   openGraph: {
     type: 'website',
     siteName: 'RareTrace',
@@ -45,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="md:col-span-2">
                 <p className="font-serif text-2xl text-cream tracking-widest2 mb-4">RARETRACE</p>
                 <p className="text-sm leading-relaxed max-w-xs text-obsidian-400">
-                  The dedicated search engine for rare and niche MENA fragrances. Compare prices across 20+ retailers, updated daily.
+                  The dedicated search engine for rare and niche MENA fragrances. Compare prices across 9 retailers, updated daily.
                 </p>
               </div>
               <div>

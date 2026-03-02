@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!result) return { title: 'Category Not Found' }
   const { category, products } = result
   return {
-    title: `${category.name} — Fragrance Price Comparison | NicheScent`,
+    title: `${category.name} — Fragrance Price Comparison`,
     description: `${category.description ?? `Browse ${category.name} fragrances.`} Compare prices across retailers. ${products.length} fragrances available.`,
   }
 }
@@ -92,13 +92,14 @@ export default async function CategoryPage({ params }: Props) {
       </nav>
 
       {/* Category Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{category.name}</h1>
+      <div className="mb-10">
+        <p className="text-xs tracking-widest uppercase text-obsidian-400 mb-2">Collection</p>
+        <h1 className="font-serif text-4xl text-obsidian-900 font-light mb-2">{category.name}</h1>
         {category.description && (
-          <p className="text-gray-600">{category.description}</p>
+          <p className="text-obsidian-500 text-sm">{category.description}</p>
         )}
         {products.length > 0 && (
-          <p className="text-sm text-gray-400 mt-1">{products.length} fragrances</p>
+          <p className="text-xs text-obsidian-400 mt-2">{products.length} fragrances</p>
         )}
       </div>
 

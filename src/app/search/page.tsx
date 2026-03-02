@@ -23,8 +23,8 @@ interface SearchPageProps {
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
   const q = searchParams.q
   return {
-    title: q ? `"${q}" — Niche Fragrance Search` : 'Search Niche Fragrances',
-    description: `Search and compare prices for ${q ?? 'niche MENA fragrances'} across 20+ retailers.`,
+    title: q ? `"${q}" — Search Results` : 'All Fragrances',
+    description: `Search and compare prices for ${q ?? 'niche MENA fragrances'} across multiple retailers. Find the best deal, updated daily.`,
   }
 }
 
@@ -52,7 +52,7 @@ async function searchProducts(params: SearchPageProps['searchParams']): Promise<
     query = query.textSearch('search_vector', q.trim(), { type: 'websearch' })
   }
 
-  // Brand filter — must resolve brand names → IDs first (can't filter on joined cols)
+  // Brand filter — resolve brand names → IDs first
   if (brand) {
     const brandNames = Array.isArray(brand) ? brand : [brand]
     const { data: brandRows } = await supabase
@@ -126,22 +126,22 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <SearchBar initialQuery={q} variant="light" />
       </div>
 
-      <div className="flex gap-6">
-        {/* Sidebar */}
+      <div className="flex gap-8">
+        {/* Sidebar — desktop sticky, mobile drawer */}
         <Suspense>
           <FilterSidebar />
         </Suspense>
 
         {/* Results */}
         <div className="flex-1 min-w-0">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-gray-600">
+          {/* Header row */}
+          <div className="flex items-center justify-between mb-5">
+            <p className="text-sm text-obsidian-500">
               {total > 0
-                ? <><span className="font-semibold">{total}</span> fragrances{q ? ` for "${q}"` : ''}</>
-                : q ? `No results for "${q}"` : 'All fragrances'}
+                ? <><span className="font-medium text-obsidian-800">{total.toLocaleString()}</span> {total === 1 ? 'fragrance' : 'fragrances'}{q ? <> for <span className="italic">&ldquo;{q}&rdquo;</span></> : ''}</>
+                : q ? <>No results for <span className="italic">&ldquo;{q}&rdquo;</span></> : 'All fragrances'
+              }
             </p>
-
             <SortSelect value={searchParams.sort ?? 'price_asc'} />
           </div>
 
@@ -154,17 +154,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-8">
+                <div className="flex items-center justify-center gap-2 mt-10">
                   {page > 1 && (
                     <a href={buildPageUrl(page - 1)}
-                      className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:border-gold-400 transition-colors">
+                      className="px-4 py-2 text-sm border border-obsidian-200 text-obsidian-600 hover:border-gold-400 hover:text-obsidian-900 transition-colors">
                       ← Prev
                     </a>
                   )}
-                  <span className="text-sm text-gray-500">Page {page} of {totalPages}</span>
+                  <span className="text-sm text-obsidian-400 px-2">Page {page} of {totalPages}</span>
                   {page < totalPages && (
                     <a href={buildPageUrl(page + 1)}
-                      className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:border-gold-400 transition-colors">
+                      className="px-4 py-2 text-sm border border-obsidian-200 text-obsidian-600 hover:border-gold-400 hover:text-obsidian-900 transition-colors">
                       Next →
                     </a>
                   )}
@@ -172,10 +172,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               )}
             </>
           ) : (
-            <div className="text-center py-16">
-              <h3 className="font-cormorant text-2xl text-obsidian-800 mb-2">No results found</h3>
-              <p className="text-sm text-obsidian-500 mb-6">Try a different search or browse by category.</p>
-              <a href="/search" className="btn-primary inline-block">Browse all fragrances</a>
+            <div className="text-center py-20 border border-obsidian-100 bg-white">
+              <p className="font-serif text-2xl text-obsidian-400 font-light mb-3">No results found</p>
+              <p className="text-sm text-obsidian-400 mb-6">Try a different search term or clear your filters.</p>
+              <a href="/search" className="text-xs tracking-widest uppercase border border-obsidian-300 text-obsidian-600 px-6 py-3 hover:border-gold-400 hover:text-obsidian-900 transition-colors inline-block">
+                Browse all fragrances
+              </a>
             </div>
           )}
         </div>

@@ -26,8 +26,8 @@ const CATEGORIES = [
     img: 'https://images.unsplash.com/photo-1547887538-047ad8c9c3a5?auto=format&fit=crop&w=800&q=80',
   },
   {
-    name: 'Under $30',
-    slug: 'under-30',
+    name: 'Under $50',
+    slug: 'under-50',
     subtitle: 'Luxury without compromise',
     img: 'https://images.unsplash.com/photo-1541643600914-78b084683702?auto=format&fit=crop&w=800&q=80',
   },
@@ -52,14 +52,13 @@ const BRANDS = [
 ]
 
 async function getFeaturedProducts(): Promise<Product[]> {
-  const { data, error, count } = await supabase
+  const { data } = await supabase
     .from('products')
-    .select('*, brand:brands(name, slug)', { count: 'exact' })
+    .select('*, brand:brands(name, slug)')
     .eq('is_active', true)
     .not('lowest_price', 'is', null)
     .order('retailers_count', { ascending: false })
     .limit(8)
-  console.log('[homepage] products fetched:', data?.length, '| total:', count, '| error:', error?.message ?? 'none')
   return (data ?? []) as Product[]
 }
 
@@ -90,7 +89,7 @@ export default async function HomePage() {
             Discover the<br />rarest scents<br />at the best price.
           </h1>
           <p className="text-obsidian-400 text-lg mb-10 max-w-md leading-relaxed">
-            Track prices across 20+ retailers for Arabian Oud, Lattafa, Amouage, and hundreds of niche MENA fragrances.
+            Track prices across 9 retailers for Arabian Oud, Lattafa, Amouage, and hundreds of niche MENA fragrances.
           </p>
 
           {/* Search */}
@@ -117,8 +116,8 @@ export default async function HomePage() {
       <section className="bg-obsidian-900 border-b border-obsidian-800">
         <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap justify-center md:justify-between gap-6 text-center md:text-left">
           {[
-            ['20+ Retailers', 'Compared daily'],
-            ['500+ Fragrances', 'From MENA brands'],
+            ['9 Retailers', 'Scraped daily'],
+            ['450+ Fragrances', 'From MENA brands'],
             ['Always Free', 'No sign-up required'],
           ].map(([title, sub]) => (
             <div key={title} className="flex items-center gap-3">

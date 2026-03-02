@@ -40,12 +40,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+/** Strip the raw "Top Notes X Middle Notes Y Base Notes Z" appended at end of scraped descriptions */
+function cleanDescription(desc: string | null): string | null {
+  if (!desc) return null
+  // Find where the raw notes dump starts (second occurrence of "Top Notes" or "Top notes")
+  const rawStart = desc.search(/\.\s+Top Notes\s/i)
+  if (rawStart > 0) return desc.slice(0, rawStart + 1).trim()
+  return desc.trim()
+}
+
 export default async function ProductPage({ params }: Props) {
   const product = await getProduct(params.slug)
   if (!product) notFound()
 
   const brand = product.brand
   const allNotes = [...product.notes_top, ...product.notes_mid, ...product.notes_base]
+  const cleanDesc = cleanDescription(product.description)
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -66,14 +76,14 @@ export default async function ProductPage({ params }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Left: Image */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-8 flex items-center justify-center aspect-square">
+        <div className="bg-parchment border border-obsidian-100 flex items-center justify-center aspect-square">
           {product.image_url ? (
             <Image
               src={product.image_url}
               alt={product.name}
-              width={400}
-              height={400}
-              className="object-contain max-h-80"
+              width={500}
+              height={500}
+              className="object-contain w-full h-full p-8"
             />
           ) : (
             <div className="text-gray-200 text-center">
@@ -96,17 +106,17 @@ export default async function ProductPage({ params }: Props) {
                 {brand.name}
               </Link>
             )}
-            <h1 className="text-3xl font-bold text-gray-900 mt-1">{product.name}</h1>
+            <h1 className="font-serif text-4xl font-light text-obsidian-900 mt-1 leading-tight">{product.name}</h1>
 
-            <div className="flex flex-wrap gap-2 mt-3">
-              <span className="bg-navy-100 text-navy-700 text-xs px-2.5 py-1 rounded-full font-medium">
+            <div className="flex flex-wrap gap-2 mt-4">
+              <span className="bg-obsidian-900 text-cream text-[10px] tracking-widest uppercase px-3 py-1">
                 {getFragranceTypeLabel(product.fragrance_type)}
               </span>
-              <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">
+              <span className="border border-obsidian-200 text-obsidian-600 text-[10px] tracking-widest uppercase px-3 py-1">
                 {genderLabels[product.gender] ?? product.gender}
               </span>
               {product.size_ml && (
-                <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">
+                <span className="border border-obsidian-200 text-obsidian-600 text-[10px] tracking-widest uppercase px-3 py-1">
                   {product.size_ml}ml
                 </span>
               )}
@@ -115,12 +125,12 @@ export default async function ProductPage({ params }: Props) {
 
           {/* Price summary */}
           {product.current_prices.length > 0 && (
-            <div className="bg-green-50 border border-green-100 rounded-xl p-4">
-              <p className="text-sm text-green-700">Best current price</p>
-              <p className="text-3xl font-bold text-green-800">
+            <div className="border-l-2 border-gold-500 pl-4 py-1">
+              <p className="text-xs tracking-widest uppercase text-obsidian-400 mb-1">Best current price</p>
+              <p className="font-serif text-4xl font-light text-obsidian-900">
                 ${product.current_prices[0]?.price_usd?.toFixed(2)}
               </p>
-              <p className="text-sm text-green-600 mt-0.5">
+              <p className="text-sm text-obsidian-500 mt-1">
                 at {product.current_prices[0]?.retailer?.name}
               </p>
             </div>
@@ -179,10 +189,10 @@ export default async function ProductPage({ params }: Props) {
           )}
 
           {/* Description */}
-          {product.description && (
+          {cleanDesc && (
             <div>
               <h2 className="font-semibold text-gray-900 mb-2">About this fragrance</h2>
-              <p className="text-gray-600 text-sm leading-relaxed">{product.description}</p>
+              <p className="text-gray-600 text-sm leading-relaxed">{cleanDesc}</p>
             </div>
           )}
         </div>

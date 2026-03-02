@@ -45,15 +45,25 @@ function toUSD(price, currency = 'USD') {
 // ── Non-fragrance filter ──────────────────────────────────────────────────────
 
 const NON_FRAGRANCE_KEYWORDS = [
-  'candle', 'diffuser', 'room spray', 'reed diffuser', 'wax melt',
+  // Home / wax
+  'candle', 'reed diffuser', 'wax melt', 'room spray', 'car freshener',
+  'carpet freshener', 'fabric spray', 'laundry',
+  // Body / skincare
   'body lotion', 'body cream', 'body wash', 'shower gel', 'hand cream',
-  'lip balm', 'face cream', 'moisturizer', 'serum',
+  'lip balm', 'face cream', 'moisturizer', 'serum', 'hair oil', 'hair perfume',
+  // Sets & bundles
   'gift set', 'gift box', 'gift bag', 'sample set', 'discovery set',
+  ' set |', '| set', 'sublime set', 'luxury set', 'collection set',
+  // Accessories / hardware
   'bag', 'pouch', 'wallet', 'keychain', 'accessory', 'accessories',
   'bottle stopper', 'funnel', 'atomizer refill', 'empty bottle',
-  'incense stick', 'incense cone', 'charcoal', 'burner', 'bakhoor burner',
-  'carpet freshener', 'fabric spray', 'laundry',
-  't-shirt', 'mug', 'notebook',
+  'oil burner', 'bakhoor burner', 'incense burner', 'diffuser burner',
+  'burner with', 'with burner', 'with free oil',
+  'incense stick', 'incense cone', 'charcoal',
+  // Fashion / merch
+  't-shirt', 'mug', 'notebook', 'sunglasses', 'eyewear', 'glasses',
+  // Air fresheners (distinct from personal fragrance)
+  'air freshener', 'air freshner', 'freshener spray',
 ]
 
 function isFragrance(name = '', productType = '', tags = '') {
