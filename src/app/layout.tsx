@@ -77,7 +77,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 &copy; {new Date().getFullYear()} RareTrace. All rights reserved.
               </p>
               <p className="text-xs text-obsidian-600 text-center">
-                We earn commissions on purchases made through our links. Prices updated daily and may vary.
+                We earn commissions on purchases made through our links. Prices updated daily and may vary.{' '}
+                <a href="/affiliate-disclosure" className="underline hover:text-obsidian-400 transition-colors">Learn more</a>
               </p>
             </div>
           </div>
