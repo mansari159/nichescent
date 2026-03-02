@@ -93,7 +93,7 @@ async function searchProducts(params: SearchPageProps['searchParams']): Promise<
             .from('product_notes')
             .select('product_id')
             .in('note_id', noteIds)
-          const productIds = [...new Set((productNoteRows ?? []).map(r => r.product_id))]
+          const productIds = Array.from(new Set((productNoteRows ?? []).map(r => r.product_id)))
           if (productIds.length > 0) {
             query = query.in('id', productIds)
           } else {
