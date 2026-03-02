@@ -5,43 +5,49 @@ import ProductCard from '@/components/ProductCard'
 import SearchBar from '@/components/SearchBar'
 import type { Product } from '@/types'
 
-// Category cards — replaced broken Unsplash IDs with verified working ones
+// Category cards — all IDs verified via Unsplash search Jan 2026
 const CATEGORIES = [
   {
     name: 'Ouds',
     slug: 'ouds',
     subtitle: 'The essence of the East',
-    img: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80',
+    // Dark perfume bottle (obsidian elixir) on a pedestal — moody, fits oud aesthetic
+    img: 'https://images.unsplash.com/photo-1772191399367-91ed8d95664b?auto=format&fit=crop&w=800&q=80',
   },
   {
     name: 'Attars',
     slug: 'attars',
     subtitle: 'Pure oil concentrates',
-    img: 'https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=800&q=80',
+    // Small glass attar vials on a wooden shelf — traditional feel
+    img: 'https://images.unsplash.com/photo-1598193681146-3835eeaea11f?auto=format&fit=crop&w=800&q=80',
   },
   {
     name: 'Bakhoor',
     slug: 'bakhoor',
     subtitle: 'Incense traditions',
-    img: 'https://images.unsplash.com/photo-1519755757-26bab8d70562?auto=format&fit=crop&w=800&q=80',
+    // Small Arabic incense burner on a rug with smoke curling up — perfect
+    img: 'https://images.unsplash.com/photo-1684039568465-24c31d0cc80f?auto=format&fit=crop&w=800&q=80',
   },
   {
     name: 'Under $50',
     slug: 'under-50',
     subtitle: 'Luxury without compromise',
-    img: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80',
+    // Elegant perfume bottle on a minimal stand — no brand visible
+    img: 'https://images.unsplash.com/photo-1647507653704-bde7f2d6dbf0?auto=format&fit=crop&w=800&q=80',
   },
   {
     name: 'Unisex',
     slug: 'unisex',
     subtitle: 'Beyond convention',
-    img: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?auto=format&fit=crop&w=800&q=80',
+    // Minimalist perfume bottle with cork stopper on stone — clean, neutral
+    img: 'https://images.unsplash.com/photo-1768025719875-48ed072f3084?auto=format&fit=crop&w=800&q=80',
   },
   {
     name: 'New Arrivals',
     slug: 'new-arrivals',
     subtitle: 'Recently catalogued',
-    img: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=800&q=80',
+    // Warm amber perfume bottle on a table — fresh, inviting
+    img: 'https://images.unsplash.com/photo-1737920459846-2d0318700658?auto=format&fit=crop&w=800&q=80',
   },
 ]
 
