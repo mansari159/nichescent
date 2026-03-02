@@ -3,28 +3,40 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState, useEffect } from 'react'
 import NoteFilter from './NoteFilter'
 
-const BRANDS = [
-  'Gissah', 'Assaf', 'Dukhni', 'Swiss Arabian',
-  'Al Haramain', 'Rasasi', 'Ajmal', 'Afnan',
-  'Arabian Oud', 'Amouage', 'Lattafa', 'Al Rehab', 'Armaf', 'Nabeel',
-]
+// Maps raw DB fragrance_type values to friendly display labels
+const TYPE_LABELS: Record<string, string> = {
+  edp: 'Eau de Parfum',
+  edt: 'Eau de Toilette',
+  parfum: 'Parfum / Extrait',
+  attar: 'Attar / Oil',
+  oil: 'Perfume Oil',
+  bakhoor: 'Bakhoor',
+  'body-mist': 'Body Mist',
+  cologne: 'Cologne',
+  concentrate: 'Concentrate',
+}
+const formatType = (v: string) =>
+  TYPE_LABELS[v.toLowerCase()] ?? v.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
-const TYPES = [
-  { value: 'attar', label: 'Attar / Oil' },
-  { value: 'bakhoor', label: 'Bakhoor' },
-  { value: 'body-mist', label: 'Body Mist' },
-]
-
-const GENDERS = [
-  { value: 'men', label: 'Men' },
-  { value: 'women', label: 'Women' },
-  { value: 'unisex', label: 'Unisex' },
-]
+// Maps raw DB gender values to friendly display labels
+const GENDER_LABELS: Record<string, string> = {
+  men: 'Men', male: 'Men', masculine: 'Men',
+  women: 'Women', female: 'Women', feminine: 'Women',
+  unisex: 'Unisex', 'for him': 'Men', 'for her': 'Women',
+}
+const formatGender = (v: string) =>
+  GENDER_LABELS[v.toLowerCase()] ?? v.replace(/\b\w/g, c => c.toUpperCase())
 
 interface Note { id: string; name: string; slug: string; category: string }
-interface FilterSidebarProps { notes?: Note[] }
+interface FilterBrand { id: string; name: string; slug: string }
+interface FilterSidebarProps {
+  notes?: Note[]
+  brands?: FilterBrand[]
+  types?: string[]
+  genders?: string[]
+}
 
-export default function FilterSidebar({ notes = [] }: FilterSidebarProps) {
+export default function FilterSidebar({ notes = [], brands = [], types = [], genders = [] }: FilterSidebarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -84,49 +96,55 @@ export default function FilterSidebar({ notes = [] }: FilterSidebarProps) {
       </div>
 
       {/* Format */}
-      <div>
-        <h3 className="text-xs tracking-widest uppercase text-obsidian-500 mb-3">Format</h3>
-        <div className="space-y-2.5">
-          {TYPES.map(t => (
-            <label key={t.value} className="flex items-center gap-2.5 cursor-pointer group">
-              <input type="checkbox" checked={currentTypes.includes(t.value)}
-                onChange={e => updateParam('type', t.value, e.target.checked)}
-                className="w-3.5 h-3.5 rounded-none border-obsidian-300 text-gold-500 focus:ring-gold-400 focus:ring-offset-0" />
-              <span className="text-sm text-obsidian-600 group-hover:text-obsidian-900 transition-colors">{t.label}</span>
-            </label>
-          ))}
+      {types.length > 0 && (
+        <div>
+          <h3 className="text-xs tracking-widest uppercase text-obsidian-500 mb-3">Format</h3>
+          <div className="space-y-2.5">
+            {types.map(t => (
+              <label key={t} className="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" checked={currentTypes.includes(t)}
+                  onChange={e => updateParam('type', t, e.target.checked)}
+                  className="w-3.5 h-3.5 rounded-none border-obsidian-300 text-gold-500 focus:ring-gold-400 focus:ring-offset-0" />
+                <span className="text-sm text-obsidian-600 group-hover:text-obsidian-900 transition-colors">{formatType(t)}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* For */}
-      <div>
-        <h3 className="text-xs tracking-widest uppercase text-obsidian-500 mb-3">For</h3>
-        <div className="space-y-2.5">
-          {GENDERS.map(g => (
-            <label key={g.value} className="flex items-center gap-2.5 cursor-pointer group">
-              <input type="checkbox" checked={currentGenders.includes(g.value)}
-                onChange={e => updateParam('gender', g.value, e.target.checked)}
-                className="w-3.5 h-3.5 rounded-none border-obsidian-300 text-gold-500 focus:ring-gold-400 focus:ring-offset-0" />
-              <span className="text-sm text-obsidian-600 group-hover:text-obsidian-900 transition-colors">{g.label}</span>
-            </label>
-          ))}
+      {genders.length > 0 && (
+        <div>
+          <h3 className="text-xs tracking-widest uppercase text-obsidian-500 mb-3">For</h3>
+          <div className="space-y-2.5">
+            {genders.map(g => (
+              <label key={g} className="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" checked={currentGenders.includes(g)}
+                  onChange={e => updateParam('gender', g, e.target.checked)}
+                  className="w-3.5 h-3.5 rounded-none border-obsidian-300 text-gold-500 focus:ring-gold-400 focus:ring-offset-0" />
+                <span className="text-sm text-obsidian-600 group-hover:text-obsidian-900 transition-colors">{formatGender(g)}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Brand */}
-      <div>
-        <h3 className="text-xs tracking-widest uppercase text-obsidian-500 mb-3">Brand</h3>
-        <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
-          {BRANDS.map(b => (
-            <label key={b} className="flex items-center gap-2.5 cursor-pointer group">
-              <input type="checkbox" checked={currentBrands.includes(b)}
-                onChange={e => updateParam('brand', b, e.target.checked)}
-                className="w-3.5 h-3.5 rounded-none border-obsidian-300 text-gold-500 focus:ring-gold-400 focus:ring-offset-0" />
-              <span className="text-sm text-obsidian-600 group-hover:text-obsidian-900 transition-colors">{b}</span>
-            </label>
-          ))}
+      {brands.length > 0 && (
+        <div>
+          <h3 className="text-xs tracking-widest uppercase text-obsidian-500 mb-3">Brand</h3>
+          <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+            {brands.map(b => (
+              <label key={b.slug} className="flex items-center gap-2.5 cursor-pointer group">
+                <input type="checkbox" checked={currentBrands.includes(b.slug)}
+                  onChange={e => updateParam('brand', b.slug, e.target.checked)}
+                  className="w-3.5 h-3.5 rounded-none border-obsidian-300 text-gold-500 focus:ring-gold-400 focus:ring-offset-0" />
+                <span className="text-sm text-obsidian-600 group-hover:text-obsidian-900 transition-colors">{b.name}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Notes */}
       {notes.length > 0 && (

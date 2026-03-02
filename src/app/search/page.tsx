@@ -53,16 +53,19 @@ async function searchProducts(params: SearchPageProps['searchParams']): Promise<
     query = query.textSearch('search_vector', q.trim(), { type: 'websearch' })
   }
 
-  // Brand filter — resolve brand names → IDs first
+  // Brand filter — resolve brand slugs → IDs
   if (brand) {
-    const brandNames = Array.isArray(brand) ? brand : [brand]
+    const brandSlugs = Array.isArray(brand) ? brand : [brand]
     const { data: brandRows } = await supabase
       .from('brands')
       .select('id')
-      .in('name', brandNames)
+      .in('slug', brandSlugs)
     const brandIds = (brandRows ?? []).map(b => b.id)
     if (brandIds.length) {
       query = query.in('brand_id', brandIds)
+    } else {
+      // Slugs didn't match — return empty rather than ignoring the filter
+      return { products: [], total: 0 }
     }
   }
 
@@ -134,14 +137,49 @@ async function getNotes() {
       .order('name', { ascending: true })
     return data ?? []
   } catch {
-    return [] // notes table may not exist yet
+    return []
   }
 }
 
+async function getFilterOptions() {
+  const [brandsRes, typesRes, gendersRes] = await Promise.all([
+    // All brands that have at least one active product
+    supabase
+      .from('brands')
+      .select('id, name, slug')
+      .order('name', { ascending: true }),
+    // Distinct fragrance_type values actually present in active products
+    supabase
+      .from('products')
+      .select('fragrance_type')
+      .eq('is_active', true)
+      .not('fragrance_type', 'is', null),
+    // Distinct gender values actually present in active products
+    supabase
+      .from('products')
+      .select('gender')
+      .eq('is_active', true)
+      .not('gender', 'is', null),
+  ])
+
+  const brands = (brandsRes.data ?? []) as Array<{ id: string; name: string; slug: string }>
+
+  const types = Array.from(
+    new Set((typesRes.data ?? []).map(p => p.fragrance_type).filter(Boolean))
+  ).sort() as string[]
+
+  const genders = Array.from(
+    new Set((gendersRes.data ?? []).map(p => p.gender).filter(Boolean))
+  ).sort() as string[]
+
+  return { brands, types, genders }
+}
+
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const [{ products, total }, notes] = await Promise.all([
+  const [{ products, total }, notes, filterOptions] = await Promise.all([
     searchProducts(searchParams),
     getNotes(),
+    getFilterOptions(),
   ])
   const q = searchParams.q ?? ''
   const page = parseInt(searchParams.page ?? '1')
@@ -174,7 +212,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <div className="flex gap-8">
         {/* Sidebar — desktop sticky, mobile drawer */}
         <Suspense>
-          <FilterSidebar notes={notes} />
+          <FilterSidebar
+            notes={notes}
+            brands={filterOptions.brands}
+            types={filterOptions.types}
+            genders={filterOptions.genders}
+          />
         </Suspense>
 
         {/* Results */}
