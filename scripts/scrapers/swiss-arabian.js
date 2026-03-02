@@ -14,7 +14,7 @@ const CONFIG = {
 async function scrapeSwissArabian() {
   console.log('▶ Swiss Arabian scraper starting...')
   const raw = await scrapeShopify(CONFIG.baseUrl, CONFIG.currency)
-  const listings = raw.map(item => ({ ...item, raw_brand: item.raw_brand || CONFIG.defaultBrand }))
+  const listings = raw.map(item => ({ ...item, raw_brand: CONFIG.defaultBrand }))
   console.log(`✓ Swiss Arabian: ${listings.length} listings ready`)
   return { retailerSlug: CONFIG.retailerSlug, listings }
 }

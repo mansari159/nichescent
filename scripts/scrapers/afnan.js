@@ -18,7 +18,7 @@ async function scrapeAfnan() {
 
   const listings = raw.map(item => ({
     ...item,
-    raw_brand: item.raw_brand || CONFIG.defaultBrand,
+    raw_brand: CONFIG.defaultBrand,
   }))
 
   console.log(`✓ Afnan: ${listings.length} listings ready`)

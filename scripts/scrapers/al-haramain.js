@@ -15,7 +15,7 @@ const CONFIG = {
 async function scrapeAlHaramain() {
   console.log('▶ Al Haramain Perfumes scraper starting...')
   const raw = await scrapeShopify(CONFIG.baseUrl, CONFIG.currency)
-  const listings = raw.map(item => ({ ...item, raw_brand: item.raw_brand || CONFIG.defaultBrand }))
+  const listings = raw.map(item => ({ ...item, raw_brand: CONFIG.defaultBrand }))
   console.log(`✓ Al Haramain: ${listings.length} listings ready`)
   return { retailerSlug: CONFIG.retailerSlug, listings }
 }

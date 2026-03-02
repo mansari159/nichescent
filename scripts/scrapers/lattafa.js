@@ -25,7 +25,7 @@ async function scrapeLattafa() {
   // Normalize: Lattafa USA always sells Lattafa products
   const listings = raw.map(item => ({
     ...item,
-    raw_brand: item.raw_brand || CONFIG.defaultBrand,
+    raw_brand: CONFIG.defaultBrand,
     // Lattafa USA product URLs don't need modification
   }))
 

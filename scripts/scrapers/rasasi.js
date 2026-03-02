@@ -15,7 +15,7 @@ const CONFIG = {
 async function scrapeRasasi() {
   console.log('▶ Rasasi scraper starting...')
   const raw = await scrapeShopify(CONFIG.baseUrl, CONFIG.currency)
-  const listings = raw.map(item => ({ ...item, raw_brand: item.raw_brand || CONFIG.defaultBrand }))
+  const listings = raw.map(item => ({ ...item, raw_brand: CONFIG.defaultBrand }))
   console.log(`✓ Rasasi: ${listings.length} listings ready`)
   return { retailerSlug: CONFIG.retailerSlug, listings }
 }
