@@ -1,7 +1,12 @@
 /**
  * backfill-vibes.js
- * Analyzes all active products and assigns vibe tags based on keyword matching.
- * Run: node scripts/backfill-vibes.js
+ * Assigns vibe tags to products based on keyword matching.
+ *
+ * By default only processes products with no vibe yet (primary_vibe_slug IS NULL).
+ * Pass --all to re-process every active product.
+ *
+ * Run: node scripts/backfill-vibes.js          # tag untagged only
+ *      node scripts/backfill-vibes.js --all     # re-tag everything
  *
  * Prerequisites: patch-007-vibes-notes.sql must be applied first.
  */
@@ -89,7 +94,8 @@ function scoreProduct(product) {
 }
 
 async function main() {
-  console.log('🌿 Backfill Vibes starting...\n')
+  const ALL_MODE = process.argv.includes('--all')
+  console.log(`🌿 Backfill Vibes starting (${ALL_MODE ? 're-tagging ALL products' : 'untagged only'})...\n`)
 
   // Fetch all vibe IDs
   const { data: vibes, error: vibeErr } = await supabase
@@ -99,11 +105,17 @@ async function main() {
 
   const vibeMap = Object.fromEntries(vibes.map(v => [v.slug, v]))
 
-  // Fetch all active products
-  const { data: products, error: prodErr } = await supabase
+  // Fetch products — untagged only by default, all if --all flag passed
+  let query = supabase
     .from('products')
     .select('id, name, description, notes_top, notes_mid, notes_base, category_tags')
     .eq('is_active', true)
+
+  if (!ALL_MODE) {
+    query = query.is('primary_vibe_slug', null)
+  }
+
+  const { data: products, error: prodErr } = await query
   if (prodErr) { console.error('Failed to fetch products:', prodErr.message); process.exit(1) }
 
   console.log(`Found ${products.length} products to process...\n`)
@@ -174,6 +186,9 @@ async function main() {
     if (needsReview.length > 20) console.log(`  ... and ${needsReview.length - 20} more`)
   }
 
+  if (!ALL_MODE) {
+    console.log('\nTip: run with --all to re-tag products that already have vibes')
+  }
   console.log('\nDone! 🎉')
 }
 

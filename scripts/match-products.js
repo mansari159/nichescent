@@ -50,20 +50,36 @@ const NON_FRAGRANCE_KEYWORDS = [
   'carpet freshener', 'fabric spray', 'laundry',
   // Body / skincare
   'body lotion', 'body cream', 'body wash', 'shower gel', 'hand cream',
-  'lip balm', 'face cream', 'moisturizer', 'serum', 'hair oil', 'hair perfume',
+  'hand wash', 'hand sanitizer', 'sanitizer',
+  'lip balm', 'face cream', 'face wash', 'face scrub', 'moisturizer', 'serum',
+  'hair oil', 'hair perfume', 'shampoo', 'conditioner', 'hair mask', 'hair serum',
+  'body butter', 'body scrub', 'body gel', 'bath gel', 'bath salt',
+  'foot cream', 'eye cream', 'toner', 'cleanser',
+  // Deodorants — very common in MENA brands but are not fragrances
+  'deodorant', ' deo ', 'deo spray', 'deo stick', 'antiperspirant',
+  'deo roll', 'roll on deo',
+  // Talc / powder
+  'talcum', 'talc', 'body powder', 'perfumed talc', 'perfumed powder',
   // Sets & bundles
   'gift set', 'gift box', 'gift bag', 'sample set', 'discovery set',
   ' set |', '| set', 'sublime set', 'luxury set', 'collection set',
+  'travel set', 'mini set', 'coffret',
   // Accessories / hardware
-  'bag', 'pouch', 'wallet', 'keychain', 'accessory', 'accessories',
+  'handbag', 'wallet', 'keychain', 'accessory', 'accessories',
   'bottle stopper', 'funnel', 'atomizer refill', 'empty bottle',
   'oil burner', 'bakhoor burner', 'incense burner', 'diffuser burner',
   'burner with', 'with burner', 'with free oil',
   'incense stick', 'incense cone', 'charcoal',
   // Fashion / merch
   't-shirt', 'mug', 'notebook', 'sunglasses', 'eyewear', 'glasses',
+  // Soap
+  'soap bar', 'bar soap', 'liquid soap',
   // Air fresheners (distinct from personal fragrance)
   'air freshener', 'air freshner', 'freshener spray',
+  // Tissues / paper
+  'tissue', 'facial tissue', 'wet wipe', 'wipe',
+  // Refills (ambiguous but usually non-primary product)
+  'refill pack', 'refill bottle',
 ]
 
 function isFragrance(name = '', productType = '', tags = '') {
