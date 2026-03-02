@@ -46,8 +46,8 @@ const CATEGORIES = [
     name: 'New Arrivals',
     slug: 'new-arrivals',
     subtitle: 'Recently catalogued',
-    // Warm amber perfume bottle on a table — fresh, inviting
-    img: 'https://images.unsplash.com/photo-1737920459846-2d0318700658?auto=format&fit=crop&w=800&q=80',
+    // Perfume bottle on a wooden table — warm, no brand visible
+    img: 'https://images.unsplash.com/photo-1703161560568-72b2e0e4dd7e?auto=format&fit=crop&w=800&q=80',
   },
 ]
 
