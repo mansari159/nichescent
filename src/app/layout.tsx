@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     template: '%s | RareTrace',
   },
   description: 'Compare prices for MENA fragrances across 9 retailers. Find the best deals on Gissah, Assaf, Swiss Arabian, Rasasi, Ajmal, and hundreds more.',
-  keywords: ['MENA fragrance', 'niche perfume', 'oud price comparison', 'Gissah', 'Assaf', 'Swiss Arabian', 'Rasasi', 'attar', 'bakhoor', 'Arabian Oud'],
+  keywords: ['MENA fragrance', 'niche perfume', 'oud price comparison', 'Gissah', 'Assaf', 'Swiss Arabian', 'Rasasi', 'attar', 'Arabian Oud', 'Amouage', 'Reef', 'Lattafa'],
   metadataBase: new URL('https://raretrace.vercel.app'),
   alternates: {
     canonical: 'https://raretrace.vercel.app',
@@ -76,7 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ul className="space-y-3 text-sm">
                   <li><a href="/category/ouds" className="hover:text-cream transition-colors">Ouds &amp; Oud Blends</a></li>
                   <li><a href="/category/attars" className="hover:text-cream transition-colors">Attars &amp; Oils</a></li>
-                  <li><a href="/category/bakhoor" className="hover:text-cream transition-colors">Bakhoor &amp; Incense</a></li>
+                  <li><a href="/countries" className="hover:text-cream transition-colors">Origins</a></li>
                   <li><a href="/notes" className="hover:text-cream transition-colors">Browse by Note</a></li>
                   <li><a href="/brands" className="hover:text-cream transition-colors">All Brands</a></li>
                   <li><a href="/search" className="hover:text-cream transition-colors">All Fragrances</a></li>

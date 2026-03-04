@@ -29,7 +29,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/countries`,               lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
     { url: `${BASE_URL}/category/ouds`,           lastModified: new Date(), changeFrequency: 'daily',   priority: 0.8 },
     { url: `${BASE_URL}/category/attars`,         lastModified: new Date(), changeFrequency: 'daily',   priority: 0.8 },
-    { url: `${BASE_URL}/category/bakhoor`,        lastModified: new Date(), changeFrequency: 'daily',   priority: 0.7 },
     { url: `${BASE_URL}/category/under-50`,       lastModified: new Date(), changeFrequency: 'daily',   priority: 0.7 },
     { url: `${BASE_URL}/about`,                   lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
     { url: `${BASE_URL}/affiliate-disclosure`,    lastModified: new Date(), changeFrequency: 'monthly', priority: 0.2 },

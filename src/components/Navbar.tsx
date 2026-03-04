@@ -74,7 +74,7 @@ export default function Navbar() {
 
           <Link href="/category/ouds"    className="text-xs tracking-widest2 uppercase text-obsidian-400 hover:text-cream transition-colors">Ouds</Link>
           <Link href="/category/attars"  className="text-xs tracking-widest2 uppercase text-obsidian-400 hover:text-cream transition-colors">Attars</Link>
-          <Link href="/category/bakhoor" className="text-xs tracking-widest2 uppercase text-obsidian-400 hover:text-cream transition-colors">Bakhoor</Link>
+          <Link href="/countries"        className="text-xs tracking-widest2 uppercase text-obsidian-400 hover:text-cream transition-colors">Origins</Link>
           <Link href="/brands"           className="text-xs tracking-widest2 uppercase text-obsidian-400 hover:text-cream transition-colors">Brands</Link>
         </nav>
 
@@ -98,7 +98,7 @@ export default function Navbar() {
             {[
               { href: '/category/ouds',    label: 'Ouds' },
               { href: '/category/attars',  label: 'Attars' },
-              { href: '/category/bakhoor', label: 'Bakhoor' },
+              { href: '/countries',        label: 'Origins' },
               { href: '/category/under-50',label: 'Under $50' },
               { href: '/notes',            label: 'Browse by Note' },
               { href: '/brands',           label: 'Brands' },
