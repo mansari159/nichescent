@@ -8,11 +8,16 @@ import ActiveFilters from '@/components/ActiveFilters'
 import type { Product } from '@/types'
 
 // Country codes per region — used to filter brands without polluting the search box
+// Must stay in sync with COUNTRY_MAP regions in src/lib/countries.ts
 const REGION_COUNTRIES: Record<string, string[]> = {
-  'middle-east':    ['SA', 'AE', 'KW', 'OM', 'BH', 'QA', 'YE', 'IQ', 'JO', 'LB'],
+  'middle-east':    ['SA', 'AE', 'KW', 'OM', 'BH', 'QA', 'YE', 'IQ', 'JO', 'LB', 'PS', 'IR', 'TR', 'EG', 'MA', 'DZ', 'TN', 'LY', 'SY'],
   'south-asia':     ['IN', 'PK', 'BD', 'LK', 'NP'],
-  'europe':         ['FR', 'IT', 'GB', 'DE', 'NL', 'BE', 'ES', 'PT', 'CH', 'SE', 'DK', 'NO', 'AT', 'PL'],
   'southeast-asia': ['ID', 'MY', 'SG', 'TH', 'PH', 'VN'],
+  'east-asia':      ['JP', 'KR', 'CN'],
+  'europe':         ['FR', 'IT', 'GB', 'DE', 'NL', 'BE', 'ES', 'PT', 'CH', 'SE', 'DK', 'NO', 'AT', 'PL', 'FI'],
+  'americas':       ['US', 'CA', 'BR', 'MX', 'AR'],
+  'oceania':        ['AU', 'NZ'],
+  'africa':         ['ZA', 'NG', 'KE', 'ET'],
 }
 
 const REGION_LABELS: Record<string, string> = {

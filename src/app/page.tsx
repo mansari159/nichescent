@@ -249,8 +249,8 @@ export default async function HomePage() {
               <p className="label-overline text-obsidian-400 mb-2">Fragrance heritage</p>
               <h2 className="font-serif text-4xl text-obsidian-900 font-light">Discover by Origin</h2>
             </div>
-            <Link href="/search" className="text-xs tracking-widest2 uppercase text-gold-500 hover:text-gold-600 transition-colors hidden sm:block">
-              Browse all →
+            <Link href="/countries" className="text-xs tracking-widest2 uppercase text-gold-500 hover:text-gold-600 transition-colors hidden sm:block">
+              All origins →
             </Link>
           </div>
 

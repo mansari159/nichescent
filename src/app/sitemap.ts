@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { supabase } from '@/lib/supabase'
+import { COUNTRY_MAP } from '@/lib/countries'
 
 const BASE_URL = 'https://raretrace.vercel.app'
 
@@ -25,6 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/search`,                  lastModified: new Date(), changeFrequency: 'daily',   priority: 0.9 },
     { url: `${BASE_URL}/brands`,                  lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
     { url: `${BASE_URL}/notes`,                   lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
+    { url: `${BASE_URL}/countries`,               lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
     { url: `${BASE_URL}/category/ouds`,           lastModified: new Date(), changeFrequency: 'daily',   priority: 0.8 },
     { url: `${BASE_URL}/category/attars`,         lastModified: new Date(), changeFrequency: 'daily',   priority: 0.8 },
     { url: `${BASE_URL}/category/bakhoor`,        lastModified: new Date(), changeFrequency: 'daily',   priority: 0.7 },
@@ -100,20 +102,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
   } catch { /* dupes table not created yet */ }
 
-  // ── Country pages (ready for Batch 2) ──────────────────────────────────
-  let countryPages: MetadataRoute.Sitemap = []
-  try {
-    const { data: countries } = await supabase
-      .from('countries')
-      .select('code')
-
-    countryPages = (countries ?? []).map(c => ({
-      url: `${BASE_URL}/country/${c.code.toLowerCase()}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    }))
-  } catch { /* countries table not created yet */ }
+  // ── Country pages — all codes from static map ───────────────────────────
+  const countryPages: MetadataRoute.Sitemap = Object.keys(COUNTRY_MAP).map(code => ({
+    url: `${BASE_URL}/country/${code.toLowerCase()}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
 
   return [
     ...staticPages,
