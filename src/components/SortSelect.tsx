@@ -18,6 +18,7 @@ export default function SortSelect({ value }: Props) {
         onChange={handleChange}
         className="appearance-none bg-white border border-obsidian-200 text-obsidian-700 text-xs tracking-wide uppercase px-4 py-2.5 pr-8 focus:outline-none focus:border-gold-500 cursor-pointer hover:border-obsidian-400 transition-colors"
       >
+        <option value="relevance">Most Relevant</option>
         <option value="price_asc">Price: Low to High</option>
         <option value="price_desc">Price: High to Low</option>
         <option value="newest">Newest First</option>
