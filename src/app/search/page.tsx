@@ -7,9 +7,25 @@ import SearchFiltersBar from '@/components/SearchFiltersBar'
 import ActiveFilters from '@/components/ActiveFilters'
 import type { Product } from '@/types'
 
+// Country codes per region — used to filter brands without polluting the search box
+const REGION_COUNTRIES: Record<string, string[]> = {
+  'middle-east':    ['SA', 'AE', 'KW', 'OM', 'BH', 'QA', 'YE', 'IQ', 'JO', 'LB'],
+  'south-asia':     ['IN', 'PK', 'BD', 'LK', 'NP'],
+  'europe':         ['FR', 'IT', 'GB', 'DE', 'NL', 'BE', 'ES', 'PT', 'CH', 'SE', 'DK', 'NO', 'AT', 'PL'],
+  'southeast-asia': ['ID', 'MY', 'SG', 'TH', 'PH', 'VN'],
+}
+
+const REGION_LABELS: Record<string, string> = {
+  'middle-east':    'Middle East',
+  'south-asia':     'South Asia',
+  'europe':         'Europe',
+  'southeast-asia': 'Southeast Asia',
+}
+
 interface SearchPageProps {
   searchParams: {
     q?: string
+    region?: string
     brand?: string | string[]
     type?: string | string[]
     gender?: string | string[]
@@ -35,7 +51,7 @@ const PAGE_SIZE = 24
 async function getAllBrands() {
   const { data } = await supabase
     .from('brands')
-    .select('id, name, slug')
+    .select('id, name, slug, country')
     .order('name', { ascending: true })
   return data ?? []
 }
@@ -43,10 +59,10 @@ async function getAllBrands() {
 // ── Smart search with brand-prefix detection + ilike fallback ─────────────────
 async function searchProducts(
   params: SearchPageProps['searchParams'],
-  allBrands: Array<{ id: string; name: string; slug: string }>
+  allBrands: Array<{ id: string; name: string; slug: string; country?: string | null }>
 ): Promise<{ products: Product[]; total: number; detectedBrand: string | null }> {
   const {
-    q, brand, type, gender, note,
+    q, region, brand, type, gender, note,
     minPrice, maxPrice,
     sort = 'relevance',
     page = '1',
@@ -56,8 +72,18 @@ async function searchProducts(
   const from = (pageNum - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
 
-  // Brand filter from sidebar/URL
+  // Region filter — look up brand IDs that match the region's country codes
   let brandIdsFromFilter: string[] | null = null
+  if (region && REGION_COUNTRIES[region]) {
+    const countryCodes = REGION_COUNTRIES[region]
+    const regionBrands = allBrands.filter(b =>
+      b.country && countryCodes.includes(b.country.toUpperCase())
+    )
+    brandIdsFromFilter = regionBrands.map(b => b.id)
+    if (brandIdsFromFilter.length === 0) return { products: [], total: 0, detectedBrand: null }
+  }
+
+  // Brand filter from URL param (overrides region if both somehow set)
   if (brand) {
     const brandSlugs = Array.isArray(brand) ? brand : [brand]
     const matched = allBrands.filter(b => brandSlugs.includes(b.slug))
@@ -200,9 +226,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     getFilterOptions(),
   ])
 
-  const q         = searchParams.q ?? ''
-  const sort      = searchParams.sort ?? 'relevance'
-  const page      = parseInt(searchParams.page ?? '1')
+  const q          = searchParams.q ?? ''
+  const region     = searchParams.region ?? ''
+  const regionLabel = region ? REGION_LABELS[region] ?? region : null
+  const sort       = searchParams.sort ?? 'relevance'
+  const page       = parseInt(searchParams.page ?? '1')
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   const activeGenders = Array.isArray(searchParams.gender) ? searchParams.gender : searchParams.gender ? [searchParams.gender] : []
@@ -216,6 +244,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   function buildPageUrl(p: number) {
     const params = new URLSearchParams()
     if (q) params.set('q', q)
+    if (searchParams.region) params.set('region', searchParams.region)
     if (sort !== 'relevance') params.set('sort', sort)
     params.set('page', String(p))
     ;(['brand', 'type', 'gender', 'note'] as const).forEach(key => {
@@ -254,9 +283,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <div className="max-w-7xl mx-auto px-4 py-6">
 
         {/* Context header */}
-        {(q || detectedBrand) && (
+        {(q || detectedBrand || regionLabel) && (
           <div className="mb-4 flex items-center flex-wrap gap-2">
-            {q && (
+            {regionLabel && (
+              <p className="text-sm text-obsidian-500">
+                {total > 0
+                  ? <><span className="font-semibold text-obsidian-900">{total.toLocaleString()}</span> {total === 1 ? 'fragrance' : 'fragrances'} from <span className="font-semibold text-obsidian-900">{regionLabel}</span></>
+                  : <>No fragrances found for <span className="font-semibold">{regionLabel}</span> yet</>
+                }
+              </p>
+            )}
+            {q && !regionLabel && (
               <p className="text-sm text-obsidian-500">
                 {total > 0
                   ? <><span className="font-semibold text-obsidian-900">{total.toLocaleString()}</span> {total === 1 ? 'fragrance' : 'fragrances'} for <span className="italic">&ldquo;{q}&rdquo;</span></>
@@ -268,6 +305,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               <span className="text-xs text-gold-700 bg-gold-50 border border-gold-200 px-2 py-0.5">
                 Showing brand: {detectedBrand}
               </span>
+            )}
+            {regionLabel && (
+              <a href="/search" className="text-xs text-obsidian-400 hover:text-obsidian-600 underline transition-colors">
+                Clear region
+              </a>
             )}
           </div>
         )}

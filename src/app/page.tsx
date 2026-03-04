@@ -64,7 +64,7 @@ const REGIONS = [
     emoji: '🕌',
     description: 'Saudi Arabia, UAE, Kuwait, Oman & beyond',
     count: '200+ fragrances',
-    searchQuery: 'oud rose amber',
+    slug: 'middle-east',
     color: 'bg-amber-50 border-amber-200 hover:border-amber-400',
     textColor: 'text-amber-800',
   },
@@ -73,7 +73,7 @@ const REGIONS = [
     emoji: '🪷',
     description: 'India, Pakistan & the subcontinent',
     count: 'Attars & spices',
-    searchQuery: 'sandalwood jasmine attar',
+    slug: 'south-asia',
     color: 'bg-rose-50 border-rose-200 hover:border-rose-400',
     textColor: 'text-rose-800',
   },
@@ -82,7 +82,7 @@ const REGIONS = [
     emoji: '🏛️',
     description: 'France, Italy, UK & European niche',
     count: 'Artisan perfumers',
-    searchQuery: 'leather chypre bergamot',
+    slug: 'europe',
     color: 'bg-blue-50 border-blue-200 hover:border-blue-400',
     textColor: 'text-blue-800',
   },
@@ -91,7 +91,7 @@ const REGIONS = [
     emoji: '🌴',
     description: 'Indonesia, Malaysia & beyond',
     count: 'Oud & tropicals',
-    searchQuery: 'oud patchouli tropical',
+    slug: 'southeast-asia',
     color: 'bg-green-50 border-green-200 hover:border-green-400',
     textColor: 'text-green-800',
   },
@@ -258,7 +258,7 @@ export default async function HomePage() {
             {REGIONS.map(region => (
               <Link
                 key={region.name}
-                href={`/search?q=${encodeURIComponent(region.searchQuery)}`}
+                href={`/search?region=${region.slug}`}
                 className={`group p-6 border-2 transition-all duration-200 ${region.color}`}
               >
                 <span className="text-3xl block mb-3">{region.emoji}</span>
