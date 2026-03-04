@@ -8,7 +8,7 @@ import { getCountryHeroImage } from '@/lib/country-images'
 export const metadata: Metadata = {
   title: 'Fragrance Origins — Niche Perfumes by Country · RareTrace',
   description:
-    'Explore niche fragrances from 50+ countries. From Middle Eastern oud houses to French artisan perfumers, discover the world's finest fragrance traditions.',
+    "Explore niche fragrances from 50+ countries. From Middle Eastern oud houses to French artisan perfumers, discover the world's finest fragrance traditions.",
 }
 
 const REGION_ORDER = [
