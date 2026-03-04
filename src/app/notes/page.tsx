@@ -128,7 +128,7 @@ export default async function NotesPage() {
                   {catNotes.map(note => (
                     <Link
                       key={note.id}
-                      href={`/search?note=${note.slug}`}
+                      href={`/note/${note.slug}`}
                       className={`
                         inline-flex items-center gap-1.5 px-4 py-2 border rounded-full
                         text-sm font-sans transition-all duration-200

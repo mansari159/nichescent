@@ -101,6 +101,45 @@ export type FragranceType = 'edp' | 'edt' | 'parfum' | 'attar' | 'oil' | 'bakhoo
 
 export type Gender = 'men' | 'women' | 'unisex'
 
+export interface Country {
+  id: string
+  name: string
+  code: string
+  flag_emoji: string
+  region: string
+  hero_image_url: string | null
+  heritage_description: string | null
+  perfumery_tradition: string | null
+  display_order: number
+}
+
+export interface Dupe {
+  id: string
+  slug: string
+  original_name: string
+  original_brand: string
+  original_price: number
+  original_size: string
+  description: string | null
+  scent_profile: string | null
+  key_notes: string[]
+  why_people_love: string | null
+  image_url: string | null
+  created_at: string
+}
+
+export interface DupeAlternative {
+  id: string
+  dupe_id: string
+  product_id: string
+  product?: Product
+  similarity_score: number
+  tier: 'best_overall' | 'premium' | 'budget'
+  comparison_notes: string | null
+  strengths: string[]
+  differences: string[]
+}
+
 export interface SearchFilters {
   query?: string
   brands?: string[]

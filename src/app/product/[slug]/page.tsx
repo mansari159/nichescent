@@ -8,6 +8,7 @@ import PriceTable from '@/components/PriceTable'
 import SimilarFragrances from '@/components/SimilarFragrances'
 import type { Product, PriceEntry } from '@/types'
 import { getFragranceTypeLabel, genderLabels, capitalize } from '@/lib/utils'
+import { getCountryFlag, getCountryName } from '@/lib/countries'
 
 interface Props { params: { slug: string } }
 
@@ -103,10 +104,18 @@ export default async function ProductPage({ params }: Props) {
           {/* Header */}
           <div>
             {brand && (
-              <Link href={`/search?brand=${encodeURIComponent(brand.name)}`}
-                className="text-gold-600 font-medium hover:text-gold-700 text-sm">
-                {brand.name}
-              </Link>
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <Link href={`/brand/${brand.slug}`}
+                  className="text-gold-600 font-medium hover:text-gold-700 text-sm">
+                  {brand.name}
+                </Link>
+                {brand.country && (
+                  <span className="flex items-center gap-1 text-xs text-obsidian-400 border border-obsidian-100 px-2 py-0.5">
+                    <span>{getCountryFlag(brand.country)}</span>
+                    <span>{getCountryName(brand.country)}</span>
+                  </span>
+                )}
+              </div>
             )}
             <h1 className="font-serif text-4xl font-light text-obsidian-900 mt-1 leading-tight">{product.name}</h1>
 

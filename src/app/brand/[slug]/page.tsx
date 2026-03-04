@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import ProductCard from '@/components/ProductCard'
 import type { Product } from '@/types'
+import { getCountryFlag, getCountryName } from '@/lib/countries'
 
 interface Props { params: { slug: string } }
 
@@ -92,8 +93,9 @@ export default async function BrandPage({ params }: Props) {
                 </span>
               )}
               {brand.country && (
-                <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">
-                  {brand.country}
+                <span className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 text-gray-600 text-xs px-2.5 py-1 rounded-full">
+                  <span>{getCountryFlag(brand.country)}</span>
+                  <span>{getCountryName(brand.country)}</span>
                 </span>
               )}
             </div>
