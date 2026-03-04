@@ -24,10 +24,12 @@ async function getBrands(): Promise<Array<Brand & { products_count: number }>> {
     `)
     .order('name', { ascending: true })
 
-  return (data ?? []).map(b => ({
-    ...b,
-    products_count: b.products_count?.[0]?.count ?? 0,
-  })) as Array<Brand & { products_count: number }>
+  return (data ?? [])
+    .map(b => ({
+      ...b,
+      products_count: b.products_count?.[0]?.count ?? 0,
+    }))
+    .filter(b => b.products_count > 0) as Array<Brand & { products_count: number }>
 }
 
 export default async function BrandsPage() {
@@ -56,7 +58,7 @@ export default async function BrandsPage() {
         <p className="text-xs tracking-widest2 uppercase text-obsidian-400 mb-2">Houses we cover</p>
         <h1 className="font-serif text-5xl text-obsidian-900 font-light">All Brands</h1>
         <p className="text-obsidian-500 mt-3 text-sm">
-          {brands.length} MENA and international fragrance houses — prices compared daily.
+          {brands.length} fragrance houses with active listings — prices compared daily.
         </p>
       </div>
 

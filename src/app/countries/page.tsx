@@ -51,6 +51,7 @@ async function getCountriesData(): Promise<{
     .from('brands')
     .select('country')
     .not('country', 'is', null)
+    .gt('products_count', 0)
 
   if (!data) return { byRegion: {}, totalCountries: 0, totalBrands: 0 }
 

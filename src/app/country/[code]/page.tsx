@@ -59,6 +59,7 @@ async function getCountryData(code: string): Promise<{ brands: Brand[]; products
     .from('brands')
     .select('id, name, slug, country, products_count')
     .eq('country', code)
+    .gt('products_count', 0)
     .order('products_count', { ascending: false, nullsFirst: false })
 
   if (error || !brands || brands.length === 0) return null
