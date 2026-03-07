@@ -1,13 +1,13 @@
 /**
  * French Avenue scraper
- * Store: https://www.french-avenue-parfum.com (Shopify, EUR)
+ * Store: https://usa.shopfrenchavenue.com (Shopify, EUR)
  * UAE French-inspired fragrance line
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'french-avenue',
-  baseUrl: 'https://www.french-avenue-parfum.com',
+  baseUrl: 'https://usa.shopfrenchavenue.com',
   currency: 'EUR',
   defaultBrand: 'French Avenue',
 }

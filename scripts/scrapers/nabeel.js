@@ -1,24 +1,15 @@
 /**
  * Nabeel Perfumes scraper
- * Store: https://www.nabeel.com (Shopify, AED)
- * Dubai-based house — wide oriental catalog, Ghalia Oudh series, rose attars.
- * Also sells via arabiascents.com
+ * Website: https://www.nabeel.com (NOT Shopify — custom platform)
+ * UAE house est. 1969 — Ghalia Oudh, Bakhoor, Attar blends
+ *
+ * TODO: nabeel.com uses a custom platform, not Shopify.
+ * Available via multi-brand retailers (Arabia Scents, Luluat Al Musk).
+ * This stub returns empty so scrape-all doesn't crash.
  */
-const { scrapeShopify } = require('./shopify')
-
-const CONFIG = {
-  retailerSlug: 'nabeel',
-  baseUrl: 'https://www.nabeel.com',
-  currency: 'AED',
-  defaultBrand: 'Nabeel',
-}
-
 async function scrapeNabeel() {
-  console.log('▶ Nabeel Perfumes scraper starting...')
-  const raw = await scrapeShopify(CONFIG.baseUrl, CONFIG.currency)
-  const listings = raw.map(item => ({ ...item, raw_brand: CONFIG.defaultBrand }))
-  console.log(`✓ Nabeel: ${listings.length} listings ready`)
-  return { retailerSlug: CONFIG.retailerSlug, listings }
+  console.log('▶ Nabeel: custom platform — no direct scraper yet, use multi-brand retailers')
+  return { retailerSlug: 'nabeel', listings: [] }
 }
 
 module.exports = { scrapeNabeel }

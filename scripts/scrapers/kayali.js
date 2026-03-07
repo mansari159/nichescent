@@ -13,7 +13,7 @@ const { scrapeShopify } = require('./shopify')
 const CONFIGS = [
   {
     retailerSlug: 'kayali-official',
-    baseUrl: 'https://kayaliofficial.com',
+    baseUrl: 'https://us.kayali.com',
     currency: 'USD',
     defaultBrand: 'Kayali',
   },

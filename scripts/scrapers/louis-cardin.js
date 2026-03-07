@@ -1,13 +1,13 @@
 /**
  * Louis Cardin scraper
- * Store: https://louiscardin.co.uk (Shopify, GBP)
+ * Store: https://louiscardin.us (Shopify, GBP)
  * UAE brand with UK store
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'louis-cardin',
-  baseUrl: 'https://louiscardin.co.uk',
+  baseUrl: 'https://louiscardin.us',
   currency: 'GBP',
   defaultBrand: 'Louis Cardin',
 }

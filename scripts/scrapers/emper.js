@@ -1,13 +1,13 @@
 /**
  * Emper scraper
- * Store: https://www.emperperfumes.com (Shopify, USD)
+ * Store: https://emperperfumes.com (Shopify, USD)
  * UAE accessible fragrance brand
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'emper',
-  baseUrl: 'https://www.emperperfumes.com',
+  baseUrl: 'https://emperperfumes.com',
   currency: 'USD',
   defaultBrand: 'Emper',
 }

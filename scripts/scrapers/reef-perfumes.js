@@ -1,13 +1,13 @@
 /**
  * Reef Perfumes scraper
- * Store: https://reefperfumes.com (Shopify, USD)
+ * Store: https://usa.reefperfumes.com (Shopify, USD)
  * MENA heritage house
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'reef-perfumes',
-  baseUrl: 'https://reefperfumes.com',
+  baseUrl: 'https://usa.reefperfumes.com',
   currency: 'USD',
   defaultBrand: 'Reef Perfumes',
 }

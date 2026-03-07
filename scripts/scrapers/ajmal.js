@@ -1,13 +1,13 @@
 /**
  * Ajmal Perfumes scraper
- * Store: https://www.ajmalperfume.com (Shopify, USD)
+ * Store: https://ajmalperfumeusa.com (Shopify, USD)
  * UAE house founded 1951 — one of the oldest and most respected in the region
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'ajmal',
-  baseUrl: 'https://www.ajmalperfume.com',
+  baseUrl: 'https://ajmalperfumeusa.com',
   currency: 'USD',
   defaultBrand: 'Ajmal',
 }

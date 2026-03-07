@@ -1,13 +1,13 @@
 /**
  * Attar Collection scraper
- * Store: https://attarcollection.com (Shopify, USD)
+ * Store: https://www.attarcollectionusa.com (Shopify, USD)
  * UAE luxury attar house
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'attar-collection',
-  baseUrl: 'https://attarcollection.com',
+  baseUrl: 'https://www.attarcollectionusa.com',
   currency: 'USD',
   defaultBrand: 'Attar Collection',
 }

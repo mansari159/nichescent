@@ -1,23 +1,16 @@
 /**
  * Gissah Perfumes scraper
- * Store: https://www.gissah.com (Shopify, AED)
- * Kuwaiti luxury house founded 2019 — known for bold, artistic bottles
+ * Website: https://sa.gissah.com (NOT Shopify — custom platform)
+ * Kuwaiti niche house — Oud Saffron, Ghalia, White Oud
+ *
+ * TODO: Gissah uses a custom e-commerce platform, not Shopify.
+ * Products are available via multi-brand retailer Arabia Scents.
+ * This stub returns empty so scrape-all doesn't crash.
+ * Track via: arabiascents.com scraper (brand filter: gissah)
  */
-const { scrapeShopify } = require('./shopify')
-
-const CONFIG = {
-  retailerSlug: 'gissah',
-  baseUrl: 'https://www.gissah.com',
-  currency: 'AED',
-  defaultBrand: 'Gissah',
-}
-
 async function scrapeGissah() {
-  console.log('▶ Gissah Perfumes scraper starting...')
-  const raw = await scrapeShopify(CONFIG.baseUrl, CONFIG.currency)
-  const listings = raw.map(item => ({ ...item, raw_brand: CONFIG.defaultBrand }))
-  console.log(`✓ Gissah: ${listings.length} listings ready`)
-  return { retailerSlug: CONFIG.retailerSlug, listings }
+  console.log('▶ Gissah: custom platform — no direct scraper yet, use arabia-scents')
+  return { retailerSlug: 'gissah', listings: [] }
 }
 
 module.exports = { scrapeGissah }

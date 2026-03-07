@@ -10,7 +10,7 @@ INSERT INTO retailers (name, slug, domain, platform, base_currency, country, pri
   ('Amouage',                'amouage',          'www.amouage.com',              'shopify', 'USD', 'OM', 1),
 
   -- UAE brand direct stores
-  ('Maison Alhambra',        'maison-alhambra',  'maisonalhambraperfume.com',           'shopify', 'USD', 'AE', 2),
+  ('Maison Alhambra',        'maison-alhambra',  'themaison-alhambra.com',           'shopify', 'USD', 'AE', 2),
   ('Armaf Perfumes',         'armaf',            'www.armaf.ae',        'shopify', 'USD', 'AE', 1),
   ('Paris Corner',           'paris-corner',     'www.pariscornerperfumes.com',               'shopify', 'AED', 'AE', 2),
   ('Fragrance World',        'fragrance-world',  'shopfragranceworld.com',            'shopify', 'AED', 'AE', 2),
@@ -42,7 +42,7 @@ INSERT INTO retailers (name, slug, domain, platform, base_currency, country, pri
   ('Emirati Scents',         'emirati-scents',   'emaratiscents.com',            'shopify', 'AED', 'AE', 2),
 
   -- Already used by existing scrapers — add if missing
-  ('Kayali Official',        'kayali-official',  'kayaliofficial.com',           'shopify', 'USD', 'AE', 1),
+  ('Kayali Official',        'kayali-official',  'us.kayali.com',           'shopify', 'USD', 'AE', 1),
   ('Ibraq USA',              'ibraq-usa',        'usaibrahimalqurashi.com',      'shopify', 'USD', 'SA', 2)
 
 ON CONFLICT (slug) DO NOTHING;
@@ -56,30 +56,30 @@ ORDER BY country, name;
 INSERT INTO retailers (name, slug, domain, platform, base_currency, country, priority) VALUES
 
   -- UAE — Heritage / Niche
-  ('Arabiyat Prestige',    'arabiyat-prestige',  'thearabiyat.com',               'shopify', 'AED', 'AE', 2),
+  ('Arabiyat Prestige',    'arabiyat-prestige',  'arabiyatprestige.shop',               'shopify', 'AED', 'AE', 2),
   ('Naseem',               'naseem',             'naseemperfumes.us',             'shopify', 'USD', 'AE', 2),
   ('Ghawali',              'ghawali',            'ae.ghawali.com',                'shopify', 'AED', 'AE', 2),
   ('The Spirit of Dubai',  'spirit-of-dubai',    'thespiritofdubai.com',          'shopify', 'USD', 'AE', 1),
   ('WIDIAN',               'widian',             'ajarabia.com',                  'shopify', 'USD', 'AE', 1),
   ('Khalis Perfumes',      'khalis-perfumes',    'www.khalisperfumes.com',        'shopify', 'USD', 'AE', 2),
   ('Sapil',                'sapil',              'sapil.com',                     'shopify', 'USD', 'AE', 3),
-  ('Reef Perfumes',        'reef-perfumes',      'reefperfumes.com',              'shopify', 'USD', 'AE', 2),
+  ('Reef Perfumes',        'reef-perfumes',      'usa.reefperfumes.com',              'shopify', 'USD', 'AE', 2),
   ('Hamidi',               'hamidi',             'www.hamidi.us',                 'shopify', 'USD', 'AE', 2),
   ('Orientica',            'orientica',          'www.orienticaperfumes.com',     'shopify', 'USD', 'AE', 2),
   ('Maison Asrar',         'maison-asrar',       'maisonasrar.com',               'shopify', 'USD', 'AE', 2),
-  ('Emirates Pride',       'emirates-pride',     'emiratespride.ae',              'shopify', 'AED', 'AE', 3),
-  ('Attar Collection',     'attar-collection',   'attarcollection.com',           'shopify', 'USD', 'AE', 1),
+  ('Emirates Pride',       'emirates-pride',     'emiratespride.com',              'shopify', 'AED', 'AE', 3),
+  ('Attar Collection',     'attar-collection',   'www.attarcollectionusa.com',           'shopify', 'USD', 'AE', 1),
   ('Navitus Parfums',      'navitus',            'navitusparfums.com',            'shopify', 'USD', 'AE', 2),
 
   -- UAE — Accessible / Dupe
   ('Zimaya',               'zimaya',             'zimayaperfumes.com',            'shopify', 'USD', 'AE', 2),
   ('Khadlaj',              'khadlaj',            'www.khadlaj-perfumes.com',      'shopify', 'AED', 'AE', 2),
-  ('Riiffs',               'riiffs',             'www.riiffsperfumes.com',        'shopify', 'USD', 'AE', 2),
+  ('Riiffs',               'riiffs',             'riiffsperfumes.us',        'shopify', 'USD', 'AE', 2),
   ('Rue Broca',            'rue-broca',          'www.ruebrocaparfums.com',       'shopify', 'USD', 'AE', 2),
   ('Rayhaan',              'rayhaan',            'rayhaanperfumes.com',           'shopify', 'USD', 'AE', 2),
-  ('Emper',                'emper',              'www.emperperfumes.com',         'shopify', 'USD', 'AE', 3),
-  ('French Avenue',        'french-avenue',      'www.french-avenue-parfum.com',  'shopify', 'EUR', 'AE', 3),
-  ('Louis Cardin',         'louis-cardin',       'louiscardin.co.uk',             'shopify', 'GBP', 'AE', 3),
+  ('Emper',                'emper',              'emperperfumes.com',         'shopify', 'USD', 'AE', 3),
+  ('French Avenue',        'french-avenue',      'usa.shopfrenchavenue.com',  'shopify', 'EUR', 'AE', 3),
+  ('Louis Cardin',         'louis-cardin',       'louiscardin.us',             'shopify', 'GBP', 'AE', 3),
   ('Dumont',               'dumont',             'dumontperfumes.com',            'shopify', 'USD', 'AE', 3),
   ('My Perfumes',          'my-perfumes',        'myperfumes.ae',                 'shopify', 'AED', 'AE', 2),
   ('Kajal Perfumes',       'kajal-perfumes',     'kajalperfumes.com',             'shopify', 'USD', 'AE', 1),

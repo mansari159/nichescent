@@ -1,13 +1,13 @@
 /**
  * Al Haramain Perfumes US scraper
- * Store: https://www.alharamainperfumes.com (Shopify, USD)
+ * Store: https://shop.alharamainperfumes.com (Shopify, USD)
  * Founded 1970 — one of the most iconic Saudi fragrance houses
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'al-haramain',
-  baseUrl: 'https://www.alharamainperfumes.com',
+  baseUrl: 'https://shop.alharamainperfumes.com',
   currency: 'USD',
   defaultBrand: 'Al Haramain',
 }

@@ -1,13 +1,13 @@
 /**
  * Arabiyat Prestige scraper
- * Store: https://thearabiyat.com (Shopify, AED)
+ * Store: https://arabiyatprestige.shop (Shopify, AED)
  * Dubai oriental fragrance house
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'arabiyat-prestige',
-  baseUrl: 'https://thearabiyat.com',
+  baseUrl: 'https://arabiyatprestige.shop',
   currency: 'AED',
   defaultBrand: 'Arabiyat Prestige',
 }

@@ -1,13 +1,13 @@
 /**
  * Emirates Pride scraper
- * Store: https://emiratespride.ae (Shopify, AED)
+ * Store: https://emiratespride.com (Shopify, AED)
  * UAE artisan fragrance house
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'emirates-pride',
-  baseUrl: 'https://emiratespride.ae',
+  baseUrl: 'https://emiratespride.com',
   currency: 'AED',
   defaultBrand: 'Emirates Pride',
 }

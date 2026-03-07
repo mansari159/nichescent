@@ -1,13 +1,13 @@
 /**
  * Riiffs scraper
- * Store: https://www.riiffsperfumes.com (Shopify, USD)
+ * Store: https://riiffsperfumes.us (Shopify, USD)
  * UAE accessible oriental house
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'riiffs',
-  baseUrl: 'https://www.riiffsperfumes.com',
+  baseUrl: 'https://riiffsperfumes.us',
   currency: 'USD',
   defaultBrand: 'Riiffs',
 }
