@@ -51,3 +51,52 @@ ON CONFLICT (slug) DO NOTHING;
 SELECT slug, name, base_currency, country, is_active
 FROM retailers
 ORDER BY country, name;
+
+-- ── patch-013b: additional brands from verified URL list ──────────────────────
+INSERT INTO retailers (name, slug, domain, platform, base_currency, country, priority) VALUES
+
+  -- UAE — Heritage / Niche
+  ('Arabiyat Prestige',    'arabiyat-prestige',  'thearabiyat.com',               'shopify', 'AED', 'AE', 2),
+  ('Naseem',               'naseem',             'naseemperfumes.us',             'shopify', 'USD', 'AE', 2),
+  ('Ghawali',              'ghawali',            'ae.ghawali.com',                'shopify', 'AED', 'AE', 2),
+  ('The Spirit of Dubai',  'spirit-of-dubai',    'thespiritofdubai.com',          'shopify', 'USD', 'AE', 1),
+  ('WIDIAN',               'widian',             'ajarabia.com',                  'shopify', 'USD', 'AE', 1),
+  ('Khalis Perfumes',      'khalis-perfumes',    'www.khalisperfumes.com',        'shopify', 'USD', 'AE', 2),
+  ('Sapil',                'sapil',              'sapil.com',                     'shopify', 'USD', 'AE', 3),
+  ('Reef Perfumes',        'reef-perfumes',      'reefperfumes.com',              'shopify', 'USD', 'AE', 2),
+  ('Hamidi',               'hamidi',             'www.hamidi.us',                 'shopify', 'USD', 'AE', 2),
+  ('Orientica',            'orientica',          'www.orienticaperfumes.com',     'shopify', 'USD', 'AE', 2),
+  ('Maison Asrar',         'maison-asrar',       'maisonasrar.com',               'shopify', 'USD', 'AE', 2),
+  ('Emirates Pride',       'emirates-pride',     'emiratespride.ae',              'shopify', 'AED', 'AE', 3),
+  ('Attar Collection',     'attar-collection',   'attarcollection.com',           'shopify', 'USD', 'AE', 1),
+  ('Navitus Parfums',      'navitus',            'navitusparfums.com',            'shopify', 'USD', 'AE', 2),
+
+  -- UAE — Accessible / Dupe
+  ('Zimaya',               'zimaya',             'zimayaperfumes.com',            'shopify', 'USD', 'AE', 2),
+  ('Khadlaj',              'khadlaj',            'www.khadlaj-perfumes.com',      'shopify', 'AED', 'AE', 2),
+  ('Riiffs',               'riiffs',             'www.riiffsperfumes.com',        'shopify', 'USD', 'AE', 2),
+  ('Rue Broca',            'rue-broca',          'www.ruebrocaparfums.com',       'shopify', 'USD', 'AE', 2),
+  ('Rayhaan',              'rayhaan',            'rayhaanperfumes.com',           'shopify', 'USD', 'AE', 2),
+  ('Emper',                'emper',              'www.emperperfumes.com',         'shopify', 'USD', 'AE', 3),
+  ('French Avenue',        'french-avenue',      'www.french-avenue-parfum.com',  'shopify', 'EUR', 'AE', 3),
+  ('Louis Cardin',         'louis-cardin',       'louiscardin.co.uk',             'shopify', 'GBP', 'AE', 3),
+  ('Dumont',               'dumont',             'dumontperfumes.com',            'shopify', 'USD', 'AE', 3),
+  ('My Perfumes',          'my-perfumes',        'myperfumes.ae',                 'shopify', 'AED', 'AE', 2),
+  ('Kajal Perfumes',       'kajal-perfumes',     'kajalperfumes.com',             'shopify', 'USD', 'AE', 1),
+  ('Azha Perfumes',        'azha-perfumes',      'azhaperfumes.com',              'shopify', 'AED', 'AE', 2),
+  ('Al Wataniah',          'al-wataniah',        'www.alwataniah.com',            'shopify', 'AED', 'AE', 2),
+  ('Suroori',              'suroori',            'suroorfragrances.com',          'shopify', 'USD', 'AE', 3),
+
+  -- Saudi Arabia
+  ('Ahmad Al Maghribi',    'ahmad-al-maghribi',  'www.ahmed-perfume.com',         'shopify', 'USD', 'SA', 2),
+
+  -- Pakistan
+  ('Scents N Stories',     'scents-n-stories',   'scentsnstories.pk',             'shopify', 'PKR', 'PK', 2),
+  ('Saeed Ghani',          'saeed-ghani',        'saeedghani.pk',                 'shopify', 'PKR', 'PK', 2),
+  ('WB by Hemani',         'wb-hemani',          'www.wbhemani.com',              'shopify', 'PKR', 'PK', 2),
+  ('Colish Perfumes',      'colish',             'www.colishco.com',              'shopify', 'PKR', 'PK', 3),
+
+  -- Indonesia
+  ('Velixir',              'velixir',            'www.velixirparfums.com',        'shopify', 'USD', 'ID', 2)
+
+ON CONFLICT (slug) DO NOTHING;

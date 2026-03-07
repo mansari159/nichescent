@@ -1,6 +1,6 @@
 /**
  * Arabian Oud scraper
- * Store: https://sa.arabianoud.com (Shopify, USD)
+ * Store: https://www.arabianoud.com (Shopify, USD)
  * Riyadh-based, est. 1982 — world's largest oud retailer with 800+ branches.
  * Known for: Royale Malmason, Musk Maliki, various raw oud oils and attars.
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'arabian-oud',
-  baseUrl: 'https://sa.arabianoud.com',
+  baseUrl: 'https://www.arabianoud.com',
   currency: 'USD',
   defaultBrand: 'Arabian Oud',
 }

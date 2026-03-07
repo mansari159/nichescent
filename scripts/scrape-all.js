@@ -1,19 +1,19 @@
 /**
- * Master scraper — runs all retailer scrapers then triggers product matching
+ * Master scraper — runs all retailer scrapers
  *
  * Usage:
- *   node scripts/scrape-all.js                          # run all scrapers
- *   node scripts/scrape-all.js --retailer arabian-oud   # run one scraper
- *   node scripts/scrape-all.js --dry-run                # scrape but don't save to DB
- *   node scripts/scrape-all.js --group mena             # run a brand group
+ *   node scripts/scrape-all.js                          # run all
+ *   node scripts/scrape-all.js --retailer amouage       # single retailer
+ *   node scripts/scrape-all.js --group uae              # run a group
+ *   node scripts/scrape-all.js --dry-run                # scrape, no DB writes
  *
- * Groups: mena, pakistan, multi, all (default)
+ * Groups: uae, saudi, pakistan, other, multi, all (default)
  */
 
 require('dotenv').config({ path: '.env.local' })
 const { createClient } = require('@supabase/supabase-js')
 
-// ── Brand direct stores ────────────────────────────────────────────────────────
+// ── Existing scrapers ──────────────────────────────────────────────────────────
 const { scrapeLattafa }             = require('./scrapers/lattafa')
 const { scrapeAfnan }               = require('./scrapers/afnan')
 const { scrapeDukhni }              = require('./scrapers/dukhni')
@@ -27,197 +27,239 @@ const { scrapeKayali }              = require('./scrapers/kayali')
 const { scrapeHindAlOud }           = require('./scrapers/hind-al-oud')
 const { scrapeIbraq }               = require('./scrapers/ibraq')
 
-// Week 1 new scrapers
+// ── UAE — Heritage / Accessible ───────────────────────────────────────────────
 const { scrapeAmouage }             = require('./scrapers/amouage')
 const { scrapeMaisonAlhambra }      = require('./scrapers/maison-alhambra')
 const { scrapeArmaf }               = require('./scrapers/armaf')
 const { scrapeParisCorner }         = require('./scrapers/paris-corner')
 const { scrapeFragranceWorld }      = require('./scrapers/fragrance-world')
 const { scrapeArdAlZaafaran }       = require('./scrapers/ard-al-zaafaran')
-
-// Week 2 new scrapers
-const { scrapeArabianOud }          = require('./scrapers/arabian-oud')
-const { scrapeAbdulSamadAlQurashi } = require('./scrapers/abdul-samad-al-qurashi')
-const { scrapeNabeel }              = require('./scrapers/nabeel')
-const { scrapeSurrati }             = require('./scrapers/surrati')
 const { scrapeGulfOrchid }          = require('./scrapers/gulf-orchid')
 const { scrapeYasPerfumes }         = require('./scrapers/yas-perfumes')
-const { scrapeAlNuaim }             = require('./scrapers/al-nuaim')
-const { scrapeAlRehab }             = require('./scrapers/al-rehab')
+const { scrapeNabeel }              = require('./scrapers/nabeel')
+const { scrapeArabiyatPrestige }    = require('./scrapers/arabiyat-prestige')
+const { scrapeNaseem }              = require('./scrapers/naseem')
+const { scrapeGhawali }             = require('./scrapers/ghawali')
+const { scrapeSpiritOfDubai }       = require('./scrapers/spirit-of-dubai')
+const { scrapeWidian }              = require('./scrapers/widian')
+const { scrapeKhalis }              = require('./scrapers/khalis')
+const { scrapeSapil }               = require('./scrapers/sapil')
+const { scrapeReefPerfumes }        = require('./scrapers/reef-perfumes')
+const { scrapeHamidi }              = require('./scrapers/hamidi')
+const { scrapeOrientica }           = require('./scrapers/orientica')
+const { scrapeMaisonAsrar }         = require('./scrapers/maison-asrar')
+const { scrapeEmiratesPride }       = require('./scrapers/emirates-pride')
+const { scrapeAttarCollection }     = require('./scrapers/attar-collection')
+const { scrapeNavitus }             = require('./scrapers/navitus')
+const { scrapeZimaya }              = require('./scrapers/zimaya')
+const { scrapeKhadlaj }             = require('./scrapers/khadlaj')
+const { scrapeRiiffs }              = require('./scrapers/riiffs')
+const { scrapeRueBroca }            = require('./scrapers/rue-broca')
+const { scrapeRayhaan }             = require('./scrapers/rayhaan')
+const { scrapeEmper }               = require('./scrapers/emper')
+const { scrapeFrenchAvenue }        = require('./scrapers/french-avenue')
+const { scrapeLouisCardin }         = require('./scrapers/louis-cardin')
+const { scrapeDumont }              = require('./scrapers/dumont')
+const { scrapeMyPerfumes }          = require('./scrapers/my-perfumes')
+const { scrapeKajal }               = require('./scrapers/kajal')
+const { scrapeAzha }                = require('./scrapers/azha')
+const { scrapeAlWataniah }          = require('./scrapers/al-wataniah')
+const { scrapeSuroori }             = require('./scrapers/suroori')
 
-// Week 3 new scrapers
-const { scrapeJJunaidJamshed }      = require('./scrapers/j-junaid-jamshed')
-const { scrapeBonanzaSatrangi }     = require('./scrapers/bonanza-satrangi')
+// ── Saudi Arabia ──────────────────────────────────────────────────────────────
+const { scrapeArabianOud }          = require('./scrapers/arabian-oud')
+const { scrapeAbdulSamadAlQurashi } = require('./scrapers/abdul-samad-al-qurashi')
+const { scrapeSurrati }             = require('./scrapers/surrati')
+const { scrapeAlNuaim }             = require('./scrapers/al-nuaim')
+const { scrapeAhmadAlMaghribi }     = require('./scrapers/ahmad-al-maghribi')
+
+// ── Egypt / Morocco ───────────────────────────────────────────────────────────
+const { scrapeAlRehab }             = require('./scrapers/al-rehab')
 const { scrapeElNabil }             = require('./scrapers/el-nabil')
 
-// Multi-brand retailer scrapers
+// ── Pakistan ──────────────────────────────────────────────────────────────────
+const { scrapeJJunaidJamshed }      = require('./scrapers/j-junaid-jamshed')
+const { scrapeBonanzaSatrangi }     = require('./scrapers/bonanza-satrangi')
+const { scrapeScentsNStories }      = require('./scrapers/scents-n-stories')
+const { scrapeSaeedGhani }          = require('./scrapers/saeed-ghani')
+const { scrapeWbHemani }            = require('./scrapers/wb-hemani')
+const { scrapeColish }              = require('./scrapers/colish')
+
+// ── Indonesia ─────────────────────────────────────────────────────────────────
+const { scrapeVelixir }             = require('./scrapers/velixir')
+
+// ── Multi-brand retailers ─────────────────────────────────────────────────────
 const { scrapeArabiaScents }        = require('./scrapers/arabiascents')
 const { scrapeLuluatAlMusk }        = require('./scrapers/luluat-al-musk')
 const { scrapeOudStore }            = require('./scrapers/oud-store')
 const { scrapeEmiratiScents }       = require('./scrapers/emirati-scents')
 
-// ── Supabase client ────────────────────────────────────────────────────────────
+// ── Supabase ──────────────────────────────────────────────────────────────────
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
-// ── Scraper registry ───────────────────────────────────────────────────────────
-// Scrapers may return: { retailerSlug, listings } OR Array<{ retailerSlug, listings }>
-// main() handles both transparently.
-
+// ── Registry ──────────────────────────────────────────────────────────────────
 const SCRAPERS = {
-  // ── UAE brands ───────────────────────────────────────────────────────────────
-  'lattafa-usa':     scrapeLattafa,
-  'afnan':           scrapeAfnan,
-  'dukhni':          scrapeDukhni,
-  'swiss-arabian':   scrapeSwissArabian,
-  'al-haramain':     scrapeAlHaramain,
-  'gissah':          scrapeGissah,
-  'assaf':           scrapeAssaf,
-  'kayali':          scrapeKayali,           // returns array
-  'maison-alhambra': scrapeMaisonAlhambra,
-  'armaf':           scrapeArmaf,
-  'paris-corner':    scrapeParisCorner,
-  'fragrance-world': scrapeFragranceWorld,
-  'ard-al-zaafaran': scrapeArdAlZaafaran,
-  'gulf-orchid':     scrapeGulfOrchid,
-  'yas-perfumes':    scrapeYasPerfumes,
-  'nabeel':          scrapeNabeel,
-
-  // ── Oman brands ──────────────────────────────────────────────────────────────
-  'amouage':         scrapeAmouage,
-
-  // ── Saudi brands ─────────────────────────────────────────────────────────────
-  'rasasi':          scrapeRasasi,
-  'ajmal':           scrapeAjmal,
-  'ibraq':           scrapeIbraq,            // returns array
-  'arabian-oud':     scrapeArabianOud,
-  'asa-qurashi':     scrapeAbdulSamadAlQurashi,
-  'surrati':         scrapeSurrati,
-  'al-nuaim':        scrapeAlNuaim,
-
-  // ── Bahrain brands ───────────────────────────────────────────────────────────
-  'hind-al-oud':     scrapeHindAlOud,        // returns array
-
-  // ── Egypt brands ─────────────────────────────────────────────────────────────
-  'al-rehab':        scrapeAlRehab,
-
-  // ── Morocco brands ───────────────────────────────────────────────────────────
-  'el-nabil':        scrapeElNabil,
-
-  // ── Pakistan brands ──────────────────────────────────────────────────────────
-  'j-junaid-jamshed': scrapeJJunaidJamshed,
-  'bonanza-satrangi': scrapeBonanzaSatrangi,
-
-  // ── Multi-brand retailers ────────────────────────────────────────────────────
-  'arabia-scents':   scrapeArabiaScents,
-  'luluat-al-musk':  scrapeLuluatAlMusk,
-  'oud-store':       scrapeOudStore,
-  'emirati-scents':  scrapeEmiratiScents,
+  // UAE — established / heritage
+  'lattafa-usa':        scrapeLattafa,
+  'afnan':              scrapeAfnan,
+  'dukhni':             scrapeDukhni,
+  'swiss-arabian':      scrapeSwissArabian,
+  'al-haramain':        scrapeAlHaramain,
+  'gissah':             scrapeGissah,
+  'assaf':              scrapeAssaf,
+  'rasasi':             scrapeRasasi,
+  'ajmal':              scrapeAjmal,
+  'kayali':             scrapeKayali,
+  'hind-al-oud':        scrapeHindAlOud,
+  'ibraq':              scrapeIbraq,
+  'nabeel':             scrapeNabeel,
+  'arabiyat-prestige':  scrapeArabiyatPrestige,
+  'naseem':             scrapeNaseem,
+  'ghawali':            scrapeGhawali,
+  'spirit-of-dubai':    scrapeSpiritOfDubai,
+  'widian':             scrapeWidian,
+  'khalis-perfumes':    scrapeKhalis,
+  'sapil':              scrapeSapil,
+  'reef-perfumes':      scrapeReefPerfumes,
+  'hamidi':             scrapeHamidi,
+  'orientica':          scrapeOrientica,
+  'maison-asrar':       scrapeMaisonAsrar,
+  'emirates-pride':     scrapeEmiratesPride,
+  'attar-collection':   scrapeAttarCollection,
+  'navitus':            scrapeNavitus,
+  // UAE — dupe / accessible
+  'maison-alhambra':    scrapeMaisonAlhambra,
+  'armaf':              scrapeArmaf,
+  'paris-corner':       scrapeParisCorner,
+  'fragrance-world':    scrapeFragranceWorld,
+  'ard-al-zaafaran':    scrapeArdAlZaafaran,
+  'gulf-orchid':        scrapeGulfOrchid,
+  'yas-perfumes':       scrapeYasPerfumes,
+  'zimaya':             scrapeZimaya,
+  'khadlaj':            scrapeKhadlaj,
+  'riiffs':             scrapeRiiffs,
+  'rue-broca':          scrapeRueBroca,
+  'rayhaan':            scrapeRayhaan,
+  'emper':              scrapeEmper,
+  'french-avenue':      scrapeFrenchAvenue,
+  'louis-cardin':       scrapeLouisCardin,
+  'dumont':             scrapeDumont,
+  'my-perfumes':        scrapeMyPerfumes,
+  'kajal-perfumes':     scrapeKajal,
+  'azha-perfumes':      scrapeAzha,
+  'al-wataniah':        scrapeAlWataniah,
+  'suroori':            scrapeSuroori,
+  // Oman
+  'amouage':            scrapeAmouage,
+  // Saudi Arabia
+  'arabian-oud':        scrapeArabianOud,
+  'asa-qurashi':        scrapeAbdulSamadAlQurashi,
+  'surrati':            scrapeSurrati,
+  'al-nuaim':           scrapeAlNuaim,
+  'ahmad-al-maghribi':  scrapeAhmadAlMaghribi,
+  // Egypt
+  'al-rehab':           scrapeAlRehab,
+  // Morocco
+  'el-nabil':           scrapeElNabil,
+  // Pakistan
+  'j-junaid-jamshed':   scrapeJJunaidJamshed,
+  'bonanza-satrangi':   scrapeBonanzaSatrangi,
+  'scents-n-stories':   scrapeScentsNStories,
+  'saeed-ghani':        scrapeSaeedGhani,
+  'wb-hemani':          scrapeWbHemani,
+  'colish':             scrapeColish,
+  // Indonesia
+  'velixir':            scrapeVelixir,
+  // Multi-brand retailers
+  'arabia-scents':      scrapeArabiaScents,
+  'luluat-al-musk':     scrapeLuluatAlMusk,
+  'oud-store':          scrapeOudStore,
+  'emirati-scents':     scrapeEmiratiScents,
 }
 
-// ── Brand groups for --group flag ──────────────────────────────────────────────
+// ── Groups ────────────────────────────────────────────────────────────────────
 const GROUP_KEYS = {
-  mena: [
+  uae: [
     'lattafa-usa','afnan','dukhni','swiss-arabian','al-haramain','gissah','assaf',
-    'kayali','maison-alhambra','armaf','paris-corner','fragrance-world',
-    'ard-al-zaafaran','gulf-orchid','yas-perfumes','nabeel',
-    'amouage','rasasi','ajmal','ibraq','arabian-oud','asa-qurashi','surrati',
-    'al-nuaim','hind-al-oud','al-rehab','el-nabil',
+    'rasasi','ajmal','kayali','hind-al-oud','ibraq','nabeel','arabiyat-prestige',
+    'naseem','ghawali','spirit-of-dubai','widian','khalis-perfumes','sapil',
+    'reef-perfumes','hamidi','orientica','maison-asrar','emirates-pride',
+    'attar-collection','navitus','maison-alhambra','armaf','paris-corner',
+    'fragrance-world','ard-al-zaafaran','gulf-orchid','yas-perfumes','zimaya',
+    'khadlaj','riiffs','rue-broca','rayhaan','emper','french-avenue','louis-cardin',
+    'dumont','my-perfumes','kajal-perfumes','azha-perfumes','al-wataniah','suroori',
   ],
-  pakistan: ['j-junaid-jamshed', 'bonanza-satrangi'],
-  multi:    ['arabia-scents', 'luluat-al-musk', 'oud-store', 'emirati-scents'],
+  saudi:    ['amouage','arabian-oud','asa-qurashi','surrati','al-nuaim','ahmad-al-maghribi'],
+  other:    ['al-rehab','el-nabil'],
+  pakistan: ['j-junaid-jamshed','bonanza-satrangi','scents-n-stories','saeed-ghani','wb-hemani','colish'],
+  indo:     ['velixir'],
+  multi:    ['arabia-scents','luluat-al-musk','oud-store','emirati-scents'],
 }
 
-// ── Argument parsing ───────────────────────────────────────────────────────────
+// ── Args ──────────────────────────────────────────────────────────────────────
 const DRY_RUN = process.argv.includes('--dry-run')
 const SINGLE  = process.argv.includes('--retailer')
-  ? process.argv[process.argv.indexOf('--retailer') + 1]
-  : null
+  ? process.argv[process.argv.indexOf('--retailer') + 1] : null
 const GROUP   = process.argv.includes('--group')
-  ? process.argv[process.argv.indexOf('--group') + 1]
-  : null
+  ? process.argv[process.argv.indexOf('--group') + 1] : null
 
-// ── DB helpers ─────────────────────────────────────────────────────────────────
-
+// ── DB save ───────────────────────────────────────────────────────────────────
 async function saveListings(retailerSlug, listings) {
   const { data: retailer } = await supabase
-    .from('retailers')
-    .select('id')
-    .eq('slug', retailerSlug)
-    .single()
+    .from('retailers').select('id').eq('slug', retailerSlug).single()
 
   if (!retailer) {
-    console.error(`  ✗ Retailer not found in DB: ${retailerSlug}`)
-    console.error('  Run supabase/patch-013-retailers-seed.sql first!')
+    console.error(`  ✗ Retailer not found: ${retailerSlug} — run patch-013 in Supabase first`)
     return 0
   }
 
-  await supabase
-    .from('retailers')
+  await supabase.from('retailers')
     .update({ last_scraped_at: new Date().toISOString() })
     .eq('id', retailer.id)
 
   const BATCH = 100
   let saved = 0
-
   for (let i = 0; i < listings.length; i += BATCH) {
     const batch = listings.slice(i, i + BATCH).map(l => ({
-      retailer_id:     retailer.id,
-      external_id:     l.external_id,
-      raw_name:        l.raw_name,
-      raw_brand:       l.raw_brand,
-      raw_price:       l.raw_price,
-      raw_currency:    l.raw_currency,
-      raw_description: l.raw_description,
-      raw_image_url:   l.raw_image_url,
-      raw_url:         l.raw_url,
-      raw_data:        l.raw_data,
-      match_status:    'pending',
-      last_scraped_at: new Date().toISOString(),
+      retailer_id: retailer.id, external_id: l.external_id,
+      raw_name: l.raw_name, raw_brand: l.raw_brand,
+      raw_price: l.raw_price, raw_currency: l.raw_currency,
+      raw_description: l.raw_description, raw_image_url: l.raw_image_url,
+      raw_url: l.raw_url, raw_data: l.raw_data,
+      match_status: 'pending', last_scraped_at: new Date().toISOString(),
     }))
-
-    const { error } = await supabase
-      .from('scraper_listings')
+    const { error } = await supabase.from('scraper_listings')
       .upsert(batch, { onConflict: 'retailer_id,external_id', ignoreDuplicates: false })
-
-    if (error) {
-      console.error(`  ✗ Batch save error:`, error.message)
-    } else {
-      saved += batch.length
-    }
+    if (error) console.error(`  ✗ Batch error:`, error.message)
+    else saved += batch.length
   }
-
   return saved
 }
 
-// ── Main ───────────────────────────────────────────────────────────────────────
-
+// ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
   console.log(`\n${'═'.repeat(55)}`)
   console.log('  RareTrace Master Scraper')
-  console.log(`  ${new Date().toLocaleString()}`)
-  if (DRY_RUN) console.log('  ⚠ DRY RUN MODE — no DB writes')
+  console.log(`  ${new Date().toLocaleString()} | ${Object.keys(SCRAPERS).length} scrapers registered`)
+  if (DRY_RUN) console.log('  ⚠ DRY RUN — no DB writes')
   if (GROUP)   console.log(`  Group: ${GROUP}`)
-  if (SINGLE)  console.log(`  Single retailer: ${SINGLE}`)
+  if (SINGLE)  console.log(`  Retailer: ${SINGLE}`)
   console.log(`${'═'.repeat(55)}\n`)
 
-  // Determine which scrapers to run
   let scraperEntries
-
   if (SINGLE) {
     if (!SCRAPERS[SINGLE]) {
-      console.error(`Unknown retailer: ${SINGLE}`)
-      console.error(`Available: ${Object.keys(SCRAPERS).join(', ')}`)
+      console.error(`Unknown: ${SINGLE}\nAvailable: ${Object.keys(SCRAPERS).join(', ')}`)
       process.exit(1)
     }
     scraperEntries = [[SINGLE, SCRAPERS[SINGLE]]]
   } else if (GROUP) {
     const keys = GROUP_KEYS[GROUP]
     if (!keys) {
-      console.error(`Unknown group: ${GROUP}`)
-      console.error(`Available groups: ${Object.keys(GROUP_KEYS).join(', ')}, all`)
+      console.error(`Unknown group: ${GROUP}\nAvailable: ${Object.keys(GROUP_KEYS).join(', ')}`)
       process.exit(1)
     }
     scraperEntries = keys.map(k => [k, SCRAPERS[k]]).filter(([, fn]) => fn)
@@ -226,49 +268,32 @@ async function main() {
   }
 
   let totalSaved = 0
-
   for (const [slug, scraper] of scraperEntries) {
     console.log(`\n${'─'.repeat(45)}`)
     try {
       const result = await scraper()
-
-      // Handle both single { retailerSlug, listings } and Array<{ retailerSlug, listings }>
       const batches = Array.isArray(result) ? result : [result]
-
       for (const { retailerSlug, listings } of batches) {
         if (DRY_RUN) {
           console.log(`  [DRY RUN] ${retailerSlug}: ${listings.length} listings`)
-          if (listings[0]) {
-            console.log('  Sample:', JSON.stringify(listings[0], null, 2))
-          }
         } else {
           const saved = await saveListings(retailerSlug, listings)
-          console.log(`  💾 Saved ${saved}/${listings.length} listings for ${retailerSlug}`)
+          console.log(`  💾 ${saved}/${listings.length} saved for ${retailerSlug}`)
           totalSaved += saved
         }
       }
     } catch (err) {
-      console.error(`  ✗ Error scraping ${slug}:`, err.message)
+      console.error(`  ✗ ${slug}: ${err.message}`)
     }
   }
 
   if (!DRY_RUN) {
     console.log(`\n${'═'.repeat(55)}`)
     console.log(`✓ Total saved: ${totalSaved} listings`)
-    console.log('\nNext steps:')
-    console.log('  1. Match listings → products:')
-    console.log('       node scripts/match-products.js')
-    console.log('  2. Backfill vibe/note tags:')
-    console.log('       node scripts/backfill-vibes.js')
-    console.log('       node scripts/backfill-notes.js')
-    console.log('  3. Update exchange rates:')
-    console.log('       node scripts/update-exchange-rates.js')
+    console.log('\nNext: node scripts/match-products.js')
+    console.log('      node scripts/backfill-vibes.js')
   }
-
   console.log(`${'═'.repeat(55)}\n`)
 }
 
-main().catch(err => {
-  console.error('Fatal error:', err)
-  process.exit(1)
-})
+main().catch(err => { console.error('Fatal:', err); process.exit(1) })

@@ -1,6 +1,6 @@
 /**
  * Abdul Samad Al Qurashi scraper
- * Store: https://sa.abdulsamadalqurashi.com (Shopify, USD)
+ * Store: https://new.asqgrp.com (Shopify, USD)
  * Mecca-based, est. 1852 — one of the oldest fragrance houses in Arabia.
  * Known for: Royal Oud, Dehn Al Oud Maliki, Royal Mukhallat, Black Orchid
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'asa-qurashi',
-  baseUrl: 'https://sa.abdulsamadalqurashi.com',
+  baseUrl: 'https://new.asqgrp.com',
   currency: 'USD',
   defaultBrand: 'Abdul Samad Al Qurashi',
 }

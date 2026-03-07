@@ -1,13 +1,13 @@
 /**
  * Gissah Perfumes scraper
- * Store: https://gissahuae.com (Shopify, AED)
+ * Store: https://www.gissah.com (Shopify, AED)
  * Kuwaiti luxury house founded 2019 — known for bold, artistic bottles
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'gissah',
-  baseUrl: 'https://gissahuae.com',
+  baseUrl: 'https://www.gissah.com',
   currency: 'AED',
   defaultBrand: 'Gissah',
 }

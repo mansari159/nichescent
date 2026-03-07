@@ -1,13 +1,13 @@
 /**
  * Rasasi Perfumes scraper
- * Store: https://rasasi.com (Shopify, USD)
+ * Store: https://www.rasasiperfume.com (Shopify, USD)
  * Dubai-based house since 1979 — wide range from attars to modern EDP
  */
 const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'rasasi',
-  baseUrl: 'https://rasasi.com',
+  baseUrl: 'https://www.rasasiperfume.com',
   currency: 'USD',
   defaultBrand: 'Rasasi',
 }
