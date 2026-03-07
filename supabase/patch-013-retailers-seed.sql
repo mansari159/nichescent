@@ -1,53 +1,53 @@
 -- patch-013-retailers-seed.sql
 -- Add retailer entries for all new scrapers.
+-- Columns: name, slug, domain, platform, base_currency, country, priority
 -- Uses ON CONFLICT (slug) DO NOTHING — safe to re-run.
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- ── Brand direct stores ───────────────────────────────────────────────────────
-INSERT INTO retailers (name, slug, base_url, currency, country, is_active) VALUES
+INSERT INTO retailers (name, slug, domain, platform, base_currency, country, priority) VALUES
 
   -- Omani brands
-  ('Amouage',               'amouage',               'https://www.amouage.com',         'USD', 'OM', true),
+  ('Amouage',                'amouage',          'www.amouage.com',              'shopify', 'USD', 'OM', 1),
 
   -- UAE brand direct stores
-  ('Maison Alhambra',       'maison-alhambra',        'https://maisonalhambra.com',      'USD', 'AE', true),
-  ('Armaf Perfumes',        'armaf',                  'https://www.armafperfumes.com',   'USD', 'AE', true),
-  ('Paris Corner',          'paris-corner',           'https://pariscorner.ae',          'AED', 'AE', true),
-  ('Fragrance World',       'fragrance-world',        'https://fragranceworld.ae',       'AED', 'AE', true),
-  ('Ard Al Zaafaran',       'ard-al-zaafaran',        'https://ardalzaafaranperfumes.com','USD','AE', true),
-  ('Gulf Orchid',           'gulf-orchid',            'https://gulforchid.com',          'AED', 'AE', true),
-  ('Yas Perfumes',          'yas-perfumes',           'https://yasperfumes.com',         'AED', 'AE', true),
-  ('Nabeel Perfumes',       'nabeel',                 'https://nabelonline.com',         'AED', 'AE', true),
+  ('Maison Alhambra',        'maison-alhambra',  'maisonalhambra.com',           'shopify', 'USD', 'AE', 2),
+  ('Armaf Perfumes',         'armaf',            'www.armafperfumes.com',        'shopify', 'USD', 'AE', 1),
+  ('Paris Corner',           'paris-corner',     'pariscorner.ae',               'shopify', 'AED', 'AE', 2),
+  ('Fragrance World',        'fragrance-world',  'fragranceworld.ae',            'shopify', 'AED', 'AE', 2),
+  ('Ard Al Zaafaran',        'ard-al-zaafaran',  'ardalzaafaranperfumes.com',    'shopify', 'USD', 'AE', 2),
+  ('Gulf Orchid',            'gulf-orchid',      'gulforchid.com',               'shopify', 'AED', 'AE', 2),
+  ('Yas Perfumes',           'yas-perfumes',     'yasperfumes.com',              'shopify', 'AED', 'AE', 2),
+  ('Nabeel Perfumes',        'nabeel',           'nabelonline.com',              'shopify', 'AED', 'AE', 2),
 
-  -- Saudi brand direct stores
-  ('Arabian Oud',           'arabian-oud',            'https://www.arabianoud.com',      'USD', 'SA', true),
-  ('Abdul Samad Al Qurashi','asa-qurashi',            'https://asaqurashi.com',          'USD', 'SA', true),
-  ('Surrati',               'surrati',                'https://surrati.com',             'USD', 'SA', true),
-  ('Al Nuaim',              'al-nuaim',               'https://alnuaim.com',             'USD', 'SA', true),
+  -- Saudi Arabia brand direct stores
+  ('Arabian Oud',            'arabian-oud',      'www.arabianoud.com',           'shopify', 'USD', 'SA', 1),
+  ('Abdul Samad Al Qurashi', 'asa-qurashi',      'asaqurashi.com',               'shopify', 'USD', 'SA', 1),
+  ('Surrati',                'surrati',          'surrati.com',                  'shopify', 'USD', 'SA', 2),
+  ('Al Nuaim',               'al-nuaim',         'alnuaim.com',                  'shopify', 'USD', 'SA', 2),
 
-  -- Egyptian brand direct stores
-  ('Al Rehab',              'al-rehab',               'https://alrehabperfumes.com',     'USD', 'EG', true),
+  -- Egypt
+  ('Al Rehab',               'al-rehab',         'alrehabperfumes.com',          'shopify', 'USD', 'EG', 2),
 
-  -- Moroccan brand direct stores
-  ('El Nabil',              'el-nabil',               'https://elnabil-parfums.com',     'EUR', 'MA', true),
+  -- Morocco
+  ('El Nabil',               'el-nabil',         'elnabil-parfums.com',          'shopify', 'EUR', 'MA', 2),
 
-  -- Pakistani brand direct stores
-  ('J. Junaid Jamshed',     'j-junaid-jamshed',       'https://www.j.pk',               'PKR', 'PK', true),
-  ('Bonanza Satrangi',      'bonanza-satrangi',       'https://www.bonanzasatrangi.com', 'PKR', 'PK', true),
+  -- Pakistan
+  ('J. Junaid Jamshed',      'j-junaid-jamshed', 'www.j.pk',                    'shopify', 'PKR', 'PK', 2),
+  ('Bonanza Satrangi',       'bonanza-satrangi', 'www.bonanzasatrangi.com',      'shopify', 'PKR', 'PK', 3),
 
   -- Multi-brand retailers
-  ('Arabia Scents',         'arabia-scents',          'https://arabiascents.com',        'USD', 'US', true),
-  ('Luluat Al Musk',        'luluat-al-musk',         'https://luluatalmusk.com',        'USD', 'US', true),
-  ('Oud Store',             'oud-store',              'https://oudstore.com',            'USD', 'US', true),
-  ('Emirati Scents',        'emirati-scents',         'https://emaratiscents.com',       'AED', 'AE', true),
+  ('Arabia Scents',          'arabia-scents',    'arabiascents.com',             'shopify', 'USD', 'US', 1),
+  ('Luluat Al Musk',         'luluat-al-musk',   'luluatalmusk.com',             'shopify', 'USD', 'US', 2),
+  ('Oud Store',              'oud-store',        'oudstore.com',                 'shopify', 'USD', 'US', 2),
+  ('Emirati Scents',         'emirati-scents',   'emaratiscents.com',            'shopify', 'AED', 'AE', 2),
 
-  -- Retailer already covered by hind-al-oud scraper but needs entry if missing
-  ('Kayali Official',       'kayali-official',        'https://kayaliofficial.com',      'USD', 'AE', true),
-  ('Ibraq USA',             'ibraq-usa',              'https://usaibrahimalqurashi.com', 'USD', 'SA', true)
+  -- Already used by existing scrapers — add if missing
+  ('Kayali Official',        'kayali-official',  'kayaliofficial.com',           'shopify', 'USD', 'AE', 1),
+  ('Ibraq USA',              'ibraq-usa',        'usaibrahimalqurashi.com',      'shopify', 'USD', 'SA', 2)
 
 ON CONFLICT (slug) DO NOTHING;
 
 -- ── Verify ────────────────────────────────────────────────────────────────────
-SELECT slug, name, currency, country, is_active
+SELECT slug, name, base_currency, country, is_active
 FROM retailers
 ORDER BY country, name;
