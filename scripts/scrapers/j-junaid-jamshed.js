@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'j-junaid-jamshed',
-  baseUrl: 'https://www.j.pk',
+  baseUrl: 'https://www.junaidjamshed.com',
   currency: 'PKR',
   defaultBrand: 'J. Junaid Jamshed',
 }

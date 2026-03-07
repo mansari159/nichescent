@@ -1,6 +1,6 @@
 /**
  * Nabeel Perfumes scraper
- * Store: https://nabelonline.com (Shopify, AED)
+ * Store: https://www.nabeel.com (Shopify, AED)
  * Dubai-based house — wide oriental catalog, Ghalia Oudh series, rose attars.
  * Also sells via arabiascents.com
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'nabeel',
-  baseUrl: 'https://nabelonline.com',
+  baseUrl: 'https://www.nabeel.com',
   currency: 'AED',
   defaultBrand: 'Nabeel',
 }

@@ -1,6 +1,6 @@
 /**
  * Al Rehab scraper
- * Store: https://alrehabperfumes.com (Shopify, USD)
+ * Store: https://www.alrehab.com (Shopify, USD)
  * Cairo-based, est. 1978 — Crown Perfumes subsidiary, Egypt's largest fragrance house.
  * Known for: Soft, Choco Musk, Silver, Blue, Blossom — ultra-affordable attars $5-$20
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'al-rehab',
-  baseUrl: 'https://alrehabperfumes.com',
+  baseUrl: 'https://www.alrehab.com',
   currency: 'USD',
   defaultBrand: 'Al Rehab',
 }

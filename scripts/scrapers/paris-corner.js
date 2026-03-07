@@ -1,6 +1,6 @@
 /**
  * Paris Corner scraper
- * Store: https://pariscorner.ae (Shopify, AED)
+ * Store: https://www.pariscornerperfumes.com (Shopify, AED)
  * Dubai-based fragrance house — known for opulent oriental blends.
  * Covers: Pendora Scents line, Prison Break, Piece d'Empire
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'paris-corner',
-  baseUrl: 'https://pariscorner.ae',
+  baseUrl: 'https://www.pariscornerperfumes.com',
   currency: 'AED',
   defaultBrand: 'Paris Corner',
 }

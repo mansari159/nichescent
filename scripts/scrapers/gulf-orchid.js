@@ -1,6 +1,6 @@
 /**
  * Gulf Orchid scraper
- * Store: https://gulforchid.com (Shopify, AED)
+ * Store: https://shop-gulforchid.com (Shopify, AED)
  * Sharjah-based, est. 1989 — incense, oud, and oriental EDPs.
  * Known for: Charlie series, Oud series, bakhoor blends
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'gulf-orchid',
-  baseUrl: 'https://gulforchid.com',
+  baseUrl: 'https://shop-gulforchid.com',
   currency: 'AED',
   defaultBrand: 'Gulf Orchid',
 }

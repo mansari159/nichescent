@@ -1,6 +1,6 @@
 /**
  * Surrati scraper
- * Store: https://surrati.com (Shopify, USD)
+ * Store: https://www.surratiperfumes.com (Shopify, USD)
  * Jeddah-based house, est. 1998 — known for attar oils and oud blends.
  * Products: Oud Zahran, Naseem series, Mukhallat collections
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'surrati',
-  baseUrl: 'https://surrati.com',
+  baseUrl: 'https://www.surratiperfumes.com',
   currency: 'USD',
   defaultBrand: 'Surrati',
 }

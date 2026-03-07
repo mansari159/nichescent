@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'el-nabil',
-  baseUrl: 'https://elnabil-parfums.com',
+  baseUrl: 'https://www.el-nabil.com',
   currency: 'EUR',
   defaultBrand: 'El Nabil',
 }

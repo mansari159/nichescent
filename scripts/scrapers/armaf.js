@@ -1,6 +1,6 @@
 /**
  * Armaf scraper
- * Store: https://www.armafperfumes.com (Shopify, USD)
+ * Store: https://www.armaf.ae (Shopify, USD)
  * Dubai-based house under Sterling Parfums — premium-affordable EDP line.
  * Known for: Club de Nuit, Venetian Vibes, Bucephalus, Tres Nuit
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'armaf',
-  baseUrl: 'https://www.armafperfumes.com',
+  baseUrl: 'https://www.armaf.ae',
   currency: 'USD',
   defaultBrand: 'Armaf',
 }

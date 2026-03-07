@@ -1,6 +1,6 @@
 /**
  * Al Nuaim scraper
- * Store: https://alnuaim.com (Shopify, USD)
+ * Store: https://al-nuaim.com (Shopify, USD)
  * Saudi-based budget-friendly oriental house — massive catalog of attars and EDPs.
  * Known for: Musk Malak, Rose Gold, Shams Al Emarat series
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'al-nuaim',
-  baseUrl: 'https://alnuaim.com',
+  baseUrl: 'https://al-nuaim.com',
   currency: 'USD',
   defaultBrand: 'Al Nuaim',
 }

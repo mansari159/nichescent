@@ -1,6 +1,6 @@
 /**
  * Maison Alhambra scraper
- * Store: https://maisonalhambra.com (Shopify, USD)
+ * Store: https://maisonalhambraperfume.com (Shopify, USD)
  * Dubai-based house by the Lattafa Group — inspired-by niche alternative fragrances.
  * Wide catalog covering oud, amber, floral, and woody accords.
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'maison-alhambra',
-  baseUrl: 'https://maisonalhambra.com',
+  baseUrl: 'https://maisonalhambraperfume.com',
   currency: 'USD',
   defaultBrand: 'Maison Alhambra',
 }

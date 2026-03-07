@@ -1,6 +1,6 @@
 /**
  * Ard Al Zaafaran scraper
- * Store: https://ardalzaafaranperfumes.com (Shopify, USD)
+ * Store: https://ardalzaafaranshop.com (Shopify, USD)
  * Dubai-based house — high-volume oriental catalog, known for:
  * Dirham, Kashmiri Musk, Oud, Khaltat Al Arabia series
  */
@@ -8,7 +8,7 @@ const { scrapeShopify } = require('./shopify')
 
 const CONFIG = {
   retailerSlug: 'ard-al-zaafaran',
-  baseUrl: 'https://ardalzaafaranperfumes.com',
+  baseUrl: 'https://ardalzaafaranshop.com',
   currency: 'USD',
   defaultBrand: 'Ard Al Zaafaran',
 }
