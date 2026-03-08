@@ -20,6 +20,7 @@
     "match": "node scripts/match-products.js"
   },
   "dependencies": {
+    "@next/swc-linux-x64-gnu": "^16.1.6",
     "@supabase/supabase-js": "^2.39.0",
     "axios": "^1.6.5",
     "cheerio": "^1.0.0-rc.12",

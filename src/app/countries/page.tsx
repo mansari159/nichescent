@@ -1,214 +1,166 @@
+import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
-import { getCountryFlag, getCountryName, getCountryRegion } from '@/lib/countries'
-import { getCountryHeroImage } from '@/lib/country-images'
 
 export const metadata: Metadata = {
-  title: 'Fragrance Origins — Niche Perfumes by Country · RareTrace',
-  description:
-    "Explore niche fragrances from 50+ countries. From Middle Eastern oud houses to French artisan perfumers, discover the world's finest fragrance traditions.",
+  title: 'Fragrance Origins — Explore Traditions from 50+ Countries',
+  description: 'Discover the fragrance heritage of the Middle East, South Asia, Europe, and beyond. From Emirati oud to French niche perfumery.',
 }
 
-const REGION_ORDER = [
-  'Middle East',
-  'South Asia',
-  'Southeast Asia',
-  'East Asia',
-  'Europe',
-  'Americas',
-  'Oceania',
-  'Africa',
-]
+const REGION_ORDER = ['Middle East', 'South Asia', 'Europe', 'Southeast Asia', 'North America', 'East Asia']
 
-const REGION_SLUGS: Record<string, string> = {
-  'Middle East':    'middle-east',
-  'South Asia':     'south-asia',
-  'Southeast Asia': 'southeast-asia',
-  'East Asia':      'east-asia',
-  'Europe':         'europe',
-  'Americas':       'americas',
-  'Oceania':        'oceania',
-  'Africa':         'africa',
+const COUNTRY_IMAGES: Record<string, string> = {
+  'AE': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80',
+  'SA': 'https://images.unsplash.com/photo-1586191582056-b3e3c6e2e7d8?w=600&q=80',
+  'KW': 'https://images.unsplash.com/photo-1568797629192-789e3a6444c2?w=600&q=80',
+  'OM': 'https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=600&q=80',
+  'QA': 'https://images.unsplash.com/photo-1577948010956-b3f1ad6bd5f6?w=600&q=80',
+  'FR': 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&q=80',
+  'GB': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80',
+  'IN': 'https://images.unsplash.com/photo-1524492412937-b28074a47d70?w=600&q=80',
+  'PK': 'https://images.unsplash.com/photo-1588981884086-9d4b0b06b9d0?w=600&q=80',
+  'ID': 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=600&q=80',
 }
 
-interface CountryCard {
-  code: string
-  name: string
-  flag: string
-  brandCount: number
-  image: string
-  region: string
-}
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600&q=80'
 
-async function getCountriesData(): Promise<{
-  byRegion: Record<string, CountryCard[]>
-  totalCountries: number
-  totalBrands: number
-}> {
-  const { data } = await supabase
+async function getCountriesWithBrands() {
+  const { data: brands } = await supabase
     .from('brands')
-    .select('country')
+    .select('country, region')
     .not('country', 'is', null)
-    .gt('products_count', 0)
 
-  if (!data) return { byRegion: {}, totalCountries: 0, totalBrands: 0 }
+  if (!brands) return []
 
-  // Tally brand counts per country code
-  const counts: Record<string, number> = {}
-  for (const row of data) {
-    if (row.country) {
-      const code = row.country.toUpperCase()
-      counts[code] = (counts[code] ?? 0) + 1
-    }
-  }
+  // Count brands per country
+  const counts: Record<string, { count: number; region: string }> = {}
+  brands.forEach(b => {
+    const c = b.country as string
+    if (!counts[c]) counts[c] = { count: 0, region: b.region ?? 'Other' }
+    counts[c].count++
+  })
 
-  const byRegion: Record<string, CountryCard[]> = {}
+  return Object.entries(counts).map(([code, { count, region }]) => ({ code, count, region }))
+}
 
-  for (const [code, brandCount] of Object.entries(counts)) {
-    const name = getCountryName(code)
-    if (!name) continue
-    const region = getCountryRegion(code) || 'Other'
-    if (!byRegion[region]) byRegion[region] = []
-    byRegion[region].push({
-      code,
-      name,
-      flag: getCountryFlag(code),
-      brandCount,
-      image: getCountryHeroImage(code, region),
-      region,
-    })
-  }
-
-  // Sort each region by brand count descending
-  for (const r of Object.keys(byRegion)) {
-    byRegion[r].sort((a, b) => b.brandCount - a.brandCount)
-  }
-
-  const totalCountries = Object.keys(counts).length
-  const totalBrands = Object.values(counts).reduce((a, b) => a + b, 0)
-
-  return { byRegion, totalCountries, totalBrands }
+const CODE_TO_DATA: Record<string, { name: string; flag: string; slug: string }> = {
+  AE: { name: 'UAE', flag: '🇦🇪', slug: 'ae' },
+  SA: { name: 'Saudi Arabia', flag: '🇸🇦', slug: 'sa' },
+  KW: { name: 'Kuwait', flag: '🇰🇼', slug: 'kw' },
+  OM: { name: 'Oman', flag: '🇴🇲', slug: 'om' },
+  QA: { name: 'Qatar', flag: '🇶🇦', slug: 'qa' },
+  BH: { name: 'Bahrain', flag: '🇧🇭', slug: 'bh' },
+  EG: { name: 'Egypt', flag: '🇪🇬', slug: 'eg' },
+  JO: { name: 'Jordan', flag: '🇯🇴', slug: 'jo' },
+  FR: { name: 'France', flag: '🇫🇷', slug: 'fr' },
+  GB: { name: 'United Kingdom', flag: '🇬🇧', slug: 'gb' },
+  DE: { name: 'Germany', flag: '🇩🇪', slug: 'de' },
+  IT: { name: 'Italy', flag: '🇮🇹', slug: 'it' },
+  IN: { name: 'India', flag: '🇮🇳', slug: 'in' },
+  PK: { name: 'Pakistan', flag: '🇵🇰', slug: 'pk' },
+  ID: { name: 'Indonesia', flag: '🇮🇩', slug: 'id' },
+  MY: { name: 'Malaysia', flag: '🇲🇾', slug: 'my' },
+  US: { name: 'United States', flag: '🇺🇸', slug: 'us' },
+  CA: { name: 'Canada', flag: '🇨🇦', slug: 'ca' },
+  JP: { name: 'Japan', flag: '🇯🇵', slug: 'jp' },
 }
 
 export default async function CountriesPage() {
-  const { byRegion, totalCountries, totalBrands } = await getCountriesData()
-  const activeRegions = REGION_ORDER.filter(r => byRegion[r]?.length > 0)
+  const countries = await getCountriesWithBrands()
+
+  // Group by region
+  const byRegion: Record<string, typeof countries> = {}
+  countries.forEach(c => {
+    const region = c.region || 'Other'
+    if (!byRegion[region]) byRegion[region] = []
+    byRegion[region].push(c)
+  })
+
+  const sortedRegions = REGION_ORDER.filter(r => byRegion[r]).concat(
+    Object.keys(byRegion).filter(r => !REGION_ORDER.includes(r))
+  )
 
   return (
-    <div className="bg-cream min-h-screen">
+    <div className="pt-16 bg-cream min-h-screen">
 
-      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="bg-obsidian-950 border-b border-obsidian-800 py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <Link
-            href="/"
-            className="text-xs text-obsidian-500 hover:text-obsidian-300 uppercase tracking-widest transition-colors mb-6 block"
-          >
-            ← Home
-          </Link>
-          <p className="label-overline text-obsidian-500 mb-4">Fragrance heritage</p>
-          <h1 className="font-serif text-5xl md:text-6xl text-cream font-light mb-4 leading-tight">
-            Discover by Origin
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      <section className="relative bg-obsidian-950 py-24 overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=60)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-obsidian-950/50 to-obsidian-950" />
+        <div className="relative max-w-7xl mx-auto px-6">
+          <p className="text-[10px] tracking-widest uppercase text-obsidian-500 mb-4">Fragrance Heritage</p>
+          <h1 className="font-serif text-5xl sm:text-6xl font-light text-cream mb-4">
+            Explore Fragrance<br />Traditions Worldwide
           </h1>
-          <p className="text-obsidian-400 text-lg max-w-xl leading-relaxed">
-            Niche and artisan houses from {totalCountries} countries — every perfumery tradition on earth, tracked daily.
+          <p className="text-obsidian-400 text-lg max-w-xl">
+            From ancient trade routes to modern artisan houses — discover perfumery cultures from {Object.keys(byRegion).length} regions.
           </p>
-          <div className="flex gap-8 mt-8">
-            <div>
-              <p className="text-2xl font-serif text-cream font-light">{totalCountries}</p>
-              <p className="text-xs text-obsidian-500 uppercase tracking-widest mt-0.5">Countries</p>
-            </div>
-            <div className="w-px bg-obsidian-800" />
-            <div>
-              <p className="text-2xl font-serif text-cream font-light">{totalBrands}</p>
-              <p className="text-xs text-obsidian-500 uppercase tracking-widest mt-0.5">Brands</p>
-            </div>
-            <div className="w-px bg-obsidian-800" />
-            <div>
-              <p className="text-2xl font-serif text-cream font-light">{activeRegions.length}</p>
-              <p className="text-xs text-obsidian-500 uppercase tracking-widest mt-0.5">Regions</p>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* ── Region jump links ─────────────────────────────────────────────────── */}
-      <div className="bg-white border-b border-obsidian-100 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex gap-5 overflow-x-auto scrollbar-hide">
-          {activeRegions.map(r => (
-            <a
-              key={r}
-              href={`#${REGION_SLUGS[r]}`}
-              className="text-xs text-obsidian-500 hover:text-obsidian-900 whitespace-nowrap transition-colors uppercase tracking-widest"
-            >
-              {r}
-            </a>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Countries by region ───────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-6 py-16 space-y-20">
-        {activeRegions.map(region => (
-          <section key={region} id={REGION_SLUGS[region]}>
-
-            {/* Region header */}
-            <div className="flex items-end justify-between mb-6">
-              <div>
-                <p className="label-overline text-obsidian-400 mb-2">{byRegion[region].length} countries</p>
-                <h2 className="font-serif text-3xl text-obsidian-900 font-light">{region}</h2>
-              </div>
-              <Link
-                href={`/search?region=${REGION_SLUGS[region]}`}
-                className="text-xs tracking-widest uppercase text-gold-500 hover:text-gold-600 transition-colors hidden sm:block"
-              >
-                Browse all →
-              </Link>
+      {/* ── Regions ───────────────────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        {sortedRegions.map(region => (
+          <section key={region} className="mb-16">
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-obsidian-100">
+              <h2 className="font-serif text-3xl text-obsidian-900 font-light">{region}</h2>
+              <span className="text-xs text-obsidian-400 border border-obsidian-200 px-2 py-1">
+                {byRegion[region].length} {byRegion[region].length === 1 ? 'country' : 'countries'}
+              </span>
             </div>
 
-            {/* Country cards */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {byRegion[region].map(country => (
-                <Link
-                  key={country.code}
-                  href={`/country/${country.code.toLowerCase()}`}
-                  className="group relative overflow-hidden aspect-[4/3] block"
-                >
-                  {/* Cinematic background */}
-                  <Image
-                    src={country.image}
-                    alt={`${country.name} cityscape`}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                  />
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950/90 via-obsidian-950/20 to-transparent group-hover:from-obsidian-950/80 transition-all duration-300" />
-
-                  {/* Content */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <span className="text-2xl block mb-1">{country.flag}</span>
-                    <p className="font-serif text-base text-cream font-light leading-tight">
-                      {country.name}
-                    </p>
-                    <p className="text-[10px] text-obsidian-400 mt-1 tracking-widest uppercase">
-                      {country.brandCount} {country.brandCount === 1 ? 'brand' : 'brands'}
-                    </p>
-                  </div>
-
-                  {/* Hover arrow */}
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <span className="text-xs text-white/60 bg-obsidian-900/60 px-2 py-1">→</span>
-                  </div>
-                </Link>
-              ))}
+              {byRegion[region]
+                .sort((a, b) => b.count - a.count)
+                .map(country => {
+                  const meta = CODE_TO_DATA[country.code]
+                  if (!meta) return null
+                  return (
+                    <Link
+                      key={country.code}
+                      href={`/country/${meta.slug}`}
+                      className="group relative aspect-[3/4] overflow-hidden block"
+                    >
+                      <Image
+                        src={COUNTRY_IMAGES[country.code] ?? FALLBACK_IMAGE}
+                        alt={meta.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950/80 via-obsidian-950/20 to-transparent group-hover:from-obsidian-950/90 transition-all duration-300" />
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <p className="font-serif text-lg text-cream font-light">{meta.name}</p>
+                        <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mt-0.5">
+                          {country.count} {country.count === 1 ? 'brand' : 'brands'}
+                        </p>
+                      </div>
+                    </Link>
+                  )
+                })}
             </div>
           </section>
         ))}
-      </div>
 
+        {/* Coming Soon regions */}
+        <section>
+          <div className="flex items-center gap-4 mb-8 pb-4 border-b border-obsidian-100">
+            <h2 className="font-serif text-3xl text-obsidian-900 font-light opacity-50">Coming Soon</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 opacity-50">
+            {['West Africa', 'Latin America', 'East Africa', 'Central Asia'].map(region => (
+              <div key={region} className="border border-dashed border-obsidian-200 p-6 text-center">
+                <p className="font-serif text-lg text-obsidian-400 font-light">{region}</p>
+                <p className="text-[10px] tracking-widest uppercase text-obsidian-300 mt-1">Coming soon</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

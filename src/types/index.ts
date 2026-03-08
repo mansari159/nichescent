@@ -3,10 +3,16 @@ export interface Brand {
   name: string
   slug: string
   country: string | null
+  country_id?: string | null
   region: string
   description: string | null
   logo_url: string | null
+  hero_image_url?: string | null
+  founded_year?: number | null
+  signature_style?: string | null
+  common_notes?: string[]
   products_count: number
+  website_url?: string | null
 }
 
 export interface Retailer {
@@ -39,11 +45,11 @@ export interface Product {
   notes_base: string[]
   image_url: string | null
   category_tags: string[]
+  is_active?: boolean
   lowest_price: number | null
   retailers_count: number
   created_at: string
   updated_at?: string
-  // Vibe columns — populated after running backfill-vibes.js
   primary_vibe_slug?: string | null
   primary_vibe_emoji?: string | null
   current_prices?: PriceEntry[]
@@ -54,9 +60,12 @@ export interface Vibe {
   name: string
   slug: string
   description: string | null
-  emoji: string
-  color_hex: string
+  emoji?: string
+  color_hex?: string
+  gradient_colors?: string[]
   display_order: number
+  common_ingredients?: string[]
+  best_for?: string | null
 }
 
 export interface Note {
@@ -65,6 +74,7 @@ export interface Note {
   slug: string
   category: string
   description: string | null
+  illustration_url?: string | null
 }
 
 export interface PriceEntry {
@@ -81,6 +91,20 @@ export interface PriceEntry {
   last_updated: string
 }
 
+export interface Country {
+  id: string
+  name: string
+  slug?: string
+  code: string
+  flag_emoji: string
+  region: string
+  hero_image_url: string | null
+  hero_video_url?: string | null
+  heritage_description: string | null
+  perfumery_tradition?: string | null
+  display_order: number
+}
+
 export interface Category {
   id: string
   name: string
@@ -95,58 +119,25 @@ export interface SearchResult {
   query: string
 }
 
+export interface EmailSubscriber {
+  id: string
+  email: string
+  source: string
+  subscribed_at: string
+}
+
 export type Currency = 'USD' | 'AED' | 'SAR' | 'EUR' | 'GBP' | 'KWD'
-
 export type FragranceType = 'edp' | 'edt' | 'parfum' | 'attar' | 'oil' | 'bakhoor' | 'body-mist'
-
 export type Gender = 'men' | 'women' | 'unisex'
-
-export interface Country {
-  id: string
-  name: string
-  code: string
-  flag_emoji: string
-  region: string
-  hero_image_url: string | null
-  heritage_description: string | null
-  perfumery_tradition: string | null
-  display_order: number
-}
-
-export interface Dupe {
-  id: string
-  slug: string
-  original_name: string
-  original_brand: string
-  original_price: number
-  original_size: string
-  description: string | null
-  scent_profile: string | null
-  key_notes: string[]
-  why_people_love: string | null
-  image_url: string | null
-  created_at: string
-}
-
-export interface DupeAlternative {
-  id: string
-  dupe_id: string
-  product_id: string
-  product?: Product
-  similarity_score: number
-  tier: 'best_overall' | 'premium' | 'budget'
-  comparison_notes: string | null
-  strengths: string[]
-  differences: string[]
-}
 
 export interface SearchFilters {
   query?: string
   brands?: string[]
   types?: FragranceType[]
   genders?: Gender[]
-  minPrice?: number
-  maxPrice?: number
+  countries?: string[]
+  vibes?: string[]
+  priceRange?: '$' | '$$' | '$$$'
   inStockOnly?: boolean
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'name'
 }

@@ -1,401 +1,211 @@
-import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import SearchBar from '@/components/SearchBar'
 import ProductCard from '@/components/ProductCard'
-import SearchFiltersBar from '@/components/SearchFiltersBar'
-import ActiveFilters from '@/components/ActiveFilters'
+import AdUnit from '@/components/AdUnit'
+import EmailCapture from '@/components/EmailCapture'
 import type { Product } from '@/types'
+import dynamic from 'next/dynamic'
 
-// Country codes per region — used to filter brands without polluting the search box
-// Must stay in sync with COUNTRY_MAP regions in src/lib/countries.ts
-const REGION_COUNTRIES: Record<string, string[]> = {
-  'middle-east':    ['SA', 'AE', 'KW', 'OM', 'BH', 'QA', 'YE', 'IQ', 'JO', 'LB', 'PS', 'IR', 'TR', 'EG', 'MA', 'DZ', 'TN', 'LY', 'SY'],
-  'south-asia':     ['IN', 'PK', 'BD', 'LK', 'NP'],
-  'southeast-asia': ['ID', 'MY', 'SG', 'TH', 'PH', 'VN'],
-  'east-asia':      ['JP', 'KR', 'CN'],
-  'europe':         ['FR', 'IT', 'GB', 'DE', 'NL', 'BE', 'ES', 'PT', 'CH', 'SE', 'DK', 'NO', 'AT', 'PL', 'FI'],
-  'americas':       ['US', 'CA', 'BR', 'MX', 'AR'],
-  'oceania':        ['AU', 'NZ'],
-  'africa':         ['ZA', 'NG', 'KE', 'ET'],
+const SearchBar = dynamic(() => import('@/components/SearchBar'), { ssr: false })
+const FilterModal = dynamic(() => import('@/components/FilterModal'), { ssr: false })
+
+interface Props {
+  searchParams: { q?: string; brand?: string; vibe?: string; type?: string; gender?: string; priceRange?: string; sort?: string }
 }
 
-const REGION_LABELS: Record<string, string> = {
-  'middle-east':    'Middle East',
-  'south-asia':     'South Asia',
-  'europe':         'Europe',
-  'southeast-asia': 'Southeast Asia',
-}
-
-interface SearchPageProps {
-  searchParams: {
-    q?: string
-    region?: string
-    brand?: string | string[]
-    type?: string | string[]
-    gender?: string | string[]
-    note?: string | string[]
-    minPrice?: string
-    maxPrice?: string
-    sort?: string
-    page?: string
-  }
-}
-
-export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const q = searchParams.q
   return {
-    title: q ? `"${q}" — Search Results · RareTrace` : 'All Fragrances · RareTrace',
-    description: `Search and compare prices for ${q ?? 'niche fragrances'} across multiple retailers. Find the best deal, updated daily.`,
+    title: q ? `"${q}" — Fragrance Search` : 'Search Fragrances — Browse All Niche Perfumes',
+    description: q
+      ? `Search results for "${q}" — Discover niche fragrances matching your search.`
+      : 'Browse all niche fragrances from 50+ countries. Filter by vibe, type, price, and more.',
   }
 }
 
-const PAGE_SIZE = 24
+async function searchProducts(params: Props['searchParams']): Promise<{ products: Product[]; total: number }> {
+  const { q, brand, vibe, type, gender, priceRange, sort } = params
 
-// ── Brand lookup ──────────────────────────────────────────────────────────────
-async function getAllBrands() {
-  const { data } = await supabase
-    .from('brands')
-    .select('id, name, slug, country')
-    .order('name', { ascending: true })
-  return data ?? []
-}
-
-// ── Smart search with brand-prefix detection + ilike fallback ─────────────────
-async function searchProducts(
-  params: SearchPageProps['searchParams'],
-  allBrands: Array<{ id: string; name: string; slug: string; country?: string | null }>
-): Promise<{ products: Product[]; total: number; detectedBrand: string | null }> {
-  const {
-    q, region, brand, type, gender, note,
-    minPrice, maxPrice,
-    sort = 'relevance',
-    page = '1',
-  } = params
-
-  const pageNum = Math.max(1, parseInt(page))
-  const from = (pageNum - 1) * PAGE_SIZE
-  const to = from + PAGE_SIZE - 1
-
-  // Region filter — look up brand IDs that match the region's country codes
-  let brandIdsFromFilter: string[] | null = null
-  if (region && REGION_COUNTRIES[region]) {
-    const countryCodes = REGION_COUNTRIES[region]
-    const regionBrands = allBrands.filter(b =>
-      b.country && countryCodes.includes(b.country.toUpperCase())
-    )
-    brandIdsFromFilter = regionBrands.map(b => b.id)
-    if (brandIdsFromFilter.length === 0) return { products: [], total: 0, detectedBrand: null }
-  }
-
-  // Brand filter from URL param (overrides region if both somehow set)
-  if (brand) {
-    const brandSlugs = Array.isArray(brand) ? brand : [brand]
-    const matched = allBrands.filter(b => brandSlugs.includes(b.slug))
-    brandIdsFromFilter = matched.map(b => b.id)
-    if (brandIdsFromFilter.length === 0) return { products: [], total: 0, detectedBrand: null }
-  }
-
-  // Smart query parsing
-  let detectedBrandId: string | null = null
-  let detectedBrandName: string | null = null
-  let productNameQuery: string | null = null
-  let freeTextQuery: string | null = null
-
-  if (q?.trim()) {
-    const searchTerm = q.trim()
-    // Longest brand name first so "Swiss Arabian" wins over "Swiss"
-    const sortedBrands = [...allBrands].sort((a, b) => b.name.length - a.name.length)
-    const brandPrefix = sortedBrands.find(b =>
-      searchTerm.toLowerCase().startsWith(b.name.toLowerCase())
-    )
-    if (brandPrefix) {
-      detectedBrandId   = brandPrefix.id
-      detectedBrandName = brandPrefix.name
-      const remainder   = searchTerm.slice(brandPrefix.name.length).trim()
-      productNameQuery  = remainder || null
-    } else {
-      freeTextQuery = searchTerm
-    }
-  }
-
-  const runQuery = async (mode: 'fts' | 'ilike') => {
-    let q = supabase
-      .from('products')
-      .select('*, brand:brands(name, slug, country)', { count: 'exact' })
-      .eq('is_active', true)
-
-    // Brand filter
-    if (brandIdsFromFilter) {
-      q = q.in('brand_id', brandIdsFromFilter)
-    } else if (detectedBrandId) {
-      q = q.eq('brand_id', detectedBrandId)
-    }
-
-    // Product-name part of brand+product query
-    if (productNameQuery) {
-      q = q.ilike('name', `%${productNameQuery}%`)
-    }
-
-    // Free-text search
-    if (freeTextQuery) {
-      if (mode === 'fts') {
-        q = q.textSearch('search_vector', freeTextQuery, { type: 'websearch' })
-      } else {
-        q = q.ilike('name', `%${freeTextQuery}%`)
-      }
-    }
-
-    // Type filter
-    if (type) {
-      const types = Array.isArray(type) ? type : [type]
-      q = q.in('fragrance_type', types)
-    }
-
-    // Gender filter
-    if (gender) {
-      const genders = Array.isArray(gender) ? gender : [gender]
-      q = q.in('gender', genders)
-    }
-
-    // Note filter
-    if (note) {
-      const noteSlugs = Array.isArray(note) ? note : [note]
-      try {
-        const { data: noteRows } = await supabase
-          .from('notes').select('id').in('slug', noteSlugs)
-        const noteIds = (noteRows ?? []).map(n => n.id)
-        if (noteIds.length > 0) {
-          const { data: pnRows } = await supabase
-            .from('product_notes').select('product_id').in('note_id', noteIds)
-          const productIds = Array.from(new Set((pnRows ?? []).map(r => r.product_id)))
-          if (productIds.length > 0) q = q.in('id', productIds)
-          else return { data: [], count: 0, error: null }
-        }
-      } catch { /* notes table may not be populated */ }
-    }
-
-    // Price
-    if (minPrice) q = q.gte('lowest_price', parseFloat(minPrice))
-    if (maxPrice) q = q.lte('lowest_price', parseFloat(maxPrice))
-
-    // Sort
-    switch (sort) {
-      case 'price_asc':  q = q.order('lowest_price', { ascending: true,  nullsFirst: false }); break
-      case 'price_desc': q = q.order('lowest_price', { ascending: false, nullsFirst: false }); break
-      case 'newest':     q = q.order('created_at',   { ascending: false }); break
-      case 'name':       q = q.order('name',          { ascending: true  }); break
-      default:           q = q.order('retailers_count', { ascending: false, nullsFirst: false }); break
-    }
-
-    return q.range(from, to)
-  }
-
-  const primary = await runQuery('fts')
-
-  if ((primary.count ?? 0) === 0 && freeTextQuery) {
-    const fallback = await runQuery('ilike')
-    return {
-      products: (fallback.data ?? []) as Product[],
-      total: fallback.count ?? 0,
-      detectedBrand: detectedBrandName,
-    }
-  }
-
-  return {
-    products: (primary.data ?? []) as Product[],
-    total: primary.count ?? 0,
-    detectedBrand: detectedBrandName,
-  }
-}
-
-// ── Filter options ────────────────────────────────────────────────────────────
-async function getFilterOptions() {
-  const { data } = await supabase
+  let query = supabase
     .from('products')
-    .select('fragrance_type')
+    .select('*, brand:brands(name, slug, country)', { count: 'exact' })
     .eq('is_active', true)
-    .not('fragrance_type', 'is', null)
-  const types = Array.from(
-    new Set((data ?? []).map(p => p.fragrance_type).filter(Boolean))
-  ).sort() as string[]
-  return { types }
+    .not('lowest_price', 'is', null)
+    .range(0, 23)
+
+  if (q) {
+    try {
+      query = query.textSearch('search_vector', q.trim(), { type: 'websearch', config: 'english' })
+    } catch {
+      query = query.ilike('name', `%${q}%`)
+    }
+  }
+  if (brand) query = query.ilike('name', `%${brand}%`)
+  if (vibe) query = query.eq('primary_vibe_slug', vibe)
+  if (type) query = query.eq('fragrance_type', type)
+  if (gender) query = query.eq('gender', gender)
+  if (priceRange === '$') query = query.lt('lowest_price', 50)
+  else if (priceRange === '$$') query = query.gte('lowest_price', 50).lt('lowest_price', 150)
+  else if (priceRange === '$$$') query = query.gte('lowest_price', 150)
+
+  if (sort === 'price_asc') query = query.order('lowest_price', { ascending: true })
+  else if (sort === 'price_desc') query = query.order('lowest_price', { ascending: false })
+  else if (sort === 'name') query = query.order('name', { ascending: true })
+  else query = query.order('created_at', { ascending: false })
+
+  const { data, count } = await query
+  return { products: (data ?? []) as Product[], total: count ?? 0 }
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
-export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const allBrands = await getAllBrands()
+const SUGGESTED_SEARCHES = [
+  'Oud', 'Rose & Oud', 'Saffron', 'Bakhoor', 'Attar oil',
+  'Kuwait', 'UAE', 'French niche', 'Sweet amber', 'Leather',
+]
 
-  const [{ products, total, detectedBrand }, { types: availableTypes }] = await Promise.all([
-    searchProducts(searchParams, allBrands),
-    getFilterOptions(),
-  ])
+export default async function SearchPage({ searchParams }: Props) {
+  const { q } = searchParams
+  const { products, total } = await searchProducts(searchParams)
 
-  const q          = searchParams.q ?? ''
-  const region     = searchParams.region ?? ''
-  const regionLabel = region ? REGION_LABELS[region] ?? region : null
-  const sort       = searchParams.sort ?? 'relevance'
-  const page       = parseInt(searchParams.page ?? '1')
-  const totalPages = Math.ceil(total / PAGE_SIZE)
-
-  const activeGenders = Array.isArray(searchParams.gender) ? searchParams.gender : searchParams.gender ? [searchParams.gender] : []
-  const activeTypes   = Array.isArray(searchParams.type)   ? searchParams.type   : searchParams.type   ? [searchParams.type]   : []
-  const activeBrands  = Array.isArray(searchParams.brand)  ? searchParams.brand  : searchParams.brand  ? [searchParams.brand]  : []
-  const activeNotes   = Array.isArray(searchParams.note)   ? searchParams.note   : searchParams.note   ? [searchParams.note]   : []
-
-  const activeFilterCount = activeBrands.length + activeTypes.length + activeGenders.length + activeNotes.length +
-    (searchParams.minPrice ? 1 : 0) + (searchParams.maxPrice ? 1 : 0)
-
-  function buildPageUrl(p: number) {
-    const params = new URLSearchParams()
-    if (q) params.set('q', q)
-    if (searchParams.region) params.set('region', searchParams.region)
-    if (sort !== 'relevance') params.set('sort', sort)
-    params.set('page', String(p))
-    ;(['brand', 'type', 'gender', 'note'] as const).forEach(key => {
-      const val = searchParams[key]
-      if (val) (Array.isArray(val) ? val : [val]).forEach(v => params.append(key, v))
-    })
-    if (searchParams.minPrice) params.set('minPrice', searchParams.minPrice)
-    if (searchParams.maxPrice) params.set('maxPrice', searchParams.maxPrice)
-    return `/search?${params.toString()}`
-  }
+  const hasFilters = !!(searchParams.vibe || searchParams.type || searchParams.gender || searchParams.priceRange)
 
   return (
-    <div className="bg-cream min-h-screen">
-
-      {/* ── Sticky search bar ────────────────────────────────────────────── */}
-      <div className="bg-white border-b border-obsidian-100 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <SearchBar initialQuery={q} variant="light" />
+    <div className="pt-16 bg-cream min-h-screen">
+      {/* ── Search Header ─────────────────────────────────────────────────── */}
+      <section className="bg-obsidian-950 py-14">
+        <div className="max-w-7xl mx-auto px-6">
+          <p className="text-[10px] tracking-widest uppercase text-obsidian-500 mb-4">
+            {q ? `Results for` : 'Browse All Fragrances'}
+          </p>
+          {q && (
+            <h1 className="font-serif text-4xl sm:text-5xl text-cream font-light mb-6">
+              &ldquo;{q}&rdquo;
+            </h1>
+          )}
+          <div className="max-w-2xl">
+            <Suspense fallback={null}>
+              <SearchBar defaultValue={q ?? ''} autoFocus={!q} />
+            </Suspense>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── Horizontal filter bar ────────────────────────────────────────── */}
-      <Suspense>
-        <SearchFiltersBar
-          availableTypes={availableTypes}
-          activeGenders={activeGenders}
-          activeTypes={activeTypes}
-          activeMinPrice={searchParams.minPrice}
-          activeMaxPrice={searchParams.maxPrice}
-          activeSort={sort}
-          totalResults={total}
-        />
-      </Suspense>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* ── Result count + filter bar ─────────────────────────────────── */}
+        <div className="flex items-center justify-between mb-6">
+          <p className="text-sm text-obsidian-500">
+            <span className="font-medium text-obsidian-900">{total.toLocaleString()}</span>{' '}
+            {total === 1 ? 'fragrance' : 'fragrances'}{q ? ` for "${q}"` : ''}
+          </p>
+          <div className="flex items-center gap-3">
+            {/* Sort */}
+            <form method="get" className="hidden sm:block">
+              {q && <input type="hidden" name="q" value={q} />}
+              <select
+                name="sort"
+                defaultValue={searchParams.sort ?? ''}
+                onChange={e => (e.target.closest('form') as HTMLFormElement)?.submit()}
+                className="text-xs border border-obsidian-200 bg-white text-obsidian-700 px-3 py-2 focus:outline-none focus:border-gold-400"
+              >
+                <option value="">Newest First</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="name">A–Z</option>
+              </select>
+            </form>
+          </div>
+        </div>
 
-      {/* ── Results ──────────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-
-        {/* Context header */}
-        {(q || detectedBrand || regionLabel) && (
-          <div className="mb-4 flex items-center flex-wrap gap-2">
-            {regionLabel && (
-              <p className="text-sm text-obsidian-500">
-                {total > 0
-                  ? <><span className="font-semibold text-obsidian-900">{total.toLocaleString()}</span> {total === 1 ? 'fragrance' : 'fragrances'} from <span className="font-semibold text-obsidian-900">{regionLabel}</span></>
-                  : <>No fragrances found for <span className="font-semibold">{regionLabel}</span> yet</>
-                }
-              </p>
-            )}
-            {q && !regionLabel && (
-              <p className="text-sm text-obsidian-500">
-                {total > 0
-                  ? <><span className="font-semibold text-obsidian-900">{total.toLocaleString()}</span> {total === 1 ? 'fragrance' : 'fragrances'} for <span className="italic">&ldquo;{q}&rdquo;</span></>
-                  : <>No results for <span className="italic">&ldquo;{q}&rdquo;</span></>
-                }
-              </p>
-            )}
-            {detectedBrand && !activeBrands.length && (
-              <span className="text-xs text-gold-700 bg-gold-50 border border-gold-200 px-2 py-0.5">
-                Showing brand: {detectedBrand}
-              </span>
-            )}
-            {regionLabel && (
-              <a href="/search" className="text-xs text-obsidian-400 hover:text-obsidian-600 underline transition-colors">
-                Clear region
+        {/* Active filter chips */}
+        {hasFilters && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {[
+              searchParams.vibe && { label: searchParams.vibe.replace(/-/g, ' '), param: 'vibe' },
+              searchParams.type && { label: searchParams.type.toUpperCase(), param: 'type' },
+              searchParams.gender && { label: searchParams.gender, param: 'gender' },
+              searchParams.priceRange && { label: searchParams.priceRange, param: 'priceRange' },
+            ].filter((x): x is { label: string; param: string } => Boolean(x)).map((chip, i) => chip && (
+              <a
+                key={i}
+                href={(() => {
+                  const p = new URLSearchParams(searchParams as Record<string, string>)
+                  p.delete(chip.param)
+                  return `/search?${p.toString()}`
+                })()}
+                className="flex items-center gap-1.5 text-xs bg-obsidian-100 text-obsidian-700 px-3 py-1.5 hover:bg-obsidian-200 transition-colors"
+              >
+                {chip.label}
+                <span className="text-obsidian-400">×</span>
               </a>
-            )}
+            ))}
+            <a
+              href={`/search${q ? `?q=${encodeURIComponent(q)}` : ''}`}
+              className="text-xs text-gold-500 hover:text-gold-600 transition-colors px-2 py-1.5"
+            >
+              Clear filters
+            </a>
           </div>
         )}
 
-        {/* Active filter chips */}
-        {activeFilterCount > 0 && (
-          <Suspense>
-            <ActiveFilters
-              brands={activeBrands}
-              types={activeTypes}
-              genders={activeGenders}
-              notes={activeNotes}
-              minPrice={searchParams.minPrice}
-              maxPrice={searchParams.maxPrice}
-              allBrands={allBrands}
-              allNotes={[]}
-            />
-          </Suspense>
+        {/* ── Ad ─────────────────────────────────────────────────────────── */}
+        <AdUnit position="before_scroll" className="mb-8" />
+
+        {/* ── Grid ───────────────────────────────────────────────────────── */}
+        {products.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            {products.map((p, i) => (
+              <ProductCard key={p.id} product={p} priority={i < 4} />
+            ))}
+          </div>
+        ) : (
+          /* Empty state */
+          <div className="text-center py-24 border border-obsidian-100">
+            <div className="max-w-md mx-auto">
+              <p className="font-serif text-3xl text-obsidian-400 font-light mb-3">
+                No results found
+              </p>
+              {q && (
+                <p className="text-sm text-obsidian-400 mb-8">
+                  We couldn&apos;t find any fragrances matching &ldquo;{q}&rdquo;. Try a different search or browse by vibe.
+                </p>
+              )}
+
+              <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-4">Try searching for:</p>
+              <div className="flex flex-wrap justify-center gap-2 mb-10">
+                {SUGGESTED_SEARCHES.map(s => (
+                  <Link
+                    key={s}
+                    href={`/search?q=${encodeURIComponent(s)}`}
+                    className="text-xs text-obsidian-600 border border-obsidian-200 hover:border-gold-400 hover:text-gold-700 px-3 py-1.5 transition-colors"
+                  >
+                    {s}
+                  </Link>
+                ))}
+              </div>
+
+              <div className="border-t border-obsidian-100 pt-8">
+                <p className="text-sm text-obsidian-500 mb-4">Can&apos;t find what you&apos;re looking for? Let us know.</p>
+                <EmailCapture
+                  source="search_empty_state"
+                  placeholder="your@email.com"
+                  buttonText="Request This Fragrance"
+                />
+              </div>
+            </div>
+          </div>
         )}
 
-        {/* Product grid */}
-        {products.length > 0 ? (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {products.map(p => <ProductCard key={p.id} product={p} />)}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 mt-10">
-                {page > 1 && (
-                  <a href={buildPageUrl(page - 1)}
-                    className="px-4 py-2 text-sm border border-obsidian-200 text-obsidian-600 hover:border-gold-400 hover:text-obsidian-900 transition-colors">
-                    ← Prev
-                  </a>
-                )}
-                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i + 1).map(p => (
-                  <a key={p} href={buildPageUrl(p)}
-                    className={`w-9 h-9 flex items-center justify-center text-sm border transition-colors ${
-                      p === page
-                        ? 'bg-obsidian-900 text-cream border-obsidian-900'
-                        : 'border-obsidian-200 text-obsidian-600 hover:border-gold-400'
-                    }`}>
-                    {p}
-                  </a>
-                ))}
-                {page < totalPages && (
-                  <a href={buildPageUrl(page + 1)}
-                    className="px-4 py-2 text-sm border border-obsidian-200 text-obsidian-600 hover:border-gold-400 hover:text-obsidian-900 transition-colors">
-                    Next →
-                  </a>
-                )}
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center py-24 border border-obsidian-100 bg-white">
-            <p className="font-serif text-3xl text-obsidian-300 font-light mb-3">No results found</p>
-            {q ? (
-              <>
-                <p className="text-sm text-obsidian-400 mb-6">
-                  No fragrances matched <span className="italic">&ldquo;{q}&rdquo;</span>. Try a different spelling or browse by vibe.
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center mb-8">
-                  {[['Woody & Earthy','woody-earthy'],['Warm & Spicy','warm-spicy'],['Floral & Romantic','floral-romantic'],['Fresh & Clean','fresh-clean']].map(([label, slug]) => (
-                    <a key={slug} href={`/vibe/${slug}`}
-                      className="text-xs border border-obsidian-200 text-obsidian-500 hover:border-gold-400 hover:text-obsidian-800 px-3 py-1.5 transition-colors">
-                      {label}
-                    </a>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <p className="text-sm text-obsidian-400 mb-6">
-                {activeFilterCount > 0 ? 'Try removing some filters.' : 'Browse all fragrances below.'}
-              </p>
-            )}
-            <a href="/search"
-              className="text-xs tracking-widest uppercase border border-obsidian-300 text-obsidian-600 px-6 py-3 hover:border-gold-400 hover:text-obsidian-900 transition-colors inline-block">
-              Browse all fragrances
-            </a>
+        {/* End state */}
+        {products.length > 0 && total > 24 && (
+          <div className="mt-16 border-t border-obsidian-100 pt-16 text-center">
+            <p className="font-serif text-3xl text-obsidian-900 font-light mb-3">
+              Can&apos;t find what you&apos;re looking for?
+            </p>
+            <p className="text-sm text-obsidian-500 mb-8">
+              We&apos;re adding 50+ brands weekly. Tell us what you&apos;re searching for.
+            </p>
+            <EmailCapture source="search_end_state" placeholder="your@email.com" buttonText="Keep Me Updated" />
           </div>
         )}
       </div>

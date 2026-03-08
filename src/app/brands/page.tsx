@@ -1,124 +1,139 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { Brand } from '@/types'
+import { getCountryFlag, getCountryName } from '@/lib/countries'
 
 export const metadata: Metadata = {
-  title: 'All Brands — MENA Fragrance Houses',
-  description: 'Explore all MENA fragrance brands tracked by RareTrace. Compare prices for Lattafa, Ajmal, Swiss Arabian, Rasasi, Gissah, Assaf, and more.',
+  title: 'All Fragrance Brands — Artisan & Niche Houses',
+  description: 'Browse all niche and artisan fragrance brands tracked by RareTrace. Alphabetical listing with country, founding year, and fragrance count.',
 }
 
-const regionLabels: Record<string, string> = {
-  MENA: 'Middle East & North Africa',
-  European: 'European',
-  American: 'American',
-  Asian: 'Asian',
-}
-
-async function getBrands(): Promise<Array<Brand & { products_count: number }>> {
+async function getBrands() {
   const { data } = await supabase
     .from('brands')
-    .select(`
-      *,
-      products_count:products(count)
-    `)
+    .select('*')
     .order('name', { ascending: true })
-
-  return (data ?? [])
-    .map(b => ({
-      ...b,
-      products_count: b.products_count?.[0]?.count ?? 0,
-    }))
-    .filter(b => b.products_count > 0) as Array<Brand & { products_count: number }>
+  return data ?? []
 }
 
 export default async function BrandsPage() {
   const brands = await getBrands()
 
-  // Group by first letter
-  const grouped: Record<string, typeof brands> = {}
-  for (const brand of brands) {
-    const letter = brand.name.charAt(0).toUpperCase()
-    if (!grouped[letter]) grouped[letter] = []
-    grouped[letter].push(brand)
-  }
+  // Group alphabetically
+  const alphabetical: Record<string, typeof brands> = {}
+  brands.forEach(b => {
+    const letter = b.name.charAt(0).toUpperCase()
+    const key = /[A-Z]/.test(letter) ? letter : '#'
+    if (!alphabetical[key]) alphabetical[key] = []
+    alphabetical[key].push(b)
+  })
 
-  const letters = Object.keys(grouped).sort()
+  const letters = Object.keys(alphabetical).sort((a, b) => {
+    if (a === '#') return 1
+    if (b === '#') return -1
+    return a.localeCompare(b)
+  })
+
+  // Featured (most products)
+  const featured = [...brands].sort((a, b) => (b.products_count ?? 0) - (a.products_count ?? 0)).slice(0, 6)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      {/* Header */}
-      <nav className="text-sm text-obsidian-400 mb-6 flex items-center gap-2">
-        <Link href="/" className="hover:text-obsidian-600">Home</Link>
-        <span>/</span>
-        <span className="text-obsidian-700">All Brands</span>
-      </nav>
+    <div className="pt-16 bg-cream min-h-screen">
 
-      <div className="mb-10">
-        <p className="text-xs tracking-widest2 uppercase text-obsidian-400 mb-2">Houses we cover</p>
-        <h1 className="font-serif text-5xl text-obsidian-900 font-light">All Brands</h1>
-        <p className="text-obsidian-500 mt-3 text-sm">
-          {brands.length} fragrance houses with active listings — prices compared daily.
-        </p>
-      </div>
+      {/* ── Hero ──────────────────────────────────────────────────────────── */}
+      <section className="bg-obsidian-950 py-20">
+        <div className="max-w-7xl mx-auto px-6">
+          <p className="text-[10px] tracking-widest uppercase text-obsidian-500 mb-4">Fragrance Houses</p>
+          <h1 className="font-serif text-5xl sm:text-6xl font-light text-cream mb-4">All Brands</h1>
+          <p className="text-obsidian-400 text-lg">{brands.length} fragrance houses tracked</p>
+        </div>
+      </section>
 
-      {/* Alphabet quick-jump */}
-      <div className="flex flex-wrap gap-1.5 mb-10">
-        {letters.map(l => (
-          <a key={l} href={`#letter-${l}`}
-            className="text-xs border border-obsidian-200 text-obsidian-500 hover:border-gold-400 hover:text-obsidian-900 w-7 h-7 flex items-center justify-center transition-colors">
-            {l}
-          </a>
-        ))}
-      </div>
+      <div className="max-w-7xl mx-auto px-6 py-16">
 
-      {/* Brand grid by letter */}
-      <div className="space-y-12">
+        {/* ── Featured ──────────────────────────────────────────────────── */}
+        <section className="mb-16">
+          <p className="label-overline text-obsidian-400 mb-2">Most popular</p>
+          <h2 className="font-serif text-3xl text-obsidian-900 font-light mb-8">Featured Houses</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {featured.map(brand => (
+              <Link
+                key={brand.id}
+                href={`/brand/${brand.slug}`}
+                className="group bg-white border border-obsidian-100 hover:border-gold-300 transition-colors p-5 flex flex-col items-center text-center"
+              >
+                {brand.logo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={brand.logo_url} alt={brand.name} className="w-12 h-12 object-contain mb-3" />
+                ) : (
+                  <div className="w-12 h-12 bg-obsidian-100 flex items-center justify-center mb-3">
+                    <span className="font-serif text-xl text-obsidian-400">{brand.name.charAt(0)}</span>
+                  </div>
+                )}
+                <p className="font-serif text-sm text-obsidian-900 group-hover:text-gold-600 transition-colors leading-snug">
+                  {brand.name}
+                </p>
+                <p className="text-[10px] text-obsidian-400 mt-1">
+                  {brand.country ? `${getCountryFlag(brand.country)} ` : ''}{brand.products_count} items
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Alphabet quick-nav ────────────────────────────────────────── */}
+        <div className="flex flex-wrap gap-1 mb-10 py-4 border-y border-obsidian-100">
+          {letters.map(l => (
+            <a
+              key={l}
+              href={`#letter-${l}`}
+              className="w-8 h-8 flex items-center justify-center text-xs text-obsidian-500 hover:text-obsidian-900 hover:bg-obsidian-100 transition-colors"
+            >
+              {l}
+            </a>
+          ))}
+        </div>
+
+        {/* ── Alphabetical sections ─────────────────────────────────────── */}
         {letters.map(letter => (
-          <section key={letter} id={`letter-${letter}`}>
-            <h2 className="font-serif text-2xl text-obsidian-400 font-light mb-5 border-b border-obsidian-100 pb-2">
-              {letter}
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-              {grouped[letter].map(brand => (
+          <section key={letter} id={`letter-${letter}`} className="mb-12">
+            <h3 className="font-serif text-4xl text-obsidian-200 font-light mb-4">{letter}</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {alphabetical[letter].map(brand => (
                 <Link
                   key={brand.id}
                   href={`/brand/${brand.slug}`}
-                  className="group bg-white border border-obsidian-100 hover:border-gold-300 p-4 transition-colors duration-200"
+                  className="group flex items-center justify-between p-4 bg-white border border-obsidian-100 hover:border-gold-300 transition-colors"
                 >
-                  <div className="flex items-center gap-3 mb-2">
-                    {brand.logo_url ? (
-                      <img src={brand.logo_url} alt={brand.name} className="h-7 w-auto object-contain" />
-                    ) : (
-                      <div className="w-7 h-7 bg-obsidian-100 flex items-center justify-center text-obsidian-500 text-xs font-bold shrink-0">
-                        {brand.name.charAt(0)}
-                      </div>
-                    )}
-                    <h3 className="font-serif text-base text-obsidian-900 font-light group-hover:text-obsidian-700 leading-tight">
-                      {brand.name}
-                    </h3>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-obsidian-50 flex items-center justify-center shrink-0">
+                      <span className="font-serif text-sm text-obsidian-400">{brand.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-obsidian-900 group-hover:text-gold-600 transition-colors font-medium">
+                        {brand.name}
+                      </p>
+                      <p className="text-[10px] text-obsidian-400">
+                        {brand.country ? `${getCountryFlag(brand.country)} ${getCountryName(brand.country)} · ` : ''}
+                        {brand.products_count ?? 0} fragrances
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-obsidian-400">
-                      {brand.products_count > 0 ? `${brand.products_count} fragrances` : 'No listings'}
-                    </span>
-                    {brand.country && (
-                      <span className="text-[10px] text-obsidian-300">{brand.country}</span>
-                    )}
-                  </div>
+                  <span className="text-[10px] text-obsidian-300 group-hover:text-gold-500 transition-colors tracking-widest uppercase">
+                    View →
+                  </span>
                 </Link>
               ))}
             </div>
           </section>
         ))}
-      </div>
 
-      {brands.length === 0 && (
-        <div className="text-center py-20 border border-obsidian-100 bg-white">
-          <p className="font-serif text-2xl text-obsidian-400 font-light mb-3">No brands yet</p>
-          <p className="text-sm text-obsidian-400">Run the scrapers to populate the catalog.</p>
-        </div>
-      )}
+        {/* Coming soon */}
+        <section className="border-t border-obsidian-100 pt-12 text-center">
+          <p className="font-serif text-3xl text-obsidian-900 font-light mb-3">More brands coming soon</p>
+          <p className="text-sm text-obsidian-500">We add 50+ new houses every week.</p>
+        </section>
+      </div>
     </div>
   )
 }
