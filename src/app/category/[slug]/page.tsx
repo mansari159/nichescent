@@ -85,10 +85,10 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Breadcrumb */}
-      <nav className="text-sm text-gray-400 mb-6 flex items-center gap-2">
-        <Link href="/" className="hover:text-gray-600">Home</Link>
+      <nav className="text-sm text-obsidian-400 mb-6 flex items-center gap-2">
+        <Link href="/" className="hover:text-obsidian-600">Home</Link>
         <span>/</span>
-        <span className="text-gray-700">{category.name}</span>
+        <span className="text-obsidian-700">{category.name}</span>
       </nav>
 
       {/* Category Header */}
@@ -111,7 +111,7 @@ export default async function CategoryPage({ params }: Props) {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-obsidian-400">
           <p className="text-lg">No fragrances in this category yet.</p>
           <p className="text-sm mt-2">
             <Link href="/search" className="text-gold-600 hover:text-gold-700">

@@ -300,13 +300,12 @@ export default async function HomePage() {
               </div>
 
               <div className="flex justify-center gap-4 mt-8">
-                <button
-                  onClick={undefined}
+                <a
+                  href="#"
                   className="text-xs tracking-widest uppercase text-obsidian-500 border border-obsidian-200 hover:border-obsidian-400 px-5 py-2.5 transition-colors"
-                  suppressHydrationWarning
                 >
                   Back to top ↑
-                </button>
+                </a>
                 <Link
                   href="/vibes"
                   className="text-xs tracking-widest uppercase text-gold-500 hover:text-gold-600 border border-gold-300 hover:border-gold-500 px-5 py-2.5 transition-colors"

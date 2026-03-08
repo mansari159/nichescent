@@ -14,7 +14,7 @@ export default async function SimilarFragrances({ productId }: Props) {
   return (
     <section className="mt-16 border-t border-obsidian-100 pt-12">
       <div className="mb-6">
-        <p className="text-xs tracking-widest2 uppercase text-obsidian-400 mb-1">Discover more</p>
+        <p className="text-xs tracking-widest uppercase text-obsidian-400 mb-1">Discover more</p>
         <h2 className="font-serif text-3xl text-obsidian-900 font-light">Similar Fragrances</h2>
       </div>
 
@@ -26,7 +26,7 @@ export default async function SimilarFragrances({ productId }: Props) {
             return (
               <Link
                 key={product.id}
-                href={`/product/${product.slug}`}
+                href={`/fragrance/${product.slug}`}
                 className="group flex-shrink-0 w-44 snap-start border border-obsidian-100 hover:border-gold-300 bg-white transition-colors duration-200 flex flex-col overflow-hidden"
               >
                 {/* Image */}
@@ -47,14 +47,14 @@ export default async function SimilarFragrances({ productId }: Props) {
                       </svg>
                     </div>
                   )}
-                  <span className="absolute top-2 left-2 bg-obsidian-900/80 text-cream text-[9px] tracking-widest2 uppercase px-2 py-0.5">
+                  <span className="absolute top-2 left-2 bg-obsidian-900/80 text-cream text-[9px] tracking-widest uppercase px-2 py-0.5">
                     {getFragranceTypeLabel(product.fragrance_type)}
                   </span>
                 </div>
 
                 {/* Info */}
                 <div className="p-3 flex flex-col flex-1">
-                  <p className="text-[9px] tracking-widest2 uppercase text-gold-500 mb-0.5 truncate">{brandName}</p>
+                  <p className="text-[9px] tracking-widest uppercase text-gold-500 mb-0.5 truncate">{brandName}</p>
                   <h3 className="font-serif text-sm font-light text-obsidian-900 leading-snug line-clamp-2 mb-auto">
                     {product.name}
                   </h3>

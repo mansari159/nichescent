@@ -87,7 +87,7 @@ export default async function NotesPage() {
       </nav>
 
       <div className="mb-12">
-        <p className="text-xs tracking-widest2 uppercase text-obsidian-400 mb-2">Find your fragrance</p>
+        <p className="text-xs tracking-widest uppercase text-obsidian-400 mb-2">Find your fragrance</p>
         <h1 className="font-serif text-5xl text-obsidian-900 font-light">Browse by Note</h1>
         <p className="text-obsidian-500 mt-3 text-sm max-w-lg">
           Search for MENA fragrances by their key ingredients. Click any note to see every fragrance that features it.
