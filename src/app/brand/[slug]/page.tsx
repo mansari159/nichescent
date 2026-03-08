@@ -4,8 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AdUnit from '@/components/AdUnit'
-import EmailCapture from '@/components/EmailCapture'
-import ProductCard from '@/components/ProductCard'
+import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
 import type { Product } from '@/types'
 import { getCountryFlag, getCountryName } from '@/lib/countries'
 import { getPriceSymbol, noteSlug } from '@/lib/utils'
@@ -180,28 +179,20 @@ export default async function BrandPage({ params }: Props) {
 
             <AdUnit position="before_scroll" className="mb-8" />
 
-            {products.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.map((p, i) => (
-                  <ProductCard key={p.id} product={p} priority={i < 4} />
-                ))}
-              </div>
-            ) : (
+            {products.length === 0 ? (
               <div className="text-center py-20 border border-obsidian-100">
                 <p className="font-serif text-2xl text-obsidian-400 font-light">No fragrances yet</p>
               </div>
+            ) : (
+              <InfiniteScrollLoader
+                initialProducts={products}
+                totalCount={total}
+                fetchUrl="/api/products"
+                extraParams={{ brand: brand.id }}
+                context={`${brand.name} fragrances`}
+                category="fragrances"
+              />
             )}
-
-            {/* End state */}
-            <div className="mt-16 border-t border-obsidian-100 pt-16 text-center">
-              <p className="font-serif text-3xl text-obsidian-900 font-light mb-3">
-                More {brand.name} fragrances coming soon
-              </p>
-              <p className="text-sm text-obsidian-500 mb-8 max-w-sm mx-auto">
-                We track {brand.name}&apos;s full catalog. New arrivals are added weekly.
-              </p>
-              <EmailCapture source={`brand_${brand.slug}`} placeholder="your@email.com" buttonText="Notify Me" />
-            </div>
           </div>
         </section>
 

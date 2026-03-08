@@ -4,8 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AdUnit from '@/components/AdUnit'
-import EmailCapture from '@/components/EmailCapture'
-import ProductCard from '@/components/ProductCard'
+import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
 import type { Product } from '@/types'
 import { getCountryFlag } from '@/lib/countries'
 
@@ -224,31 +223,23 @@ export default async function CountryPage({ params }: Props) {
               <AdUnit position="before_scroll" />
             </div>
 
-            {products.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.map((p, i) => (
-                  <ProductCard key={p.id} product={p} priority={i < 4} />
-                ))}
-              </div>
-            ) : (
+            {products.length === 0 ? (
               <div className="text-center py-20 border border-obsidian-100">
                 <p className="font-serif text-2xl text-obsidian-400 font-light mb-3">
                   No fragrances yet from {country.name}
                 </p>
                 <p className="text-sm text-obsidian-400">We&apos;re adding brands from this region soon.</p>
               </div>
+            ) : (
+              <InfiniteScrollLoader
+                initialProducts={products}
+                totalCount={total}
+                fetchUrl="/api/products"
+                extraParams={{ country: country.code.toLowerCase() }}
+                context={`${country.name} fragrances`}
+                category="fragrances"
+              />
             )}
-
-            {/* End state */}
-            <div className="mt-16 border-t border-obsidian-100 pt-16 text-center">
-              <p className="font-serif text-3xl text-obsidian-900 font-light mb-3">
-                More {country.name} brands coming soon
-              </p>
-              <p className="text-sm text-obsidian-500 mb-8 max-w-sm mx-auto">
-                We&apos;re adding more houses from {country.name} and {country.region} every week.
-              </p>
-              <EmailCapture source={`country_${country.code.toLowerCase()}`} placeholder="your@email.com" buttonText="Notify Me" />
-            </div>
           </div>
         </section>
 

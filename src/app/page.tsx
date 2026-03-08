@@ -1,15 +1,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import ProductCard from '@/components/ProductCard'
 import SearchBar from '@/components/SearchBar'
 import AdUnit from '@/components/AdUnit'
-import EmailCapture from '@/components/EmailCapture'
-import dynamic from 'next/dynamic'
+import HomepageInfiniteScroll from '@/components/HomepageInfiniteScroll'
 import type { Product } from '@/types'
 import { VIBE_MAP } from '@/lib/utils'
-
-const FilterModal = dynamic(() => import('@/components/FilterModal'), { ssr: false })
 
 // ── Data fetching ────────────────────────────────────────────────────────────
 
@@ -197,7 +193,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <p className="label-overline text-obsidian-400 mb-2">Fragrance heritage</p>
+              <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-2">Fragrance heritage</p>
               <h2 className="font-serif text-4xl text-obsidian-900 font-light">Discover by Origin</h2>
             </div>
             <Link href="/countries" className="text-[11px] tracking-widest uppercase text-gold-500 hover:text-gold-600 transition-colors hidden sm:block">
@@ -230,7 +226,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Ad before infinite scroll ─────────────────────────────────────── */}
+      {/* ── Ad before catalog ─────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6">
         <AdUnit position="before_scroll" />
       </div>
@@ -240,7 +236,7 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <p className="label-overline text-obsidian-400 mb-2">Full catalog</p>
+              <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-2">Full catalog</p>
               <h2 className="font-serif text-4xl text-obsidian-900 font-light">
                 All Fragrances
               </h2>
@@ -248,14 +244,7 @@ export default async function HomePage() {
             <p className="text-sm text-obsidian-400 hidden sm:block">{total.toLocaleString()} tracked</p>
           </div>
 
-          {/* First 24 products — server rendered */}
-          {products.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.map((p, i) => (
-                <ProductCard key={p.id} product={p} priority={i < 4} />
-              ))}
-            </div>
-          ) : (
+          {products.length === 0 ? (
             <div className="text-center py-20 border border-obsidian-100">
               <p className="font-serif text-2xl text-obsidian-400 font-light mb-3">Catalog loading…</p>
               <p className="text-sm text-obsidian-400">Run the scrapers to populate the catalog.</p>
@@ -263,57 +252,10 @@ export default async function HomePage() {
                 npm run scrape &amp;&amp; npm run match
               </code>
             </div>
-          )}
-
-          {/* End state with email capture */}
-          {products.length > 0 && (
-            <div className="mt-16 border-t border-obsidian-100 pt-16 text-center">
-              <div className="w-10 h-10 rounded-full bg-gold-50 border border-gold-200 flex items-center justify-center mx-auto mb-4">
-                <svg className="w-4 h-4 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-3">
-                Showing {products.length} of {total.toLocaleString()} fragrances
-              </p>
-              <h3 className="font-serif text-3xl text-obsidian-900 font-light mb-3">More coming soon</h3>
-              <p className="text-sm text-obsidian-500 mb-8 max-w-sm mx-auto">
-                We add 50+ new brands and hundreds of fragrances every week. Be first to know.
-              </p>
-              <EmailCapture source="homepage_end_state" placeholder="your@email.com" buttonText="Notify Me" />
-
-              <div className="flex items-center justify-center gap-6 mt-10 pt-8 border-t border-obsidian-100">
-                <div className="text-center">
-                  <p className="font-serif text-2xl text-obsidian-900">{total.toLocaleString()}</p>
-                  <p className="text-[10px] tracking-widest uppercase text-obsidian-400">Tracking now</p>
-                </div>
-                <div className="w-px h-8 bg-obsidian-100" />
-                <div className="text-center">
-                  <p className="font-serif text-2xl text-obsidian-900">Weekly</p>
-                  <p className="text-[10px] tracking-widest uppercase text-obsidian-400">New arrivals</p>
-                </div>
-                <div className="w-px h-8 bg-obsidian-100" />
-                <div className="text-center">
-                  <p className="font-serif text-2xl text-obsidian-900">50+</p>
-                  <p className="text-[10px] tracking-widest uppercase text-obsidian-400">Countries</p>
-                </div>
-              </div>
-
-              <div className="flex justify-center gap-4 mt-8">
-                <a
-                  href="#"
-                  className="text-xs tracking-widest uppercase text-obsidian-500 border border-obsidian-200 hover:border-obsidian-400 px-5 py-2.5 transition-colors"
-                >
-                  Back to top ↑
-                </a>
-                <Link
-                  href="/vibes"
-                  className="text-xs tracking-widest uppercase text-gold-500 hover:text-gold-600 border border-gold-300 hover:border-gold-500 px-5 py-2.5 transition-colors"
-                >
-                  Browse by Vibe →
-                </Link>
-              </div>
-            </div>
+          ) : (
+            /* HomepageInfiniteScroll renders the first 24 server-side products
+               and then loads more on scroll via /api/products */
+            <HomepageInfiniteScroll initialProducts={products} total={total} />
           )}
         </div>
       </section>

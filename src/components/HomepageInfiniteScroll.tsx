@@ -1,21 +1,19 @@
 'use client'
 
-import dynamic from 'next/dynamic'
-
-const InfiniteScrollLoader = dynamic(() => import('@/components/InfiniteScrollLoader'), { ssr: false })
+import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
+import type { Product } from '@/types'
 
 interface Props {
-  initialCount: number
+  initialProducts: Product[]
   total: number
 }
 
-export default function HomepageInfiniteScroll({ initialCount, total }: Props) {
+export default function HomepageInfiniteScroll({ initialProducts, total }: Props) {
   return (
     <InfiniteScrollLoader
-      initialProducts={[]}
+      initialProducts={initialProducts}
       totalCount={total}
       fetchUrl="/api/products"
-      extraParams={{ offset: String(initialCount) }}
       context="all fragrances"
       category="fragrances"
       showSidebarAd
