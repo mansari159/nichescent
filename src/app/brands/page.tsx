@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { getCountryFlag, getCountryName } from '@/lib/countries'
 import { getBrandLogoUrl } from '@/lib/utils'
+import BrandLogoImage from '@/components/BrandLogoImage'
 
 export const metadata: Metadata = {
   title: 'All Fragrance Brands — Artisan & Niche Houses',
@@ -15,50 +16,6 @@ async function getBrands() {
     .select('id, name, slug, country, logo_url, products_count, website_url')
     .order('name', { ascending: true })
   return data ?? []
-}
-
-// ── Brand logo cell ────────────────────────────────────────────────────────────
-function BrandLogo({
-  brand,
-  size = 'md',
-}: {
-  brand: { slug: string; name: string; logo_url?: string | null }
-  size?: 'sm' | 'md' | 'lg'
-}) {
-  const logoUrl = getBrandLogoUrl(brand)
-  const dim = size === 'sm' ? 28 : size === 'lg' ? 56 : 40
-
-  if (logoUrl) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={logoUrl}
-        alt={brand.name}
-        width={dim}
-        height={dim}
-        className="object-contain"
-        style={{ width: dim, height: dim }}
-        onError={(e) => {
-          // If Clearbit/CDN fails, show letter fallback
-          const target = e.target as HTMLImageElement
-          target.style.display = 'none'
-          const parent = target.parentElement
-          if (parent) {
-            parent.innerHTML = `<span class="font-serif text-obsidian-400" style="font-size:${Math.round(dim * 0.5)}px">${brand.name.charAt(0)}</span>`
-          }
-        }}
-      />
-    )
-  }
-
-  return (
-    <span
-      className="font-serif text-obsidian-400"
-      style={{ fontSize: Math.round(dim * 0.5) }}
-    >
-      {brand.name.charAt(0)}
-    </span>
-  )
 }
 
 export default async function BrandsPage() {
@@ -79,7 +36,7 @@ export default async function BrandsPage() {
     return a.localeCompare(b)
   })
 
-  // Featured (most products or in LOGO_MAP first)
+  // Featured (most products first)
   const featured = [...brands]
     .sort((a, b) => (b.products_count ?? 0) - (a.products_count ?? 0))
     .slice(0, 6)
@@ -114,19 +71,7 @@ export default async function BrandsPage() {
                   >
                     <div className="w-14 h-14 flex items-center justify-center mb-3 bg-obsidian-50 rounded-sm overflow-hidden">
                       {logoUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={logoUrl}
-                          alt={brand.name}
-                          className="w-10 h-10 object-contain"
-                          onError={(e) => {
-                            const t = e.target as HTMLImageElement
-                            t.style.display = 'none'
-                            if (t.parentElement) {
-                              t.parentElement.innerHTML = `<span class="font-serif text-xl text-obsidian-400">${brand.name.charAt(0)}</span>`
-                            }
-                          }}
-                        />
+                        <BrandLogoImage src={logoUrl} name={brand.name} size={40} />
                       ) : (
                         <span className="font-serif text-xl text-obsidian-400">{brand.name.charAt(0)}</span>
                       )}
@@ -175,20 +120,7 @@ export default async function BrandsPage() {
                       {/* Logo or initial */}
                       <div className="w-9 h-9 bg-obsidian-50 flex items-center justify-center shrink-0 overflow-hidden">
                         {logoUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={logoUrl}
-                            alt=""
-                            aria-hidden="true"
-                            className="w-7 h-7 object-contain"
-                            onError={(e) => {
-                              const t = e.target as HTMLImageElement
-                              t.style.display = 'none'
-                              if (t.parentElement) {
-                                t.parentElement.innerHTML = `<span class="font-serif text-sm text-obsidian-400">${brand.name.charAt(0)}</span>`
-                              }
-                            }}
-                          />
+                          <BrandLogoImage src={logoUrl} name={brand.name} size={28} />
                         ) : (
                           <span className="font-serif text-sm text-obsidian-400">{brand.name.charAt(0)}</span>
                         )}

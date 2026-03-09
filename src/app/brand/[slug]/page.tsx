@@ -8,6 +8,7 @@ import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
 import type { Product } from '@/types'
 import { getCountryFlag, getCountryName } from '@/lib/countries'
 import { getPriceSymbol, noteSlug, getBrandLogoUrl } from '@/lib/utils'
+import BrandLogoImage from '@/components/BrandLogoImage'
 
 interface Props { params: { slug: string } }
 
@@ -98,15 +99,7 @@ export default async function BrandPage({ params }: Props) {
           <div className="relative max-w-7xl mx-auto px-6 pb-16 w-full">
             {logoUrl && (
               <div className="mb-6 inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-sm overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={logoUrl}
-                  alt={`${brand.name} logo`}
-                  width={48}
-                  height={48}
-                  className="object-contain w-12 h-12"
-                  onError={(e) => { (e.target as HTMLElement).parentElement!.style.display = 'none' }}
-                />
+                <BrandLogoImage src={logoUrl} name={brand.name} size={48} className="w-12 h-12" />
               </div>
             )}
             <div className="flex items-start gap-3 mb-2">
