@@ -193,8 +193,24 @@ async function main() {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')
   if (DRY_RUN) console.log('🔍 DRY RUN — no DB writes\n')
 
+  // Detect whether hero_image_url column exists yet
+  // (it's added by patch-015; run that SQL first if missing)
+  let hasHeroCol = true
+  {
+    const probe = await supabase.from('brands').select('hero_image_url').limit(1)
+    if (probe.error?.message?.includes('does not exist')) {
+      hasHeroCol = false
+      console.log('⚠️  hero_image_url column not found — run patch-015 in Supabase SQL Editor to add it.')
+      console.log('   Continuing with logo_url only.\n')
+    }
+  }
+
   // Fetch brands from Supabase
-  let query = supabase.from('brands').select('id, name, slug, country, logo_url, hero_image_url, website_url')
+  const selectCols = hasHeroCol
+    ? 'id, name, slug, country, logo_url, hero_image_url, website_url'
+    : 'id, name, slug, country, logo_url, website_url'
+
+  let query = supabase.from('brands').select(selectCols)
   if (SINGLE) query = query.eq('slug', SINGLE)
   if (!FORCE && !SINGLE) query = query.is('logo_url', null)
 
@@ -209,7 +225,7 @@ async function main() {
     const known = KNOWN_BRANDS[brand.slug]
 
     let logoUrl = brand.logo_url
-    let heroUrl = brand.hero_image_url
+    let heroUrl = hasHeroCol ? brand.hero_image_url : null
 
     // Use known logo map first
     if (known?.logo && (FORCE || !logoUrl)) {
@@ -224,12 +240,14 @@ async function main() {
       }
     }
 
-    // Hero image from known map or region fallback
-    if (known?.hero && (FORCE || !heroUrl)) {
-      heroUrl = known.hero
-    } else if (!heroUrl) {
-      const countryCode = (brand.country ?? '').toUpperCase()
-      heroUrl = REGION_HEROES[countryCode] ?? REGION_HEROES.default
+    // Hero image (only if column exists)
+    if (hasHeroCol) {
+      if (known?.hero && (FORCE || !heroUrl)) {
+        heroUrl = known.hero
+      } else if (!heroUrl) {
+        const countryCode = (brand.country ?? '').toUpperCase()
+        heroUrl = REGION_HEROES[countryCode] ?? REGION_HEROES.default
+      }
     }
 
     if (!logoUrl && !heroUrl) {
@@ -240,7 +258,7 @@ async function main() {
 
     const updates = {}
     if (logoUrl && (FORCE || !brand.logo_url)) updates.logo_url = logoUrl
-    if (heroUrl && (FORCE || !brand.hero_image_url)) updates.hero_image_url = heroUrl
+    if (hasHeroCol && heroUrl && (FORCE || !brand.hero_image_url)) updates.hero_image_url = heroUrl
 
     if (Object.keys(updates).length === 0) {
       skipped++
