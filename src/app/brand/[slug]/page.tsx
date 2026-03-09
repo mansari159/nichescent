@@ -7,7 +7,7 @@ import AdUnit from '@/components/AdUnit'
 import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
 import type { Product } from '@/types'
 import { getCountryFlag, getCountryName } from '@/lib/countries'
-import { getPriceSymbol, noteSlug } from '@/lib/utils'
+import { getPriceSymbol, noteSlug, getBrandLogoUrl } from '@/lib/utils'
 
 interface Props { params: { slug: string } }
 
@@ -64,6 +64,7 @@ export default async function BrandPage({ params }: Props) {
   const commonNotes: string[] = brand.common_notes ?? []
 
   const heroImage = HERO_IMAGES[brand.slug] ?? HERO_IMAGES.default
+  const logoUrl = getBrandLogoUrl(brand)
   const priceRange = products.filter((p: Product) => p.lowest_price).map((p: Product) => p.lowest_price as number)
   const minPriceSymbol = priceRange.length ? getPriceSymbol(Math.min(...priceRange)) : null
 
@@ -95,9 +96,17 @@ export default async function BrandPage({ params }: Props) {
           <div className="absolute inset-0 bg-gradient-to-t from-obsidian-950 via-obsidian-950/60 to-obsidian-950/20" />
 
           <div className="relative max-w-7xl mx-auto px-6 pb-16 w-full">
-            {brand.logo_url && (
-              <div className="mb-6">
-                <Image src={brand.logo_url} alt={`${brand.name} logo`} width={80} height={80} className="object-contain" />
+            {logoUrl && (
+              <div className="mb-6 inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-sm overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={logoUrl}
+                  alt={`${brand.name} logo`}
+                  width={48}
+                  height={48}
+                  className="object-contain w-12 h-12"
+                  onError={(e) => { (e.target as HTMLElement).parentElement!.style.display = 'none' }}
+                />
               </div>
             )}
             <div className="flex items-start gap-3 mb-2">

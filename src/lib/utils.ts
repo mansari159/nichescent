@@ -165,3 +165,67 @@ export function timeAgo(date: string): string {
 }
 
 export const fragranceTypeLabels = FRAGRANCE_TYPE_LABELS
+
+// ─── Brand Logo Map ───────────────────────────────────────────────────────────
+// Clearbit / CDN logo URLs keyed by brand slug.
+// Used as a fallback when brands.logo_url is null in the DB.
+// Run `npm run logos` to persist these into the DB.
+export const BRAND_LOGO_MAP: Record<string, string> = {
+  'lattafa':                  'https://logo.clearbit.com/lattafaperfumes.com',
+  'ajmal':                    'https://logo.clearbit.com/ajmalperfume.com',
+  'rasasi':                   'https://logo.clearbit.com/rasasi.com',
+  'swiss-arabian':            'https://logo.clearbit.com/swissarabian.com',
+  'gissah':                   'https://logo.clearbit.com/gissah.com',
+  'amouage':                  'https://logo.clearbit.com/amouage.com',
+  'al-haramain':              'https://logo.clearbit.com/alharamain.com',
+  'kayali':                   'https://logo.clearbit.com/kayali.com',
+  'armaf':                    'https://logo.clearbit.com/armaf.com',
+  'maison-alhambra':          'https://logo.clearbit.com/maisonalhambra.com',
+  'arabian-oud':              'https://logo.clearbit.com/arabianoud.com',
+  'spirit-of-dubai':          'https://logo.clearbit.com/spiritofdubai.com',
+  'afnan':                    'https://logo.clearbit.com/afnanperfumes.com',
+  'khadlaj':                  'https://logo.clearbit.com/khadlaj.com',
+  'ard-al-zaafaran':          'https://logo.clearbit.com/ardalzaafaran.com',
+  'attar-collection':         'https://logo.clearbit.com/attarcollection.com',
+  'widian':                   'https://logo.clearbit.com/widian.com',
+  'zimaya':                   'https://logo.clearbit.com/zimayaperfumes.com',
+  'orientica':                'https://logo.clearbit.com/orientica.com',
+  'fragrance-world':          'https://logo.clearbit.com/fragranceworld.com',
+  'paris-corner':             'https://logo.clearbit.com/pariscornerperfumes.com',
+  'nabeel':                   'https://logo.clearbit.com/nabeelperfumes.com',
+  'assaf':                    'https://logo.clearbit.com/assafperfumes.com',
+  'al-rehab':                 'https://logo.clearbit.com/alrehab.net',
+  'riiffs':                   'https://logo.clearbit.com/riiffs.com',
+  'rue-broca':                'https://logo.clearbit.com/ruebroca.com',
+  'kajal':                    'https://logo.clearbit.com/kajalperfumes.com',
+  'ghawali':                  'https://logo.clearbit.com/ghawali.com',
+  'arabiyat-prestige':        'https://logo.clearbit.com/arabiyatprestige.com',
+  'gulf-orchid':              'https://logo.clearbit.com/gulforchid.com',
+  'yas-perfumes':             'https://logo.clearbit.com/yasperfumes.com',
+  'abdul-samad-al-qurashi':  'https://logo.clearbit.com/aqperfumes.com',
+  'surrati':                  'https://logo.clearbit.com/surrati.com',
+  'al-nuaim':                 'https://logo.clearbit.com/alnuaim.com',
+  'maison-asrar':             'https://logo.clearbit.com/maisonasrar.com',
+  'navitus':                  'https://logo.clearbit.com/navitusperfumes.com',
+  'rayhaan':                  'https://logo.clearbit.com/rayhaan.com',
+  'emper':                    'https://logo.clearbit.com/emper.com',
+  'french-avenue':            'https://logo.clearbit.com/frenchavenueperfumes.com',
+  'louis-cardin':             'https://logo.clearbit.com/louiscardin.com',
+  'al-wataniah':              'https://logo.clearbit.com/alwataniah.com',
+  'hamidi':                   'https://logo.clearbit.com/hamidioud.com',
+  'reef-perfumes':            'https://logo.clearbit.com/reefperfumes.com',
+  'sapil':                    'https://logo.clearbit.com/sapil.com',
+  'hind-al-oud':              'https://logo.clearbit.com/hindaloud.com',
+  'ibraq':                    'https://logo.clearbit.com/ibraqperfumes.com',
+  'dukhni':                   'https://logo.clearbit.com/dukhni.com',
+  'el-nabil':                 'https://logo.clearbit.com/elnabil.com',
+  'ahmed-al-maghribi':        'https://logo.clearbit.com/ahmadalmaghribi.com',
+  'naseem':                   'https://logo.clearbit.com/naseemfragrances.com',
+  'khalis':                   'https://logo.clearbit.com/khalisperfumes.com',
+  'suroori':                  'https://logo.clearbit.com/suroori.com',
+}
+
+/** Returns logo URL from DB or from the static fallback map */
+export function getBrandLogoUrl(brand: { slug: string; logo_url?: string | null }): string | null {
+  return brand.logo_url ?? BRAND_LOGO_MAP[brand.slug] ?? null
+}

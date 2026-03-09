@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { getCountryFlag, getCountryName } from '@/lib/countries'
+import { getBrandLogoUrl } from '@/lib/utils'
 
 export const metadata: Metadata = {
   title: 'All Fragrance Brands — Artisan & Niche Houses',
@@ -11,9 +12,53 @@ export const metadata: Metadata = {
 async function getBrands() {
   const { data } = await supabase
     .from('brands')
-    .select('*')
+    .select('id, name, slug, country, logo_url, products_count, website_url')
     .order('name', { ascending: true })
   return data ?? []
+}
+
+// ── Brand logo cell ────────────────────────────────────────────────────────────
+function BrandLogo({
+  brand,
+  size = 'md',
+}: {
+  brand: { slug: string; name: string; logo_url?: string | null }
+  size?: 'sm' | 'md' | 'lg'
+}) {
+  const logoUrl = getBrandLogoUrl(brand)
+  const dim = size === 'sm' ? 28 : size === 'lg' ? 56 : 40
+
+  if (logoUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={logoUrl}
+        alt={brand.name}
+        width={dim}
+        height={dim}
+        className="object-contain"
+        style={{ width: dim, height: dim }}
+        onError={(e) => {
+          // If Clearbit/CDN fails, show letter fallback
+          const target = e.target as HTMLImageElement
+          target.style.display = 'none'
+          const parent = target.parentElement
+          if (parent) {
+            parent.innerHTML = `<span class="font-serif text-obsidian-400" style="font-size:${Math.round(dim * 0.5)}px">${brand.name.charAt(0)}</span>`
+          }
+        }}
+      />
+    )
+  }
+
+  return (
+    <span
+      className="font-serif text-obsidian-400"
+      style={{ fontSize: Math.round(dim * 0.5) }}
+    >
+      {brand.name.charAt(0)}
+    </span>
+  )
 }
 
 export default async function BrandsPage() {
@@ -34,8 +79,10 @@ export default async function BrandsPage() {
     return a.localeCompare(b)
   })
 
-  // Featured (most products)
-  const featured = [...brands].sort((a, b) => (b.products_count ?? 0) - (a.products_count ?? 0)).slice(0, 6)
+  // Featured (most products or in LOGO_MAP first)
+  const featured = [...brands]
+    .sort((a, b) => (b.products_count ?? 0) - (a.products_count ?? 0))
+    .slice(0, 6)
 
   return (
     <div className="pt-16 bg-cream min-h-screen">
@@ -52,34 +99,51 @@ export default async function BrandsPage() {
       <div className="max-w-7xl mx-auto px-6 py-16">
 
         {/* ── Featured ──────────────────────────────────────────────────── */}
-        <section className="mb-16">
-          <p className="label-overline text-obsidian-400 mb-2">Most popular</p>
-          <h2 className="font-serif text-3xl text-obsidian-900 font-light mb-8">Featured Houses</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {featured.map(brand => (
-              <Link
-                key={brand.id}
-                href={`/brand/${brand.slug}`}
-                className="group bg-white border border-obsidian-100 hover:border-gold-300 transition-colors p-5 flex flex-col items-center text-center"
-              >
-                {brand.logo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={brand.logo_url} alt={brand.name} className="w-12 h-12 object-contain mb-3" />
-                ) : (
-                  <div className="w-12 h-12 bg-obsidian-100 flex items-center justify-center mb-3">
-                    <span className="font-serif text-xl text-obsidian-400">{brand.name.charAt(0)}</span>
-                  </div>
-                )}
-                <p className="font-serif text-sm text-obsidian-900 group-hover:text-gold-600 transition-colors leading-snug">
-                  {brand.name}
-                </p>
-                <p className="text-[10px] text-obsidian-400 mt-1">
-                  {brand.country ? `${getCountryFlag(brand.country)} ` : ''}{brand.products_count} items
-                </p>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {featured.length > 0 && (
+          <section className="mb-16">
+            <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-2">Most popular</p>
+            <h2 className="font-serif text-3xl text-obsidian-900 font-light mb-8">Featured Houses</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {featured.map(brand => {
+                const logoUrl = getBrandLogoUrl(brand)
+                return (
+                  <Link
+                    key={brand.id}
+                    href={`/brand/${brand.slug}`}
+                    className="group bg-white border border-obsidian-100 hover:border-gold-300 hover:shadow-sm transition-all p-5 flex flex-col items-center text-center"
+                  >
+                    <div className="w-14 h-14 flex items-center justify-center mb-3 bg-obsidian-50 rounded-sm overflow-hidden">
+                      {logoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={logoUrl}
+                          alt={brand.name}
+                          className="w-10 h-10 object-contain"
+                          onError={(e) => {
+                            const t = e.target as HTMLImageElement
+                            t.style.display = 'none'
+                            if (t.parentElement) {
+                              t.parentElement.innerHTML = `<span class="font-serif text-xl text-obsidian-400">${brand.name.charAt(0)}</span>`
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span className="font-serif text-xl text-obsidian-400">{brand.name.charAt(0)}</span>
+                      )}
+                    </div>
+                    <p className="font-serif text-sm text-obsidian-900 group-hover:text-gold-600 transition-colors leading-snug">
+                      {brand.name}
+                    </p>
+                    <p className="text-[10px] text-obsidian-400 mt-1">
+                      {brand.country ? `${getCountryFlag(brand.country)} ` : ''}
+                      {brand.products_count ?? 0} items
+                    </p>
+                  </Link>
+                )
+              })}
+            </div>
+          </section>
+        )}
 
         {/* ── Alphabet quick-nav ────────────────────────────────────────── */}
         <div className="flex flex-wrap gap-1 mb-10 py-4 border-y border-obsidian-100">
@@ -99,31 +163,55 @@ export default async function BrandsPage() {
           <section key={letter} id={`letter-${letter}`} className="mb-12">
             <h3 className="font-serif text-4xl text-obsidian-200 font-light mb-4">{letter}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {alphabetical[letter].map(brand => (
-                <Link
-                  key={brand.id}
-                  href={`/brand/${brand.slug}`}
-                  className="group flex items-center justify-between p-4 bg-white border border-obsidian-100 hover:border-gold-300 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-obsidian-50 flex items-center justify-center shrink-0">
-                      <span className="font-serif text-sm text-obsidian-400">{brand.name.charAt(0)}</span>
+              {alphabetical[letter].map(brand => {
+                const logoUrl = getBrandLogoUrl(brand)
+                return (
+                  <Link
+                    key={brand.id}
+                    href={`/brand/${brand.slug}`}
+                    className="group flex items-center justify-between p-4 bg-white border border-obsidian-100 hover:border-gold-300 hover:shadow-sm transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Logo or initial */}
+                      <div className="w-9 h-9 bg-obsidian-50 flex items-center justify-center shrink-0 overflow-hidden">
+                        {logoUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={logoUrl}
+                            alt=""
+                            aria-hidden="true"
+                            className="w-7 h-7 object-contain"
+                            onError={(e) => {
+                              const t = e.target as HTMLImageElement
+                              t.style.display = 'none'
+                              if (t.parentElement) {
+                                t.parentElement.innerHTML = `<span class="font-serif text-sm text-obsidian-400">${brand.name.charAt(0)}</span>`
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span className="font-serif text-sm text-obsidian-400">{brand.name.charAt(0)}</span>
+                        )}
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-obsidian-900 group-hover:text-gold-600 transition-colors font-medium leading-snug">
+                          {brand.name}
+                        </p>
+                        <p className="text-[10px] text-obsidian-400 mt-0.5">
+                          {brand.country
+                            ? `${getCountryFlag(brand.country)} ${getCountryName(brand.country)} · `
+                            : ''}
+                          {brand.products_count ?? 0} fragrances
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-obsidian-900 group-hover:text-gold-600 transition-colors font-medium">
-                        {brand.name}
-                      </p>
-                      <p className="text-[10px] text-obsidian-400">
-                        {brand.country ? `${getCountryFlag(brand.country)} ${getCountryName(brand.country)} · ` : ''}
-                        {brand.products_count ?? 0} fragrances
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-obsidian-300 group-hover:text-gold-500 transition-colors tracking-widest uppercase">
-                    View →
-                  </span>
-                </Link>
-              ))}
+                    <span className="text-[10px] text-obsidian-300 group-hover:text-gold-500 transition-colors tracking-widest uppercase shrink-0 ml-2">
+                      View →
+                    </span>
+                  </Link>
+                )
+              })}
             </div>
           </section>
         ))}
