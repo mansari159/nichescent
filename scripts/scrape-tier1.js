@@ -169,32 +169,61 @@ const SCRAPERS = [
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// Retailer UUID cache — avoids a lookup on every batch
+const retailerCache = {}
+
+async function getRetailerId(slug) {
+  if (retailerCache[slug]) return retailerCache[slug]
+  const { data } = await supabase.from('retailers').select('id').eq('slug', slug).single()
+  if (data?.id) retailerCache[slug] = data.id
+  return data?.id ?? null
+}
+
 async function saveListings(retailerSlug, listings) {
   if (!listings?.length) return 0
 
-  const rows = listings.map(l => ({
-    retailer_slug: retailerSlug,
-    raw_name:      l.name,
-    raw_brand:     l.raw_brand ?? l.brand ?? '',
-    price:         l.price,
-    currency:      l.currency ?? 'USD',
-    product_url:   l.product_url,
-    image_url:     l.image_url ?? null,
-    in_stock:      l.in_stock ?? true,
-    raw_data:      l,
-    status:        'pending',
-  }))
-
-  // Upsert by (retailer_slug, product_url)
-  const { error } = await supabase
-    .from('scraper_listings')
-    .upsert(rows, { onConflict: 'retailer_slug,product_url', ignoreDuplicates: false })
-
-  if (error) {
-    console.error(`    ✗ DB error for ${retailerSlug}: ${error.message}`)
+  const retailerId = await getRetailerId(retailerSlug)
+  if (!retailerId) {
+    console.error(`    ✗ Retailer not found in DB: "${retailerSlug}" — add it to retailers table first`)
     return 0
   }
-  return rows.length
+
+  // Update last_scraped_at timestamp on retailer
+  await supabase.from('retailers')
+    .update({ last_scraped_at: new Date().toISOString() })
+    .eq('id', retailerId)
+
+  const BATCH = 100
+  let saved = 0
+
+  for (let i = 0; i < listings.length; i += BATCH) {
+    const batch = listings.slice(i, i + BATCH).map(l => ({
+      retailer_id:     retailerId,
+      external_id:     l.external_id ?? null,
+      raw_name:        l.raw_name,
+      raw_brand:       l.raw_brand ?? '',
+      raw_price:       l.raw_price,
+      raw_currency:    l.raw_currency ?? 'USD',
+      raw_description: l.raw_description ?? null,
+      raw_image_url:   l.raw_image_url ?? null,
+      raw_url:         l.raw_url,
+      raw_data:        l.raw_data ?? l,
+      match_status:    'pending',
+      last_scraped_at: new Date().toISOString(),
+    }))
+
+    const { error } = await supabase
+      .from('scraper_listings')
+      .upsert(batch, { onConflict: 'retailer_id,external_id', ignoreDuplicates: false })
+
+    if (error) {
+      console.error(`    ✗ DB batch error for ${retailerSlug}: ${error.message}`)
+    } else {
+      saved += batch.length
+    }
+  }
+
+  return saved
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)) }
@@ -223,22 +252,30 @@ async function main() {
 
     try {
       const result = await fn()
-      const { retailerSlug, listings } = result ?? {}
 
-      if (!listings?.length) {
+      // Scrapers return either { retailerSlug, listings } or an array of those
+      const batches = Array.isArray(result) ? result : [result]
+      const totalCount = batches.reduce((sum, b) => sum + (b?.listings?.length ?? 0), 0)
+
+      if (!totalCount) {
         console.log('⊘ 0 listings')
         results.push({ label, count: 0, status: 'empty' })
         continue
       }
 
       if (DRY_RUN) {
-        console.log(`✓ ${listings.length} listings (dry run)`)
-        totalListings += listings.length
-        results.push({ label, count: listings.length, status: 'ok' })
+        console.log(`✓ ${totalCount} listings (dry run)`)
+        totalListings += totalCount
+        results.push({ label, count: totalCount, status: 'ok' })
         continue
       }
 
-      const saved = await saveListings(retailerSlug, listings)
+      let saved = 0
+      for (const { retailerSlug, listings } of batches) {
+        if (!listings?.length) continue
+        saved += await saveListings(retailerSlug, listings)
+        await sleep(300)
+      }
       console.log(`✓ ${saved} listings saved`)
       totalListings += saved
       results.push({ label, count: saved, status: 'ok' })
