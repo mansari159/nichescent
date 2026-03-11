@@ -7,7 +7,7 @@ import AdUnit from '@/components/AdUnit'
 import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
 import type { Product } from '@/types'
 import { getCountryFlag, getCountryName } from '@/lib/countries'
-import { getPriceSymbol, noteSlug, getBrandLogoUrl } from '@/lib/utils'
+import { noteSlug, getBrandLogoUrl, formatPriceUSD } from '@/lib/utils'
 import BrandLogoImage from '@/components/BrandLogoImage'
 
 export const dynamic = 'force-dynamic'
@@ -69,7 +69,7 @@ export default async function BrandPage({ params }: Props) {
   const heroImage = HERO_IMAGES[brand.slug] ?? HERO_IMAGES.default
   const logoUrl = getBrandLogoUrl(brand)
   const priceRange = products.filter((p: Product) => p.lowest_price).map((p: Product) => p.lowest_price as number)
-  const minPriceSymbol = priceRange.length ? getPriceSymbol(Math.min(...priceRange)) : null
+  const minPrice = priceRange.length ? Math.min(...priceRange) : null
 
   const schema = {
     '@context': 'https://schema.org',
@@ -115,7 +115,7 @@ export default async function BrandPage({ params }: Props) {
             </div>
             <p className="text-obsidian-400 text-base mt-4">
               {total.toLocaleString()} {total === 1 ? 'fragrance' : 'fragrances'}
-              {minPriceSymbol && ` · From ${minPriceSymbol}`}
+              {minPrice ? ` · From ${formatPriceUSD(minPrice)}` : ''}
             </p>
           </div>
         </section>

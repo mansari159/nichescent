@@ -2,14 +2,13 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import ProductCard from '@/components/ProductCard'
 import AdUnit from '@/components/AdUnit'
 import EmailCapture from '@/components/EmailCapture'
+import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
 import type { Product } from '@/types'
 import dynamic from 'next/dynamic'
 
 const SearchBar = dynamic(() => import('@/components/SearchBar'), { ssr: false })
-const FilterModal = dynamic(() => import('@/components/FilterModal'), { ssr: false })
 
 interface Props {
   searchParams: { q?: string; brand?: string; vibe?: string; type?: string; gender?: string; priceRange?: string; sort?: string }
@@ -161,13 +160,23 @@ export default async function SearchPage({ searchParams }: Props) {
         {/* ── Ad ─────────────────────────────────────────────────────────── */}
         <AdUnit position="before_scroll" className="mb-8" />
 
-        {/* ── Grid ───────────────────────────────────────────────────────── */}
+        {/* ── Grid + Infinite Scroll ─────────────────────────────────────── */}
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-            {products.map((p, i) => (
-              <ProductCard key={p.id} product={p} priority={i < 4} />
-            ))}
-          </div>
+          <InfiniteScrollLoader
+            initialProducts={products}
+            totalCount={total}
+            fetchUrl="/api/products"
+            context={q ? `results for "${q}"` : 'all fragrances'}
+            category="fragrances"
+            extraParams={{
+              ...(q && { q }),
+              ...(searchParams.vibe && { vibes: searchParams.vibe }),
+              ...(searchParams.type && { types: searchParams.type }),
+              ...(searchParams.gender && { genders: searchParams.gender }),
+              ...(searchParams.priceRange && { priceRange: searchParams.priceRange }),
+              ...(searchParams.sort && { sortBy: searchParams.sort }),
+            }}
+          />
         ) : (
           /* Empty state */
           <div className="text-center py-24 border border-obsidian-100">
@@ -180,7 +189,6 @@ export default async function SearchPage({ searchParams }: Props) {
                   We couldn&apos;t find any fragrances matching &ldquo;{q}&rdquo;. Try a different search or browse by vibe.
                 </p>
               )}
-
               <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-4">Try searching for:</p>
               <div className="flex flex-wrap justify-center gap-2 mb-10">
                 {SUGGESTED_SEARCHES.map(s => (
@@ -193,7 +201,6 @@ export default async function SearchPage({ searchParams }: Props) {
                   </Link>
                 ))}
               </div>
-
               <div className="border-t border-obsidian-100 pt-8">
                 <p className="text-sm text-obsidian-500 mb-4">Can&apos;t find what you&apos;re looking for? Let us know.</p>
                 <EmailCapture
@@ -203,19 +210,6 @@ export default async function SearchPage({ searchParams }: Props) {
                 />
               </div>
             </div>
-          </div>
-        )}
-
-        {/* End state */}
-        {products.length > 0 && total > 24 && (
-          <div className="mt-16 border-t border-obsidian-100 pt-16 text-center">
-            <p className="font-serif text-3xl text-obsidian-900 font-light mb-3">
-              Can&apos;t find what you&apos;re looking for?
-            </p>
-            <p className="text-sm text-obsidian-500 mb-8">
-              We&apos;re adding 50+ brands weekly. Tell us what you&apos;re searching for.
-            </p>
-            <EmailCapture source="search_end_state" placeholder="your@email.com" buttonText="Keep Me Updated" />
           </div>
         )}
       </div>
