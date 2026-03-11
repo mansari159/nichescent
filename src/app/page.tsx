@@ -1,11 +1,15 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
 import SearchBar from '@/components/SearchBar'
 import AdUnit from '@/components/AdUnit'
 import HomepageInfiniteScroll from '@/components/HomepageInfiniteScroll'
+import FilterBar from '@/components/FilterBar'
 import type { Product } from '@/types'
 import { VIBE_MAP } from '@/lib/utils'
+
+export const dynamic = 'force-dynamic'
 
 // ── Data fetching ────────────────────────────────────────────────────────────
 
@@ -31,7 +35,7 @@ async function getStats(): Promise<{ fragCount: number; brandCount: number; reta
 
 // ── Static data ──────────────────────────────────────────────────────────────
 
-const HERO_VIBES = ['warm-spicy', 'woody-earthy', 'floral-romantic']
+const HERO_VIBES = ['warm-spicy', 'woody-earthy', 'floral-romantic', 'smoky-intense', 'sweet-gourmand', 'fresh-clean']
 
 const ORIGIN_TILES = [
   {
@@ -74,7 +78,7 @@ export default async function HomePage() {
     <div className="bg-cream">
 
       {/* ── Cinematic Hero ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex items-center overflow-hidden bg-obsidian-950">
+      <section className="relative min-h-[80vh] flex items-center overflow-hidden bg-obsidian-950">
         {/* Background */}
         <div className="absolute inset-0">
           <Image
@@ -151,12 +155,12 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             {heroVibes.map(vibe => (
               <Link
                 key={vibe.slug}
                 href={`/vibe/${vibe.slug}`}
-                className="group relative overflow-hidden h-40 flex items-end"
+                className="group relative overflow-hidden h-32 flex items-end"
               >
                 <div
                   className="absolute inset-0 transition-transform duration-500 group-hover:scale-105"
@@ -226,6 +230,11 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── FilterBar ─────────────────────────────────────────────────────── */}
+      <Suspense fallback={null}>
+        <FilterBar navigatesToSearch />
+      </Suspense>
+
       {/* ── Ad before catalog ─────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6">
         <AdUnit position="before_scroll" />
@@ -267,7 +276,6 @@ export default async function HomePage() {
           backgroundImage: 'url(https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1920&q=80)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
         }}
       >
         <div className="absolute inset-0 bg-obsidian-950/80" />

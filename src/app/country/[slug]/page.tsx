@@ -8,6 +8,8 @@ import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
 import type { Product } from '@/types'
 import { getCountryFlag } from '@/lib/countries'
 
+export const dynamic = 'force-dynamic'
+
 interface Props { params: { slug: string } }
 
 // Map country codes/slugs to country data

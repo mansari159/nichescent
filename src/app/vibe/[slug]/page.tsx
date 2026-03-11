@@ -7,6 +7,8 @@ import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
 import type { Product } from '@/types'
 import { VIBE_MAP } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
+
 interface Props { params: { slug: string } }
 
 const VIBE_DESCRIPTIONS: Record<string, { long: string; ingredients: string[]; bestFor: string }> = {

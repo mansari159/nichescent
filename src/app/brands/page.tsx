@@ -5,6 +5,8 @@ import { getCountryFlag, getCountryName } from '@/lib/countries'
 import { getBrandLogoUrl } from '@/lib/utils'
 import BrandLogoImage from '@/components/BrandLogoImage'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'All Fragrance Brands — Artisan & Niche Houses',
   description: 'Browse all niche and artisan fragrance brands tracked by RareTrace. Alphabetical listing with country, founding year, and fragrance count.',

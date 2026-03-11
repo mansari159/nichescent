@@ -1,21 +1,8 @@
 import type { Metadata } from 'next'
-import { Inter, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/Navbar'
 import Script from 'next/script'
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-})
-
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
-  variable: '--font-cormorant',
-  display: 'swap',
-})
+import { Analytics } from '@vercel/analytics/react'
 
 const SITE_URL = 'https://raretrace.vercel.app'
 
@@ -55,7 +42,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
+    <html lang="en">
       <head>
         {process.env.NEXT_PUBLIC_ADSENSE_CLIENT && (
           <Script
@@ -122,6 +109,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
         </footer>
+        <Analytics />
       </body>
     </html>
   )

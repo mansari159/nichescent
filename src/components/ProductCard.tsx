@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Product } from '@/types'
-import { getPriceSymbol, getVibeStyle, getFragranceTypeLabel, truncate, noteSlug } from '@/lib/utils'
+import { formatPriceUSD, getVibeStyle, getFragranceTypeLabel, truncate, noteSlug } from '@/lib/utils'
 import { getCountryFlag } from '@/lib/countries'
+import NotePill from '@/components/NotePill'
 
 interface Props {
   product: Product
@@ -15,7 +16,6 @@ export default function ProductCard({ product, priority = false }: Props) {
   const brandName = product.brand?.name ?? ''
   const countryCode = product.brand?.country ?? null
   const countryFlag = getCountryFlag(countryCode)
-  const priceSymbol = getPriceSymbol(product.lowest_price)
   const vibeStyle = getVibeStyle(product.primary_vibe_slug)
   const notePills = [...(product.notes_top ?? []), ...(product.notes_mid ?? [])].slice(0, 3)
   const desc = product.description?.slice(0, 120) ?? ''
@@ -24,6 +24,7 @@ export default function ProductCard({ product, priority = false }: Props) {
     <Link
       href={`/fragrance/${product.slug}`}
       className="group relative bg-white border border-obsidian-100 hover:border-gold-300 transition-all duration-200 flex flex-col overflow-hidden"
+      style={vibeStyle ? { borderLeft: `3px solid ${vibeStyle.borderColor}` } : undefined}
     >
       {/* Image container */}
       <div className="relative aspect-square bg-parchment overflow-hidden">
@@ -72,19 +73,10 @@ export default function ProductCard({ product, priority = false }: Props) {
           {getFragranceTypeLabel(product.fragrance_type)}
         </span>
 
-        {/* Hover overlay — slides up */}
+        {/* Hover overlay — description only, no note pills */}
         {desc && (
           <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out bg-obsidian-950/92 backdrop-blur-sm p-4 z-20">
             <p className="text-xs text-obsidian-200 leading-relaxed line-clamp-4">{desc}</p>
-            {notePills.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {notePills.map(note => (
-                  <span key={note} className="text-[10px] text-obsidian-400 border border-obsidian-700 px-1.5 py-0.5">
-                    {note}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -97,23 +89,26 @@ export default function ProductCard({ product, priority = false }: Props) {
         </p>
 
         {/* Fragrance name */}
-        <h3 className="font-serif text-base font-light text-obsidian-900 leading-snug mb-3 flex-1">
-          {truncate(product.name, 50)}
+        <h3 className="font-serif text-base font-light text-obsidian-900 leading-snug mb-3 flex-1 line-clamp-2">
+          {product.name}
         </h3>
 
-        {/* Price + store count */}
-        <div className="flex items-center justify-between pt-3 border-t border-obsidian-50">
-          <div>
-            <p className="text-[10px] tracking-widest uppercase text-stone mb-0.5">Price</p>
-            <p
-              className="font-serif text-lg text-obsidian-900 tracking-wide"
-              title={`From $${product.lowest_price?.toFixed(0) ?? '?'}`}
-            >
-              {priceSymbol}
-            </p>
+        {/* Always-visible note pills */}
+        {notePills.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {notePills.map(note => (
+              <NotePill key={note} note={note} />
+            ))}
           </div>
+        )}
+
+        {/* Price + store count */}
+        <div className="flex items-center justify-between pt-3 border-t border-obsidian-100">
+          <p className="text-sm font-medium text-obsidian-900">
+            {product.lowest_price ? `From ${formatPriceUSD(product.lowest_price)}` : '—'}
+          </p>
           {(product.retailers_count ?? 0) > 0 && (
-            <span className="text-[10px] tracking-widest uppercase text-stone">
+            <span className="text-[10px] text-obsidian-400">
               {product.retailers_count} {product.retailers_count === 1 ? 'store' : 'stores'}
             </span>
           )}

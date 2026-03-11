@@ -5,12 +5,16 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import AdUnit from '@/components/AdUnit'
 import EmailCapture from '@/components/EmailCapture'
+import NotePill from '@/components/NotePill'
+import BuyButton from '@/components/BuyButton'
 import type { Product, PriceEntry } from '@/types'
 import {
   getFragranceTypeLabel, genderLabels, cleanDescription,
-  getPriceSymbol, getPriceSymbolTitle, noteSlug, getVibeStyle, VIBE_MAP,
+  getVibeStyle, formatPriceUSD,
 } from '@/lib/utils'
 import { getCountryFlag, getCountryName } from '@/lib/countries'
+
+export const dynamic = 'force-dynamic'
 
 interface Props { params: { slug: string } }
 
@@ -50,11 +54,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct(params.slug)
   if (!product) return { title: 'Fragrance Not Found' }
   const brand = product.brand?.name ?? ''
-  const priceSymbol = getPriceSymbol(product.lowest_price)
+  const priceStr = product.lowest_price ? `From $${product.lowest_price.toFixed(0)}` : ''
   const storeCount = product.retailers_count ?? 0
   return {
     title: `${product.name} by ${brand}`,
-    description: `${product.name} by ${brand} — ${priceSymbol} · Available at ${storeCount} store${storeCount !== 1 ? 's' : ''}. ${product.notes_top?.slice(0, 3).join(', ') ?? ''}.`,
+    description: `${product.name} by ${brand}${priceStr ? ` — ${priceStr}` : ''} · Available at ${storeCount} store${storeCount !== 1 ? 's' : ''}. ${product.notes_top?.slice(0, 3).join(', ') ?? ''}.`,
     openGraph: {
       images: product.image_url ? [{ url: product.image_url, width: 800, height: 800, alt: product.name }] : [],
     },
@@ -64,33 +68,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-function NoteSection({ label, notes }: { label: string; notes: string[] }) {
+function NoteSection({ label, notes, tier }: { label: string; notes: string[]; tier: 'top' | 'heart' | 'base' }) {
   if (!notes?.length) return null
+  const config = {
+    top:    { dot: 'w-2 h-2 bg-gold-400', text: 'text-sm font-medium text-obsidian-800' },
+    heart:  { dot: 'w-1.5 h-1.5 bg-obsidian-400', text: 'text-xs text-obsidian-700' },
+    base:   { dot: 'w-1 h-1 bg-obsidian-300', text: 'text-xs text-obsidian-500' },
+  }[tier]
+
   return (
     <div className="mb-4">
-      <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-2">{label} Notes</p>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex items-center gap-1.5 mb-2">
+        <span className={`rounded-full shrink-0 ${config.dot}`} />
+        <p className="text-[10px] tracking-widest uppercase text-obsidian-400">{label} Notes</p>
+      </div>
+      <div className="flex flex-wrap gap-1.5 pl-3.5">
         {notes.map(note => (
-          <Link
-            key={note}
-            href={`/note/${noteSlug(note)}`}
-            className="text-xs text-obsidian-600 border border-obsidian-200 hover:border-gold-400 hover:text-gold-700 px-2.5 py-1 transition-colors"
-          >
-            {note}
-          </Link>
+          <NotePill key={note} note={note} linkable size={tier === 'top' ? 'md' : 'sm'} />
         ))}
       </div>
     </div>
   )
 }
 
-function PriceSymbolDisplay({ symbol, title }: { symbol: string; title: string }) {
-  return (
-    <span className="font-serif text-4xl text-obsidian-900 tracking-wide" title={title}>
-      {symbol}
-    </span>
-  )
-}
 
 export default async function FragrancePage({ params }: Props) {
   const product = await getProduct(params.slug)
@@ -101,8 +101,6 @@ export default async function FragrancePage({ params }: Props) {
   const countryFlag = getCountryFlag(countryCode)
   const countryName = getCountryName(countryCode)
   const cleanDesc = cleanDescription(product.description)
-  const priceSymbol = getPriceSymbol(product.lowest_price)
-  const priceTitle = getPriceSymbolTitle(product.lowest_price)
   const vibeStyle = getVibeStyle(product.primary_vibe_slug)
 
   // Best purchase URL
@@ -243,12 +241,9 @@ export default async function FragrancePage({ params }: Props) {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-1">Price</p>
-                    <PriceSymbolDisplay symbol={priceSymbol} title={priceTitle} />
-                    {product.lowest_price && (
-                      <p className="text-xs text-obsidian-400 mt-0.5">
-                        From ${product.lowest_price.toFixed(0)} USD
-                      </p>
-                    )}
+                    <p className="font-serif text-3xl text-obsidian-900 tracking-wide">
+                      {product.lowest_price ? `From ${formatPriceUSD(product.lowest_price)}` : '—'}
+                    </p>
                   </div>
                   {product.retailers_count > 0 && (
                     <div className="text-right">
@@ -261,14 +256,13 @@ export default async function FragrancePage({ params }: Props) {
                 </div>
 
                 {purchaseUrl !== '#' && (
-                  <a
-                    href={purchaseUrl}
-                    target="_blank"
-                    rel="noopener noreferrer nofollow"
-                    className="block w-full text-center py-3.5 bg-obsidian-900 text-cream text-xs tracking-widest uppercase hover:bg-gold-600 transition-colors"
-                  >
-                    Purchase Now →
-                  </a>
+                  <>
+                    <BuyButton href={purchaseUrl} productName={product.name} />
+                    <p className="text-[10px] text-obsidian-400 mt-2 text-center">
+                      We may earn a commission.{' '}
+                      <a href="/affiliate-disclosure" className="underline hover:text-obsidian-700 transition-colors">Learn more</a>
+                    </p>
+                  </>
                 )}
               </div>
 
@@ -283,6 +277,16 @@ export default async function FragrancePage({ params }: Props) {
                     {product.current_prices.map((price: PriceEntry, i: number) => (
                       <div key={price.id} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
+                          {price.retailer?.logo_url || price.retailer?.domain ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={price.retailer.logo_url ?? `https://www.google.com/s2/favicons?sz=32&domain=${price.retailer.domain}`}
+                              alt={price.retailer.name}
+                              width={16}
+                              height={16}
+                              className="w-4 h-4 object-contain rounded-sm"
+                            />
+                          ) : null}
                           {i === 0 && (
                             <span className="text-[9px] tracking-widest uppercase bg-gold-100 text-gold-700 px-1.5 py-0.5">Best</span>
                           )}
@@ -292,8 +296,8 @@ export default async function FragrancePage({ params }: Props) {
                           )}
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="font-serif text-lg text-obsidian-900" title={`$${price.price_usd?.toFixed(0)}`}>
-                            {getPriceSymbol(price.price_usd)}
+                          <span className="font-serif text-lg text-obsidian-900">
+                            {price.price_usd ? formatPriceUSD(price.price_usd) : '—'}
                           </span>
                           {price.in_stock && (
                             <a
@@ -316,24 +320,35 @@ export default async function FragrancePage({ params }: Props) {
               <div className="border border-obsidian-100 p-5 mb-6">
                 <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-4">Scent Profile</p>
                 <div className="space-y-3">
-                  <NoteSection label="Top" notes={product.notes_top} />
-                  <NoteSection label="Heart" notes={product.notes_mid} />
-                  <NoteSection label="Base" notes={product.notes_base} />
+                  <NoteSection label="Top" notes={product.notes_top} tier="top" />
+                  <NoteSection label="Heart" notes={product.notes_mid} tier="heart" />
+                  <NoteSection label="Base" notes={product.notes_base} tier="base" />
                 </div>
               </div>
 
-              {/* Vibe gradient bar */}
+              {/* Vibe card */}
               {vibeStyle && (
                 <div className="mb-6">
                   <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-2">Scent Character</p>
-                  <Link href={`/vibe/${product.primary_vibe_slug}`} className="group block">
+                  <Link href={`/vibe/${product.primary_vibe_slug}`} className="group relative overflow-hidden h-16 flex items-end block">
                     <div
-                      className="h-3 w-full group-hover:opacity-80 transition-opacity"
+                      className="absolute inset-0 transition-transform duration-500 group-hover:scale-105"
                       style={{ background: vibeStyle.css }}
                     />
-                    <p className="text-xs text-obsidian-500 mt-1.5 group-hover:text-gold-600 transition-colors">
-                      {vibeStyle.name} — Explore this vibe →
-                    </p>
+                    <div className="relative w-full px-4 py-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3.5 h-3.5 rounded-full ring-1 ring-white/30 shrink-0"
+                          style={{ background: `linear-gradient(135deg, ${vibeStyle.colors[0]}, ${vibeStyle.colors[2]})` }}
+                        />
+                        <span className="font-serif text-sm font-light" style={{ color: vibeStyle.textColor }}>
+                          {vibeStyle.name}
+                        </span>
+                      </div>
+                      <span className="text-[10px] tracking-widest uppercase opacity-70 group-hover:opacity-100 transition-opacity" style={{ color: vibeStyle.textColor }}>
+                        Explore →
+                      </span>
+                    </div>
                   </Link>
                 </div>
               )}
@@ -352,7 +367,7 @@ export default async function FragrancePage({ params }: Props) {
             <div className="max-w-7xl mx-auto px-6">
               <p className="label-overline text-obsidian-400 mb-2">From the same house</p>
               <h2 className="font-serif text-3xl text-obsidian-900 font-light mb-8">More by {brand?.name}</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
                 {product.similar.map((p: Product) => (
                   <div key={p.id} className="bg-white border border-obsidian-100 hover:border-gold-300 transition-colors overflow-hidden">
                     <Link href={`/fragrance/${p.slug}`} className="block">
@@ -367,7 +382,7 @@ export default async function FragrancePage({ params }: Props) {
                       </div>
                       <div className="p-4">
                         <p className="font-serif text-sm text-obsidian-900 font-light">{p.name}</p>
-                        <p className="text-[10px] tracking-widest uppercase text-gold-500 mt-1">{getPriceSymbol(p.lowest_price)}</p>
+                        <p className="text-xs text-obsidian-400 mt-1">{p.lowest_price ? formatPriceUSD(p.lowest_price) : '—'}</p>
                       </div>
                     </Link>
                   </div>

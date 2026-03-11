@@ -2,12 +2,15 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const pathname = usePathname()
+  const router = useRouter()
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40)
@@ -22,7 +25,6 @@ export default function Navbar() {
     { href: '/countries', label: 'Origins' },
     { href: '/brands', label: 'Brands' },
     { href: '/search', label: 'Browse All' },
-    { href: '/about', label: 'About' },
   ]
 
   return (
@@ -59,15 +61,40 @@ export default function Navbar() {
 
           {/* Desktop: Search icon + CTA */}
           <div className="hidden md:flex items-center gap-4">
-            <Link
-              href="/search"
-              className="text-obsidian-400 hover:text-cream transition-colors"
-              aria-label="Search"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </Link>
+            <div className="flex items-center">
+              {searchOpen ? (
+                <form
+                  onSubmit={e => {
+                    e.preventDefault()
+                    if (searchQuery.trim()) router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+                    setSearchOpen(false)
+                    setSearchQuery('')
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <input
+                    autoFocus
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    onBlur={() => { if (!searchQuery) setSearchOpen(false) }}
+                    onKeyDown={e => e.key === 'Escape' && (setSearchOpen(false), setSearchQuery(''))}
+                    placeholder="Search fragrances…"
+                    className="bg-transparent border-b border-obsidian-500 text-cream text-sm placeholder-obsidian-500 focus:outline-none focus:border-gold-400 w-48 py-1 transition-colors"
+                  />
+                </form>
+              ) : (
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="text-obsidian-400 hover:text-cream transition-colors"
+                  aria-label="Search"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Mobile: hamburger */}
@@ -87,21 +114,23 @@ export default function Navbar() {
       </header>
 
       {/* Mobile menu */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-30 pt-16 bg-obsidian-950/98 backdrop-blur-sm md:hidden">
-          <nav className="px-6 py-8 flex flex-col gap-6">
-            {navLinks.map(link => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="font-serif text-2xl font-light text-cream hover:text-gold-400 transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
+      <div
+        className={`fixed inset-0 z-30 pt-16 bg-obsidian-950/98 backdrop-blur-sm md:hidden transform transition-transform duration-300 ${
+          menuOpen ? 'translate-x-0 pointer-events-auto' : 'translate-x-full pointer-events-none'
+        }`}
+      >
+        <nav className="px-6 py-8 flex flex-col gap-6">
+          {navLinks.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="font-serif text-2xl font-light text-cream hover:text-gold-400 transition-colors"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      </div>
     </>
   )
 }

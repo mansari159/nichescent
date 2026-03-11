@@ -10,6 +10,8 @@ import { getCountryFlag, getCountryName } from '@/lib/countries'
 import { getPriceSymbol, noteSlug, getBrandLogoUrl } from '@/lib/utils'
 import BrandLogoImage from '@/components/BrandLogoImage'
 
+export const dynamic = 'force-dynamic'
+
 interface Props { params: { slug: string } }
 
 async function getBrand(slug: string) {

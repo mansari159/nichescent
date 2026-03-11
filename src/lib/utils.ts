@@ -229,3 +229,45 @@ export const BRAND_LOGO_MAP: Record<string, string> = {
 export function getBrandLogoUrl(brand: { slug: string; logo_url?: string | null }): string | null {
   return brand.logo_url ?? BRAND_LOGO_MAP[brand.slug] ?? null
 }
+
+// ─── Note Category System ─────────────────────────────────────────────────────
+
+export type NoteCategory = 'floral' | 'wood' | 'spice' | 'musk' | 'citrus' | 'other'
+
+const NOTE_CATEGORY_MAP: Record<string, NoteCategory> = {
+  // Florals
+  'rose': 'floral', 'jasmine': 'floral', 'ylang-ylang': 'floral', 'ylang ylang': 'floral',
+  'violet': 'floral', 'iris': 'floral', 'tuberose': 'floral', 'peony': 'floral',
+  'orange blossom': 'floral', 'neroli': 'floral', 'geranium': 'floral', 'lily': 'floral',
+  'carnation': 'floral', 'magnolia': 'floral', 'cherry blossom': 'floral',
+  // Woods & Resins
+  'oud': 'wood', 'agarwood': 'wood', 'sandalwood': 'wood', 'cedar': 'wood',
+  'cedarwood': 'wood', 'vetiver': 'wood', 'patchouli': 'wood', 'frankincense': 'wood',
+  'myrrh': 'wood', 'benzoin': 'wood', 'labdanum': 'wood', 'incense': 'wood',
+  'guaiac wood': 'wood', 'birch': 'wood', 'smoke': 'wood',
+  // Spices
+  'saffron': 'spice', 'cardamom': 'spice', 'pepper': 'spice', 'black pepper': 'spice',
+  'cinnamon': 'spice', 'clove': 'spice', 'nutmeg': 'spice', 'ginger': 'spice',
+  'cumin': 'spice', 'coriander': 'spice', 'pink pepper': 'spice',
+  // Musks & Ambers
+  'musk': 'musk', 'white musk': 'musk', 'amber': 'musk', 'ambergris': 'musk',
+  'tonka bean': 'musk', 'tonka': 'musk', 'vanilla': 'musk', 'benzyl benzoate': 'musk',
+  'cashmeran': 'musk', 'civet': 'musk',
+  // Citrus & Fresh
+  'bergamot': 'citrus', 'lemon': 'citrus', 'lime': 'citrus', 'orange': 'citrus',
+  'grapefruit': 'citrus', 'mandarin': 'citrus', 'petitgrain': 'citrus',
+  'yuzu': 'citrus', 'sea salt': 'citrus', 'aquatic': 'citrus',
+}
+
+export const NOTE_CATEGORY_STYLES: Record<NoteCategory, { bg: string; text: string; border: string }> = {
+  floral:  { bg: '#fce8e8', text: '#8a3030', border: '#f0bcbc' },
+  wood:    { bg: '#f5ede0', text: '#6b3d18', border: '#e0c9a8' },
+  spice:   { bg: '#fdf0d8', text: '#7a4800', border: '#f0d49a' },
+  musk:    { bg: '#f0ede8', text: '#4a433c', border: '#d8d0c5' },
+  citrus:  { bg: '#f0f7e8', text: '#3a5c18', border: '#c8e0a8' },
+  other:   { bg: '#f7f5f2', text: '#5e5143', border: '#ede9e3' },
+}
+
+export function getNoteCategory(note: string): NoteCategory {
+  return NOTE_CATEGORY_MAP[note.toLowerCase()] ?? 'other'
+}

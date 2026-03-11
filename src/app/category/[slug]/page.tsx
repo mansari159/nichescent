@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase'
 import ProductCard from '@/components/ProductCard'
 import type { Product } from '@/types'
 
+export const dynamic = 'force-dynamic'
+
 interface Props { params: { slug: string } }
 
 async function getCategoryWithProducts(slug: string) {

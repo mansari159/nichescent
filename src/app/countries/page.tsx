@@ -3,6 +3,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Fragrance Origins — Explore Traditions from 50+ Countries',
   description: 'Discover the fragrance heritage of the Middle East, South Asia, Europe, and beyond. From Emirati oud to French niche perfumery.',

@@ -46,9 +46,19 @@ async function searchProducts(params: Props['searchParams']): Promise<{ products
   if (vibe) query = query.eq('primary_vibe_slug', vibe)
   if (type) query = query.eq('fragrance_type', type)
   if (gender) query = query.eq('gender', gender)
-  if (priceRange === '$') query = query.lt('lowest_price', 50)
-  else if (priceRange === '$$') query = query.gte('lowest_price', 50).lt('lowest_price', 150)
-  else if (priceRange === '$$$') query = query.gte('lowest_price', 150)
+  // Support both legacy symbol format ($, $$, $$$) and new numeric range format (0-50, 50-150, 150-99999)
+  if (priceRange) {
+    if (priceRange === '$') { query = query.lt('lowest_price', 50) }
+    else if (priceRange === '$$') { query = query.gte('lowest_price', 50).lt('lowest_price', 150) }
+    else if (priceRange === '$$$') { query = query.gte('lowest_price', 150) }
+    else if (priceRange.includes('-')) {
+      const [minStr, maxStr] = priceRange.split('-')
+      const min = parseFloat(minStr)
+      const max = parseFloat(maxStr)
+      if (!isNaN(min)) query = query.gte('lowest_price', min)
+      if (!isNaN(max) && max < 99999) query = query.lte('lowest_price', max)
+    }
+  }
 
   if (sort === 'price_asc') query = query.order('lowest_price', { ascending: true })
   else if (sort === 'price_desc') query = query.order('lowest_price', { ascending: false })
@@ -153,7 +163,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
         {/* ── Grid ───────────────────────────────────────────────────────── */}
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {products.map((p, i) => (
               <ProductCard key={p.id} product={p} priority={i < 4} />
             ))}

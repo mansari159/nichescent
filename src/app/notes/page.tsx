@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Browse by Scent Note — Oud, Rose, Saffron & More',
   description: 'Discover MENA fragrances by their key ingredients. Browse by oud, rose, saffron, amber, musk, and 25+ more notes. Find your perfect fragrance on RareTrace.',

@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { VIBE_MAP } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Fragrance Vibes — Find Your Scent Character',
   description: 'Discover niche fragrances by scent vibe. Warm & Spicy, Woody & Earthy, Floral & Romantic — find your signature.',

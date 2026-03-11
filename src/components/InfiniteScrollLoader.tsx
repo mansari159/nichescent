@@ -18,6 +18,23 @@ interface Props {
 
 const BATCH_SIZE = 24
 
+function SkeletonCard() {
+  return (
+    <div className="relative bg-white border border-obsidian-100 flex flex-col overflow-hidden animate-pulse">
+      <div className="relative aspect-square bg-parchment" />
+      <div className="p-4 flex flex-col flex-1 min-h-0">
+        <div className="h-3 bg-obsidian-100 rounded mb-2 w-12" />
+        <div className="h-4 bg-obsidian-100 rounded mb-3 w-full" />
+        <div className="h-4 bg-obsidian-100 rounded mb-3 w-3/4" />
+        <div className="mt-auto flex items-center justify-between pt-3 border-t border-obsidian-100">
+          <div className="h-3 bg-obsidian-100 rounded w-16" />
+          <div className="h-3 bg-obsidian-100 rounded w-12" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function InfiniteScrollLoader({
   initialProducts,
   totalCount,
@@ -123,7 +140,7 @@ export default function InfiniteScrollLoader({
 
       {/* Grid */}
       {products.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {withAds.map((item, i) =>
             item === 'ad' ? (
               <div key={`ad-${i}`} className="col-span-2 sm:col-span-3 lg:col-span-4">
@@ -141,14 +158,21 @@ export default function InfiniteScrollLoader({
         <div ref={sentinel} className="h-4 mt-4" aria-hidden="true" />
       )}
 
-      {/* Loading spinner */}
+      {/* Loading state with skeleton cards */}
       {loading && (
-        <div className="flex items-center justify-center gap-3 py-12">
-          <div className="w-5 h-5 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm text-obsidian-400 tracking-widest uppercase">
-            Loading more {category}…
-          </span>
-        </div>
+        <>
+          <div className="flex items-center justify-center gap-3 py-8">
+            <div className="w-5 h-5 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
+            <span className="text-sm text-obsidian-400 tracking-widest uppercase">
+              Loading more {category}…
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonCard key={`skeleton-${i}`} />
+            ))}
+          </div>
+        </>
       )}
 
       {/* End state */}
