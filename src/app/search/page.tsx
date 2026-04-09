@@ -5,8 +5,11 @@ import { supabase } from '@/lib/supabase'
 import AdUnit from '@/components/AdUnit'
 import EmailCapture from '@/components/EmailCapture'
 import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
+import SortSelect from '@/components/SortSelect'
 import type { Product } from '@/types'
 import dynamic from 'next/dynamic'
+
+export const dynamic = 'force-dynamic'
 
 const SearchBar = dynamic(() => import('@/components/SearchBar'), { ssr: false })
 
@@ -109,20 +112,9 @@ export default async function SearchPage({ searchParams }: Props) {
           </p>
           <div className="flex items-center gap-3">
             {/* Sort */}
-            <form method="get" className="hidden sm:block">
-              {q && <input type="hidden" name="q" value={q} />}
-              <select
-                name="sort"
-                defaultValue={searchParams.sort ?? ''}
-                onChange={e => (e.target.closest('form') as HTMLFormElement)?.submit()}
-                className="text-xs border border-obsidian-200 bg-white text-obsidian-700 px-3 py-2 focus:outline-none focus:border-gold-400"
-              >
-                <option value="">Newest First</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="name">A–Z</option>
-              </select>
-            </form>
+            <div className="hidden sm:block">
+              <SortSelect value={searchParams.sort ?? ''} />
+            </div>
           </div>
         </div>
 
