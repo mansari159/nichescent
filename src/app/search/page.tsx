@@ -7,11 +7,11 @@ import EmailCapture from '@/components/EmailCapture'
 import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
 import SortSelect from '@/components/SortSelect'
 import type { Product } from '@/types'
-import dynamic from 'next/dynamic'
+import dynamicImport from 'next/dynamic'
 
 export const dynamic = 'force-dynamic'
 
-const SearchBar = dynamic(() => import('@/components/SearchBar'), { ssr: false })
+const SearchBar = dynamicImport(() => import('@/components/SearchBar'), { ssr: false })
 
 interface Props {
   searchParams: { q?: string; brand?: string; vibe?: string; type?: string; gender?: string; priceRange?: string; sort?: string }
