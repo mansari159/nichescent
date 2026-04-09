@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback } from 'react'
 import ProductCard from '@/components/ProductCard'
 import EndState from '@/components/EndState'
 import AdUnit from '@/components/AdUnit'
@@ -56,7 +56,6 @@ export default function InfiniteScrollLoader({
   const loadingRef = useRef(false)
   const fetchUrlRef = useRef(fetchUrl)
   const extraParamsRef = useRef(extraParams)
-  const sentinel = useRef<HTMLDivElement>(null)
 
   // Keep refs in sync with latest props
   fetchUrlRef.current = fetchUrl
@@ -105,21 +104,6 @@ export default function InfiniteScrollLoader({
     }
   }, []) // No dependencies — reads everything from refs
 
-  // Set up IntersectionObserver once on mount, tear down on unmount
-  useEffect(() => {
-    const el = sentinel.current
-    if (!el) return
-
-    const observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting) loadMore()
-      },
-      { rootMargin: '400px' }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [loadMore]) // loadMore is stable, so this runs once
-
   // Insert ad every 48 products
   const withAds: (Product | 'ad')[] = []
   products.forEach((p, i) => {
@@ -153,26 +137,37 @@ export default function InfiniteScrollLoader({
         </div>
       )}
 
-      {/* Sentinel — sits below the grid; when visible, triggers loadMore */}
+      {/* Load more button + skeleton */}
       {!reachedEnd && (
-        <div ref={sentinel} className="h-4 mt-4" aria-hidden="true" />
-      )}
-
-      {/* Loading state with skeleton cards */}
-      {loading && (
-        <>
-          <div className="flex items-center justify-center gap-3 py-8">
-            <div className="w-5 h-5 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-obsidian-400 tracking-widest uppercase">
-              Loading more {category}…
-            </span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonCard key={`skeleton-${i}`} />
-            ))}
-          </div>
-        </>
+        <div className="mt-12 flex flex-col items-center gap-6">
+          {loading ? (
+            <>
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 border-2 border-gold-400 border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm text-obsidian-400 tracking-widest uppercase">
+                  Loading more {category}…
+                </span>
+              </div>
+              <div className="w-full grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <SkeletonCard key={`skeleton-${i}`} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <button
+                onClick={loadMore}
+                className="border border-obsidian-300 text-obsidian-700 text-xs tracking-widest uppercase px-10 py-3.5 hover:bg-obsidian-900 hover:text-cream hover:border-obsidian-900 transition-colors duration-200"
+              >
+                Load more {category}
+              </button>
+              <p className="text-xs text-obsidian-400">
+                Showing {products.length} of {totalCount}
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
       {/* End state */}
