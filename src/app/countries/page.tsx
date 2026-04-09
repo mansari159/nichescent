@@ -48,7 +48,7 @@ const COUNTRY_DESC: Record<string, string> = {
   FR: 'Grasse and Paris define the modern fragrance world. France\'s niche houses — Diptyque, Maison Margiela, L\'Artisan Parfumeur — set the standard for artisan perfumery.',
   GB: 'Home to Jo Malone, Penhaligon\'s, and a new generation of avant-garde British perfumers. London\'s fragrance scene is eclectic, literary, and quietly experimental.',
   IN: 'Kannauj produces the world\'s finest attars — steam-distilled botanicals on sandalwood oil. India\'s oud, jasmine, and rose extracts are prized globally.',
-  JP: 'Japanese perfumery values restraint, clarity, and negative space. Tokyo houses like Parfums Satorini and Comme des Garçons redefine minimalist luxury.',
+  JP: 'Japanese perfumery values restraint, clarity, and negative space. Tokyo houses like Comme des Garçons redefine minimalist luxury through avant-garde, conceptual scent.',
   PK: 'Rich in rose, jasmine, and kewra. Pakistani perfumers carry forward Mughal-era attar traditions with modern interpretations of classic South Asian florals.',
   KW: 'Kuwait\'s perfumers are known for their rich, resinous blends that honour Khaleeji tradition — heavy on oud, ambergris, and bakhoor.',
   OM: 'Oman\'s frankincense trade is among the oldest in the world. Amouage, founded in Muscat, is considered one of the world\'s most prestigious fragrance houses.',
@@ -58,7 +58,6 @@ const COUNTRY_DESC: Record<string, string> = {
   US: 'American niche perfumery has exploded over the last two decades — Le Labo, Malin+Goetz, Commodity — bringing a casual-luxury sensibility to artisan scent.',
   DE: 'Germany\'s BIEHL Parfumkunstwerke and 4160 Tuesdays represent a conceptual, intellectual approach to fragrance that challenges every convention.',
   MY: 'Malaysia is one of the region\'s fastest-growing fragrance markets, with a vibrant local industry blending Southeast Asian florals with Middle Eastern oud.',
-  JP: 'Japanese perfumery values restraint, clarity, and negative space. Tokyo\'s avant-garde houses redefine minimalist luxury scent.',
 }
 
 // ─── Featured slides for the hero slider ─────────────────────────────────────
