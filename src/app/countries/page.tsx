@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import LuminaSlider, { type SlideData } from '@/components/ui/LuminaSlider'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,39 +13,71 @@ export const metadata: Metadata = {
 
 const REGION_ORDER = ['Middle East', 'South Asia', 'Europe', 'Southeast Asia', 'North America', 'East Asia']
 
+// ─── Country image map ────────────────────────────────────────────────────────
+// High-quality cinematic Unsplash photos sized for full-screen WebGL rendering
 const COUNTRY_IMAGES: Record<string, string> = {
-  'AE': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80',
-  'SA': 'https://images.unsplash.com/photo-1586191582056-b3e3c6e2e7d8?w=600&q=80',
-  'KW': 'https://images.unsplash.com/photo-1568797629192-789e3a6444c2?w=600&q=80',
-  'OM': 'https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=600&q=80',
-  'QA': 'https://images.unsplash.com/photo-1577948010956-b3f1ad6bd5f6?w=600&q=80',
-  'FR': 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&q=80',
-  'GB': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80',
-  'IN': 'https://images.unsplash.com/photo-1524492412937-b28074a47d70?w=600&q=80',
-  'PK': 'https://images.unsplash.com/photo-1588981884086-9d4b0b06b9d0?w=600&q=80',
-  'ID': 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=600&q=80',
+  // Middle East
+  AE: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1920&q=85&fit=crop',   // Dubai skyline
+  SA: 'https://images.unsplash.com/photo-1586191582056-b3e3c6e2e7d8?w=1920&q=85&fit=crop',   // Riyadh/Saudi
+  KW: 'https://images.unsplash.com/photo-1568797629192-789e3a6444c2?w=1920&q=85&fit=crop',   // Kuwait
+  OM: 'https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=1920&q=85&fit=crop',   // Oman
+  QA: 'https://images.unsplash.com/photo-1577948010956-b3f1ad6bd5f6?w=1920&q=85&fit=crop',   // Qatar
+  // Europe
+  FR: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1920&q=85&fit=crop',   // Paris at night
+  GB: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=85&fit=crop',   // London
+  IT: 'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=1920&q=85&fit=crop',   // Italy
+  DE: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?w=1920&q=85&fit=crop',   // Germany
+  // South Asia
+  IN: 'https://images.unsplash.com/photo-1524492412937-b28074a47d70?w=1920&q=85&fit=crop',   // India
+  PK: 'https://images.unsplash.com/photo-1588981884086-9d4b0b06b9d0?w=1920&q=85&fit=crop',   // Pakistan
+  // East Asia
+  JP: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1920&q=85&fit=crop',   // Tokyo neon streets
+  // Southeast Asia
+  ID: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=1920&q=85&fit=crop',   // Indonesia/Bali
+  MY: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1920&q=85&fit=crop',   // Malaysia
+  // North America
+  US: 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=1920&q=85&fit=crop',   // New York
 }
 
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600&q=80'
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1594035910387-fea47794261f?w=1920&q=85&fit=crop'
 
-async function getCountriesWithBrands() {
-  const { data: brands } = await supabase
-    .from('brands')
-    .select('country, region')
-    .not('country', 'is', null)
-
-  if (!brands) return []
-
-  // Count brands per country
-  const counts: Record<string, { count: number; region: string }> = {}
-  brands.forEach(b => {
-    const c = b.country as string
-    if (!counts[c]) counts[c] = { count: 0, region: b.region ?? 'Other' }
-    counts[c].count++
-  })
-
-  return Object.entries(counts).map(([code, { count, region }]) => ({ code, count, region }))
+// ─── Country descriptions (fragrance heritage copy) ───────────────────────────
+const COUNTRY_DESC: Record<string, string> = {
+  AE: 'The epicenter of oud and amber perfumery. Dubai has become a global hub for luxury fragrance, blending ancient Bedouin traditions with contemporary niche perfumery.',
+  SA: 'The spiritual homeland of oud, bukhoor, and rose attar. Saudi perfumery is steeped in centuries of trade along the incense road.',
+  FR: 'Grasse and Paris define the modern fragrance world. France\'s niche houses — Diptyque, Maison Margiela, L\'Artisan Parfumeur — set the standard for artisan perfumery.',
+  GB: 'Home to Jo Malone, Penhaligon\'s, and a new generation of avant-garde British perfumers. London\'s fragrance scene is eclectic, literary, and quietly experimental.',
+  IN: 'Kannauj produces the world\'s finest attars — steam-distilled botanicals on sandalwood oil. India\'s oud, jasmine, and rose extracts are prized globally.',
+  JP: 'Japanese perfumery values restraint, clarity, and negative space. Tokyo houses like Parfums Satorini and Comme des Garçons redefine minimalist luxury.',
+  PK: 'Rich in rose, jasmine, and kewra. Pakistani perfumers carry forward Mughal-era attar traditions with modern interpretations of classic South Asian florals.',
+  KW: 'Kuwait\'s perfumers are known for their rich, resinous blends that honour Khaleeji tradition — heavy on oud, ambergris, and bakhoor.',
+  OM: 'Oman\'s frankincense trade is among the oldest in the world. Amouage, founded in Muscat, is considered one of the world\'s most prestigious fragrance houses.',
+  QA: 'Qatar\'s fragrance culture is deeply rooted in hospitality — perfuming guests and homes is a cornerstone of Qatari social tradition.',
+  IT: 'Italy blends the artisan sensibility of Florence with the luxury of Milan. Santa Maria Novella, founded in 1612, is among the world\'s oldest perfumeries.',
+  ID: 'Indonesia supplies some of the world\'s finest patchouli, vetiver, and nutmeg. Its tropical raw materials are the backbone of countless classic Western fragrances.',
+  US: 'American niche perfumery has exploded over the last two decades — Le Labo, Malin+Goetz, Commodity — bringing a casual-luxury sensibility to artisan scent.',
+  DE: 'Germany\'s BIEHL Parfumkunstwerke and 4160 Tuesdays represent a conceptual, intellectual approach to fragrance that challenges every convention.',
+  MY: 'Malaysia is one of the region\'s fastest-growing fragrance markets, with a vibrant local industry blending Southeast Asian florals with Middle Eastern oud.',
+  JP: 'Japanese perfumery values restraint, clarity, and negative space. Tokyo\'s avant-garde houses redefine minimalist luxury scent.',
 }
+
+// ─── Featured slides for the hero slider ─────────────────────────────────────
+// Ordered for maximum visual variety across transitions
+const FEATURED_COUNTRIES: Array<{
+  code: string
+  name: string
+  region: string
+  slug: string
+  flag: string
+}> = [
+  { code: 'AE', name: 'UAE', region: 'Middle East', slug: 'ae', flag: '🇦🇪' },
+  { code: 'FR', name: 'France', region: 'Europe', slug: 'fr', flag: '🇫🇷' },
+  { code: 'JP', name: 'Japan', region: 'East Asia', slug: 'jp', flag: '🇯🇵' },
+  { code: 'IN', name: 'India', region: 'South Asia', slug: 'in', flag: '🇮🇳' },
+  { code: 'GB', name: 'United Kingdom', region: 'Europe', slug: 'gb', flag: '🇬🇧' },
+  { code: 'OM', name: 'Oman', region: 'Middle East', slug: 'om', flag: '🇴🇲' },
+  { code: 'PK', name: 'Pakistan', region: 'South Asia', slug: 'pk', flag: '🇵🇰' },
+]
 
 const CODE_TO_DATA: Record<string, { name: string; flag: string; slug: string }> = {
   AE: { name: 'UAE', flag: '🇦🇪', slug: 'ae' },
@@ -68,10 +101,46 @@ const CODE_TO_DATA: Record<string, { name: string; flag: string; slug: string }>
   JP: { name: 'Japan', flag: '🇯🇵', slug: 'jp' },
 }
 
+// ─── Data fetching ─────────────────────────────────────────────────────────────
+async function getCountriesWithBrands() {
+  const { data: brands } = await supabase
+    .from('brands')
+    .select('country, region')
+    .not('country', 'is', null)
+
+  if (!brands) return []
+
+  const counts: Record<string, { count: number; region: string }> = {}
+  brands.forEach(b => {
+    const c = b.country as string
+    if (!counts[c]) counts[c] = { count: 0, region: b.region ?? 'Other' }
+    counts[c].count++
+  })
+
+  return Object.entries(counts).map(([code, { count, region }]) => ({ code, count, region }))
+}
+
+// ─── Page ──────────────────────────────────────────────────────────────────────
 export default async function CountriesPage() {
   const countries = await getCountriesWithBrands()
 
-  // Group by region
+  // Build a count lookup
+  const countByCode = Object.fromEntries(countries.map(c => [c.code, c.count]))
+
+  // Build slider slides from featured countries
+  const heroSlides: SlideData[] = FEATURED_COUNTRIES.map(fc => ({
+    title: fc.name,
+    subtitle: fc.region,
+    badge: countByCode[fc.code]
+      ? `${countByCode[fc.code]} ${countByCode[fc.code] === 1 ? 'brand' : 'brands'}`
+      : undefined,
+    description: COUNTRY_DESC[fc.code] ?? `Discover the fragrance heritage of ${fc.name}.`,
+    image: COUNTRY_IMAGES[fc.code] ?? FALLBACK_IMAGE,
+    href: `/country/${fc.slug}`,
+    ctaLabel: `Explore ${fc.name} fragrances →`,
+  }))
+
+  // Group all countries by region for the browse grid below
   const byRegion: Record<string, typeof countries> = {}
   countries.forEach(c => {
     const region = c.region || 'Other'
@@ -86,28 +155,37 @@ export default async function CountriesPage() {
   return (
     <div className="pt-16 bg-cream min-h-screen">
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative bg-obsidian-950 py-24 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=60)', backgroundSize: 'cover', backgroundPosition: 'center' }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-obsidian-950/50 to-obsidian-950" />
-        <div className="relative max-w-7xl mx-auto px-6">
-          <p className="text-[10px] tracking-widest uppercase text-obsidian-500 mb-4">Fragrance Heritage</p>
-          <h1 className="font-serif text-5xl sm:text-6xl font-light text-cream mb-4">
-            Explore Fragrance<br />Traditions Worldwide
-          </h1>
-          <p className="text-obsidian-400 text-lg max-w-xl">
-            From ancient trade routes to modern artisan houses — discover perfumery cultures from {Object.keys(byRegion).length} regions.
-          </p>
-        </div>
-      </section>
+      {/* ── Cinematic Slider Hero ──────────────────────────────────────────── */}
+      <LuminaSlider
+        slides={heroSlides}
+        pageLabel="Fragrance Origins"
+      />
 
-      {/* ── Regions ───────────────────────────────────────────────────────── */}
+      {/* ── Section bridge ────────────────────────────────────────────────── */}
+      <div className="bg-obsidian-950 py-10 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <p className="text-obsidian-400 text-sm">
+            Browse all {countries.length} fragrance-producing countries
+          </p>
+          <div className="hidden sm:flex gap-2 text-[10px] tracking-widest uppercase text-obsidian-600">
+            {REGION_ORDER.filter(r => byRegion[r]).map(r => (
+              <a key={r} href={`#region-${r.toLowerCase().replace(/\s+/g, '-')}`}
+                className="hover:text-obsidian-400 transition-colors">
+                {r}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Region grids ──────────────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         {sortedRegions.map(region => (
-          <section key={region} className="mb-16">
+          <section
+            key={region}
+            id={`region-${region.toLowerCase().replace(/\s+/g, '-')}`}
+            className="mb-16"
+          >
             <div className="flex items-center gap-4 mb-8 pb-4 border-b border-obsidian-100">
               <h2 className="font-serif text-3xl text-obsidian-900 font-light">{region}</h2>
               <span className="text-xs text-obsidian-400 border border-obsidian-200 px-2 py-1">
@@ -148,12 +226,12 @@ export default async function CountriesPage() {
           </section>
         ))}
 
-        {/* Coming Soon regions */}
+        {/* Coming Soon */}
         <section>
           <div className="flex items-center gap-4 mb-8 pb-4 border-b border-obsidian-100">
-            <h2 className="font-serif text-3xl text-obsidian-900 font-light opacity-50">Coming Soon</h2>
+            <h2 className="font-serif text-3xl text-obsidian-900 font-light opacity-40">Coming Soon</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 opacity-50">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 opacity-40">
             {['West Africa', 'Latin America', 'East Africa', 'Central Asia'].map(region => (
               <div key={region} className="border border-dashed border-obsidian-200 p-6 text-center">
                 <p className="font-serif text-lg text-obsidian-400 font-light">{region}</p>

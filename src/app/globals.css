@@ -117,3 +117,60 @@
 .animate-fade-up {
   animation: fade-up 0.5s ease-out forwards;
 }
+
+/* ── Lumina Slider ─────────────────────────────────────────────────────────── */
+
+/* Right-side navigation items (created dynamically via JS) */
+.lumina-nav-item {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 0;
+  opacity: 0.4;
+  transition: opacity 0.3s ease;
+  min-width: 160px;
+}
+.lumina-nav-item:hover { opacity: 0.7; }
+.lumina-nav-item.lumina-active { opacity: 1; }
+
+/* Progress line */
+.lumina-prog-line {
+  height: 1px;
+  background: rgba(245, 240, 232, 0.2);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+.lumina-prog-fill {
+  position: absolute;
+  left: 0; top: 0;
+  height: 100%;
+  width: 0%;
+  background: #D4AF37;
+  opacity: 0;
+  transition: width 0.1s linear, opacity 0.3s ease;
+}
+
+/* Nav text */
+.lumina-nav-title {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #F5F0E8;
+  white-space: nowrap;
+}
+.lumina-nav-sub {
+  font-size: 10px;
+  color: rgba(245, 240, 232, 0.45);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Mobile: hide right nav on small screens */
+@media (max-width: 767px) {
+  nav[data-l="nav"] {
+    display: none !important;
+  }
+}
