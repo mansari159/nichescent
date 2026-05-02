@@ -91,11 +91,18 @@ export async function GET(req: NextRequest) {
     query = query.eq('primary_vibe_slug', vibe)
   }
 
-  // Price range
+  // Price range — support both legacy symbol format and numeric range format
   if (priceRange) {
-    if (priceRange === '$')   query = query.lt('lowest_price', 50)
-    if (priceRange === '$$')  query = query.gte('lowest_price', 50).lt('lowest_price', 150)
-    if (priceRange === '$$$') query = query.gte('lowest_price', 150)
+    if (priceRange === '$')        query = query.lt('lowest_price', 50)
+    else if (priceRange === '$$')  query = query.gte('lowest_price', 50).lt('lowest_price', 150)
+    else if (priceRange === '$$$') query = query.gte('lowest_price', 150)
+    else if (priceRange.includes('-')) {
+      const [minStr, maxStr] = priceRange.split('-')
+      const min = parseFloat(minStr)
+      const max = parseFloat(maxStr)
+      if (!isNaN(min)) query = query.gte('lowest_price', min)
+      if (!isNaN(max) && max < 99999) query = query.lte('lowest_price', max)
+    }
   }
 
   // Full-text search

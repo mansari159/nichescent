@@ -44,7 +44,16 @@ async function searchProducts(params: Props['searchParams']): Promise<{ products
       query = query.ilike('name', `%${q}%`)
     }
   }
-  if (brand) query = query.ilike('name', `%${brand}%`)
+  if (brand) {
+    // brand param can be a slug or partial name — look up by both
+    const { data: brandRow } = await supabase
+      .from('brands')
+      .select('id')
+      .or(`slug.eq.${brand},name.ilike.%${brand}%`)
+      .limit(1)
+      .single()
+    if (brandRow) query = query.eq('brand_id', brandRow.id)
+  }
   if (vibe) query = query.eq('primary_vibe_slug', vibe)
   if (type) query = query.eq('fragrance_type', type)
   if (gender) query = query.eq('gender', gender)

@@ -55,7 +55,7 @@ export default function FilterBar({ navigatesToSearch = false }: Props) {
   return (
     <div className="sticky top-16 z-20 bg-cream/95 backdrop-blur-sm border-b border-obsidian-100 py-3">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-0.5">
 
           <FilterSelect
             label={current.vibe ? VIBE_MAP[current.vibe]?.name ?? 'Vibe' : 'Vibe'}

@@ -31,7 +31,9 @@ export default function Navbar() {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          scrolled ? 'bg-obsidian-950/95 backdrop-blur-md border-b border-obsidian-800' : 'bg-transparent'
+          scrolled || pathname !== '/'
+            ? 'bg-obsidian-950/95 backdrop-blur-md border-b border-obsidian-800'
+            : 'bg-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
