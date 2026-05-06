@@ -478,7 +478,7 @@ export default function LuminaSlider({ slides, pageLabel }: LuminaSliderProps) {
 
         {/* Title — GSAP animates children spans */}
         <h2 data-l="title" style={{
-          fontFamily: 'var(--font-cormorant, "Cormorant Garamond", Georgia, serif)',
+          fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)',
           fontSize: 'clamp(2.4rem, 5vw, 4.2rem)',
           color: '#F5F0E8',
           fontWeight: 300,
@@ -514,7 +514,7 @@ export default function LuminaSlider({ slides, pageLabel }: LuminaSliderProps) {
         zIndex: 10, display: 'flex', alignItems: 'baseline', gap: '0.3rem',
       }}>
         <span data-l="num" style={{
-          fontFamily: 'var(--font-cormorant, "Cormorant Garamond", Georgia, serif)',
+          fontFamily: 'var(--font-playfair, "Playfair Display", Georgia, serif)',
           fontSize: '3.5rem', color: 'rgba(245,240,232,0.9)', lineHeight: 1, fontWeight: 300,
         }}>
           01

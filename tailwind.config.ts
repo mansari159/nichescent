@@ -36,7 +36,7 @@ const config: Config = {
         stone: '#8A8070',
       },
       fontFamily: {
-        serif: ['var(--font-cormorant)', 'Georgia', 'serif'],
+        serif: ['var(--font-playfair)', 'Georgia', 'serif'],
         sans:  ['var(--font-inter)', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
