@@ -1,406 +1,160 @@
-import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
-import Image from 'next/image'
-import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
-import AdUnit from '@/components/AdUnit'
-import EmailCapture from '@/components/EmailCapture'
-import NotePill from '@/components/NotePill'
-import BuyButton from '@/components/BuyButton'
-import type { Product, PriceEntry } from '@/types'
-import {
-  getFragranceTypeLabel, genderLabels, cleanDescription,
-  getVibeStyle, formatPriceUSD,
-} from '@/lib/utils'
-import { getCountryFlag, getCountryName } from '@/lib/countries'
+import { createClient } from '@supabase/supabase-js';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+import NotesPyramid from '@/components/NotesPyramid';
+import TierPill from '@/components/TierPill';
+import { getAffiliateUrl } from '@/components/FragranceCard';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
-interface Props { params: { slug: string } }
-
-async function getProduct(slug: string) {
-  const { data: product } = await supabase
-    .from('products')
-    .select('*, brand:brands(name, slug, country, description, logo_url)')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .single()
-
-  if (!product) return null
-
-  const { data: prices } = await supabase
-    .from('current_prices')
-    .select('*, retailer:retailers(name, slug, logo_url, domain, affiliate_url_pattern)')
-    .eq('product_id', product.id)
-    .order('price_usd', { ascending: true })
-
-  const { data: similar } = await supabase
-    .from('products')
-    .select('*, brand:brands(name, slug, country)')
-    .eq('brand_id', product.brand_id)
-    .eq('is_active', true)
-    .neq('id', product.id)
-    .not('lowest_price', 'is', null)
-    .limit(4)
-
-  return {
-    ...product,
-    current_prices: (prices ?? []) as PriceEntry[],
-    similar: similar ?? [],
-  }
+function serverClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const product = await getProduct(params.slug)
-  if (!product) return { title: 'Fragrance Not Found' }
-  const brand = product.brand?.name ?? ''
-  const priceStr = product.lowest_price ? `From $${product.lowest_price.toFixed(0)}` : ''
-  const storeCount = product.retailers_count ?? 0
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const sb = serverClient();
+  const { data } = await sb.from('fragrances').select('name, house_name, plain_description').eq('slug', params.slug).single();
+  if (!data) return { title: 'Fragrance Not Found' };
   return {
-    title: `${product.name} by ${brand}`,
-    description: `${product.name} by ${brand}${priceStr ? ` — ${priceStr}` : ''} · Available at ${storeCount} store${storeCount !== 1 ? 's' : ''}. ${product.notes_top?.slice(0, 3).join(', ') ?? ''}.`,
-    openGraph: {
-      images: product.image_url ? [{ url: product.image_url, width: 800, height: 800, alt: product.name }] : [],
-    },
-    other: {
-      'schema:type': 'Product',
-    },
-  }
+    title: `${data.name} — ${data.house_name ?? ''}`,
+    description: data.plain_description?.slice(0, 160) ?? undefined,
+  };
 }
 
-function NoteSection({ label, notes, tier }: { label: string; notes: string[]; tier: 'top' | 'heart' | 'base' }) {
-  if (!notes?.length) return null
-  const config = {
-    top:    { dot: 'w-2 h-2 bg-gold-400', text: 'text-sm font-medium text-obsidian-800' },
-    heart:  { dot: 'w-1.5 h-1.5 bg-obsidian-400', text: 'text-xs text-obsidian-700' },
-    base:   { dot: 'w-1 h-1 bg-obsidian-300', text: 'text-xs text-obsidian-500' },
-  }[tier]
+export default async function FragrancePage({ params }: { params: { slug: string } }) {
+  const sb = serverClient();
+  const { data: frag } = await sb
+    .from('fragrances')
+    .select('*, house:houses(*)')
+    .eq('slug', params.slug)
+    .single();
+  if (!frag) notFound();
+
+  // Clone backlink
+  let original = null;
+  if (frag.clone_of) {
+    const { data } = await sb
+      .from('fragrances')
+      .select('name, slug, house_name')
+      .eq('id', frag.clone_of)
+      .single();
+    original = data;
+  }
+
+  const affiliateUrl = getAffiliateUrl(frag.affiliate_links);
+  const img = frag.image_url || frag.image_path || '/placeholder.jpg';
 
   return (
-    <div className="mb-4">
-      <div className="flex items-center gap-1.5 mb-2">
-        <span className={`rounded-full shrink-0 ${config.dot}`} />
-        <p className="text-[10px] tracking-widest uppercase text-obsidian-400">{label} Notes</p>
-      </div>
-      <div className="flex flex-wrap gap-1.5 pl-3.5">
-        {notes.map(note => (
-          <NotePill key={note} note={note} linkable size={tier === 'top' ? 'md' : 'sm'} />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-
-export default async function FragrancePage({ params }: Props) {
-  const product = await getProduct(params.slug)
-  if (!product) notFound()
-
-  const brand = product.brand
-  const countryCode = brand?.country ?? null
-  const countryFlag = getCountryFlag(countryCode)
-  const countryName = getCountryName(countryCode)
-  const cleanDesc = cleanDescription(product.description)
-  const vibeStyle = getVibeStyle(product.primary_vibe_slug)
-
-  // Best purchase URL
-  const bestPrice = product.current_prices[0]
-  const purchaseUrl = bestPrice?.affiliate_url ?? bestPrice?.product_url ?? '#'
-
-  // Schema.org structured data
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    description: cleanDesc ?? undefined,
-    brand: { '@type': 'Brand', name: brand?.name ?? '' },
-    image: product.image_url ?? undefined,
-    offers: product.current_prices.map((p: PriceEntry) => ({
-      '@type': 'Offer',
-      url: p.affiliate_url ?? p.product_url,
-      priceCurrency: 'USD',
-      price: p.price_usd?.toFixed(2) ?? '0',
-      availability: p.in_stock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      seller: { '@type': 'Organization', name: p.retailer?.name ?? '' },
-    })),
-  }
-
-  return (
-    <>
-      {/* Structured data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-      />
-
-      <div className="pt-16 bg-cream">
+    <div style={{ backgroundColor: '#f5ede0', minHeight: '100vh', paddingTop: '4rem' }}>
+      <div className="max-w-5xl mx-auto px-8 py-12">
         {/* Breadcrumb */}
-        <div className="max-w-7xl mx-auto px-6 py-5">
-          <nav className="flex items-center gap-2 text-xs text-obsidian-400" aria-label="Breadcrumb">
-            <Link href="/" className="hover:text-obsidian-700 transition-colors">Home</Link>
-            <span>/</span>
-            {brand && (
-              <>
-                <Link href={`/brand/${brand.slug}`} className="hover:text-obsidian-700 transition-colors">
-                  {brand.name}
-                </Link>
-                <span>/</span>
-              </>
-            )}
-            <span className="text-obsidian-700">{product.name}</span>
-          </nav>
+        <div className="flex items-center gap-2 mb-8">
+          <Link href="/discover" className="font-mono text-[9px] tracking-widest uppercase" style={{ color: '#8a7560' }}>Discover</Link>
+          <span className="font-mono text-[9px]" style={{ color: '#e0cdb5' }}>›</span>
+          {frag.house && (
+            <>
+              <Link href={`/house/${frag.house.slug}`} className="font-mono text-[9px] tracking-widest uppercase" style={{ color: '#8a7560' }}>
+                {frag.house_name}
+              </Link>
+              <span className="font-mono text-[9px]" style={{ color: '#e0cdb5' }}>›</span>
+            </>
+          )}
+          <span className="font-mono text-[9px] tracking-widest uppercase" style={{ color: '#3a2e22' }}>{frag.name}</span>
         </div>
 
-        {/* Main content */}
-        <div className="max-w-7xl mx-auto px-6 pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-12 lg:gap-16">
-
-            {/* ── Left: Image Gallery ─────────────────────────────────────── */}
-            <div>
-              <div className="relative aspect-square bg-parchment overflow-hidden">
-                {product.image_url ? (
-                  <Image
-                    src={product.image_url}
-                    alt={`${product.name} by ${brand?.name ?? ''}`}
-                    fill
-                    priority
-                    className="object-contain p-10"
-                    sizes="(max-width: 1024px) 100vw, 55vw"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="font-serif text-6xl text-obsidian-200">
-                      {brand?.name?.charAt(0) ?? '?'}
-                    </span>
-                  </div>
-                )}
-                {/* Country flag */}
-                {countryFlag && (
-                  <span className="absolute top-5 left-5 text-2xl" title={countryName}>{countryFlag}</span>
-                )}
-                {/* Vibe badge */}
-                {vibeStyle && (
-                  <div
-                    className="absolute top-5 right-5 flex items-center gap-2 px-3 py-1.5"
-                    style={{ background: vibeStyle.css }}
-                  >
-                    <span className="text-[10px] tracking-widest uppercase font-sans" style={{ color: vibeStyle.textColor }}>
-                      {vibeStyle.name}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* ── Right: Info ──────────────────────────────────────────────── */}
-            <div className="flex flex-col">
-              {/* Brand */}
-              {brand && (
-                <Link
-                  href={`/brand/${brand.slug}`}
-                  className="text-[11px] tracking-widest uppercase text-gold-500 hover:text-gold-600 transition-colors mb-2"
-                >
-                  {brand.name}
-                  {countryName && <span className="text-obsidian-400 ml-2">· {countryName} {countryFlag}</span>}
-                </Link>
-              )}
-
-              {/* Name */}
-              <h1 className="font-serif text-4xl sm:text-5xl font-light text-obsidian-900 leading-tight mb-4">
-                {product.name}
-              </h1>
-
-              {/* Badges */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {product.fragrance_type && (
-                  <span className="text-[10px] tracking-widest uppercase bg-obsidian-100 text-obsidian-600 px-3 py-1.5">
-                    {getFragranceTypeLabel(product.fragrance_type)}
-                  </span>
-                )}
-                {product.gender && (
-                  <span className="text-[10px] tracking-widest uppercase bg-obsidian-100 text-obsidian-600 px-3 py-1.5">
-                    {genderLabels[product.gender] ?? product.gender}
-                  </span>
-                )}
-                {product.size_ml && (
-                  <span className="text-[10px] tracking-widest uppercase bg-obsidian-100 text-obsidian-600 px-3 py-1.5">
-                    {product.size_ml}ml
-                  </span>
-                )}
-              </div>
-
-              {/* Description */}
-              {cleanDesc && (
-                <p className="text-base text-obsidian-600 leading-relaxed mb-6 border-l-2 border-gold-300 pl-4">
-                  {cleanDesc}
-                </p>
-              )}
-
-              {/* Price + Purchase */}
-              <div className="border border-obsidian-100 p-5 mb-4">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-1">Price</p>
-                    <p className="font-serif text-3xl text-obsidian-900 tracking-wide">
-                      {product.lowest_price ? `From ${formatPriceUSD(product.lowest_price)}` : '—'}
-                    </p>
-                  </div>
-                  {product.retailers_count > 0 && (
-                    <div className="text-right">
-                      <p className="font-serif text-2xl text-obsidian-900">{product.retailers_count}</p>
-                      <p className="text-[10px] tracking-widest uppercase text-obsidian-400">
-                        {product.retailers_count === 1 ? 'store' : 'stores'}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {purchaseUrl !== '#' && (
-                  <>
-                    <BuyButton href={purchaseUrl} productName={product.name} />
-                    <p className="text-[10px] text-obsidian-400 mt-2 text-center">
-                      We may earn a commission.{' '}
-                      <a href="/affiliate-disclosure" className="underline hover:text-obsidian-700 transition-colors">Learn more</a>
-                    </p>
-                  </>
-                )}
-              </div>
-
-              {/* Ad after purchase */}
-              <AdUnit position="after_purchase" className="mb-4" />
-
-              {/* All retailers */}
-              {product.current_prices.length > 1 && (
-                <div className="border border-obsidian-100 p-5 mb-6">
-                  <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-4">Compare Prices</p>
-                  <div className="space-y-3">
-                    {product.current_prices.map((price: PriceEntry, i: number) => (
-                      <div key={price.id} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {price.retailer?.logo_url || price.retailer?.domain ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={price.retailer.logo_url ?? `https://www.google.com/s2/favicons?sz=32&domain=${price.retailer.domain}`}
-                              alt={price.retailer.name}
-                              width={16}
-                              height={16}
-                              className="w-4 h-4 object-contain rounded-sm"
-                            />
-                          ) : null}
-                          {i === 0 && (
-                            <span className="text-[9px] tracking-widest uppercase bg-gold-100 text-gold-700 px-1.5 py-0.5">Best</span>
-                          )}
-                          <span className="text-sm text-obsidian-700">{price.retailer?.name ?? 'Retailer'}</span>
-                          {!price.in_stock && (
-                            <span className="text-[9px] text-red-500 uppercase tracking-widest">Out of stock</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="font-serif text-lg text-obsidian-900">
-                            {price.price_usd ? formatPriceUSD(price.price_usd) : '—'}
-                          </span>
-                          {price.in_stock && (
-                            <a
-                              href={price.affiliate_url ?? price.product_url}
-                              target="_blank"
-                              rel="noopener noreferrer nofollow"
-                              className="text-[10px] tracking-widest uppercase text-gold-500 hover:text-gold-700 transition-colors"
-                            >
-                              Buy →
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Notes pyramid */}
-              <div className="border border-obsidian-100 p-5 mb-6">
-                <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-4">Scent Profile</p>
-                <div className="space-y-3">
-                  <NoteSection label="Top" notes={product.notes_top} tier="top" />
-                  <NoteSection label="Heart" notes={product.notes_mid} tier="heart" />
-                  <NoteSection label="Base" notes={product.notes_base} tier="base" />
-                </div>
-              </div>
-
-              {/* Vibe card */}
-              {vibeStyle && (
-                <div className="mb-6">
-                  <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-2">Scent Character</p>
-                  <Link href={`/vibe/${product.primary_vibe_slug}`} className="group relative overflow-hidden h-16 flex items-end block">
-                    <div
-                      className="absolute inset-0 transition-transform duration-500 group-hover:scale-105"
-                      style={{ background: vibeStyle.css }}
-                    />
-                    <div className="relative w-full px-4 py-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3.5 h-3.5 rounded-full ring-1 ring-white/30 shrink-0"
-                          style={{ background: `linear-gradient(135deg, ${vibeStyle.colors[0]}, ${vibeStyle.colors[2]})` }}
-                        />
-                        <span className="font-serif text-sm font-light" style={{ color: vibeStyle.textColor }}>
-                          {vibeStyle.name}
-                        </span>
-                      </div>
-                      <span className="text-[10px] tracking-widest uppercase opacity-70 group-hover:opacity-100 transition-opacity" style={{ color: vibeStyle.textColor }}>
-                        Explore →
-                      </span>
-                    </div>
-                  </Link>
-                </div>
-              )}
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          {/* Image */}
+          <div className="relative w-full" style={{ aspectRatio: '3/4' }}>
+            <Image src={img} alt={frag.name} fill className="object-cover" priority
+              onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.jpg'; }} />
           </div>
-        </div>
 
-        {/* ── Ad before similar ────────────────────────────────────────────── */}
-        <div className="max-w-7xl mx-auto px-6 mb-8">
-          <AdUnit position="product_page" />
-        </div>
+          {/* Details */}
+          <div>
+            <TierPill tier={frag.tier} className="mb-3" />
+            <h1 className="font-display text-4xl font-light leading-tight mb-2" style={{ color: '#1e1610' }}>
+              {frag.name}
+            </h1>
+            {frag.house_name && (
+              <Link href={`/house/${frag.house?.slug ?? '#'}`}>
+                <p className="font-mono text-[10px] tracking-widest uppercase mb-6 hover:text-[#B8762A] transition-colors" style={{ color: '#8a7560' }}>
+                  {frag.house_name}
+                </p>
+              </Link>
+            )}
 
-        {/* ── Similar fragrances ───────────────────────────────────────────── */}
-        {product.similar?.length > 0 && (
-          <section className="bg-parchment py-16">
-            <div className="max-w-7xl mx-auto px-6">
-              <p className="label-overline text-obsidian-400 mb-2">From the same house</p>
-              <h2 className="font-serif text-3xl text-obsidian-900 font-light mb-8">More by {brand?.name}</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-                {product.similar.map((p: Product) => (
-                  <div key={p.id} className="bg-white border border-obsidian-100 hover:border-gold-300 transition-colors overflow-hidden">
-                    <Link href={`/fragrance/${p.slug}`} className="block">
-                      <div className="relative aspect-square bg-parchment">
-                        {p.image_url ? (
-                          <Image src={p.image_url} alt={p.name} fill className="object-contain p-6" sizes="25vw" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <span className="font-serif text-3xl text-obsidian-200">{brand?.name?.charAt(0)}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <p className="font-serif text-sm text-obsidian-900 font-light">{p.name}</p>
-                        <p className="text-xs text-obsidian-400 mt-1">{p.lowest_price ? formatPriceUSD(p.lowest_price) : '—'}</p>
-                      </div>
-                    </Link>
-                  </div>
+            {/* Clone backlink */}
+            {original && (
+              <div className="mb-6 p-4" style={{ backgroundColor: '#fdf7ef', border: '1px solid #e0cdb5' }}>
+                <p className="font-mono text-[9px] tracking-widest uppercase mb-1" style={{ color: '#5a7a8a' }}>Clone of</p>
+                <Link href={`/fragrance/${original.slug}`} className="font-display text-lg hover:text-[#B8762A] transition-colors" style={{ color: '#1e1610' }}>
+                  {original.name} — {original.house_name}
+                </Link>
+              </div>
+            )}
+
+            {/* Meta */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              {[
+                { label: 'Year',   value: frag.year ?? '—' },
+                { label: 'Gender', value: frag.gender ?? '—' },
+                { label: 'Rating', value: frag.community_rating ? `${frag.community_rating}/10` : '—' },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ borderLeft: '2px solid #e0cdb5', paddingLeft: '12px' }}>
+                  <p className="font-mono text-[8px] tracking-widest uppercase mb-1" style={{ color: '#8a7560' }}>{label}</p>
+                  <p className="font-mono text-sm" style={{ color: '#1e1610' }}>{String(value)}</p>
+                </div>
+              ))}
+            </div>
+
+            {frag.plain_description && (
+              <p className="font-body text-base leading-relaxed mb-6" style={{ color: '#3a2e22' }}>
+                {frag.plain_description}
+              </p>
+            )}
+
+            {/* Mood tags */}
+            {frag.mood_tags?.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {frag.mood_tags.map((t: string) => (
+                  <span key={t} className="font-mono text-[9px] tracking-widest uppercase px-2 py-1"
+                    style={{ border: '1px solid #e0cdb5', color: '#8a7560' }}>{t}</span>
                 ))}
               </div>
-            </div>
-          </section>
-        )}
+            )}
 
-        {/* ── Email capture ────────────────────────────────────────────────── */}
-        <section className="py-16 border-t border-obsidian-100">
-          <div className="max-w-sm mx-auto px-6 text-center">
-            <p className="font-serif text-2xl text-obsidian-900 font-light mb-2">New arrivals weekly.</p>
-            <p className="text-sm text-obsidian-500 mb-6">Be first to know when new fragrances from {brand?.name ?? 'this brand'} arrive.</p>
-            <EmailCapture source="product_page" placeholder="your@email.com" />
+            {/* Affiliate CTA — conditional */}
+            {affiliateUrl ? (
+              <a href={affiliateUrl} target="_blank" rel="noopener noreferrer nofollow"
+                className="block w-full text-center font-mono text-[11px] tracking-widest uppercase py-4 mb-4 transition-colors"
+                style={{ backgroundColor: '#B8762A', color: '#0e0b08' }}>
+                Buy Now
+              </a>
+            ) : (
+              <p className="font-mono text-[10px] tracking-widest uppercase text-center py-4 mb-4" style={{ color: '#8a7560' }}>
+                Link coming soon
+              </p>
+            )}
+
+            <Link href="/clones" className="font-mono text-[9px] tracking-widest uppercase" style={{ color: '#8a7560' }}>
+              Browse clone alternatives →
+            </Link>
           </div>
-        </section>
+        </div>
+
+        {/* Notes pyramid */}
+        <div className="mt-16 pt-16" style={{ borderTop: '1px solid #e0cdb5' }}>
+          <p className="font-mono text-[10px] tracking-[0.25em] uppercase mb-8" style={{ color: '#B8762A' }}>Fragrance Profile</p>
+          <div className="max-w-lg mx-auto">
+            <NotesPyramid top={frag.top_notes ?? []} heart={frag.heart_notes ?? []} base={frag.base_notes ?? []} />
+          </div>
+        </div>
       </div>
-    </>
-  )
+    </div>
+  );
 }

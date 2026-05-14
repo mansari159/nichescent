@@ -1,10 +1,43 @@
-/* Google Fonts — loaded by browser at runtime (no build-time network required) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+/* ── Google Fonts ─────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,400;1,300&display=swap');
 
+/* ── CSS design tokens ────────────────────────────────────────────────────── */
 :root {
-  --font-inter: 'Inter', system-ui, sans-serif;
-  --font-playfair: 'Playfair Display', Georgia, serif;
+  /* Dark zone */
+  --dark-bg:        #0e0b08;
+  --dark-surface:   #171210;
+  --dark-border:    #2a2018;
+  --dark-text:      #d4c4a8;
+  --dark-muted:     #6a5a48;
+  --dark-heading:   #ede0cc;
+
+  /* Cream zone */
+  --cream-bg:       #f5ede0;
+  --cream-surface:  #fdf7ef;
+  --cream-border:   #e0cdb5;
+  --cream-text:     #3a2e22;
+  --cream-muted:    #8a7560;
+  --cream-heading:  #1e1610;
+
+  /* Amber accent */
+  --amber:          #B8762A;
+  --amber-hover:    #9a611f;
+  --amber-light:    #f0d4a0;
+
+  /* Tier colors */
+  --tier-budget:    #5a8a5a;
+  --tier-mid:       #7a6a3a;
+  --tier-niche:     #8a5a2a;
+  --tier-luxury:    #6a4a7a;
+  --tier-clone:     #5a7a8a;
+  --tier-designer:  #666666;
+
+  /* Fonts */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-mono:    'DM Mono', 'Courier New', monospace;
+  --font-body:    'Josefin Sans', system-ui, sans-serif;
 }
 
 @tailwind base;
@@ -13,28 +46,55 @@
 
 @layer base {
   html {
-    background-color: #FAF8F4;
-    color: #120F0B;
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
   }
   body {
-    background-color: #FAF8F4;
+    font-family: var(--font-body);
+    background-color: var(--dark-bg);
   }
-  h1, h2, h3, h4 {
-    font-family: var(--font-playfair), Georgia, serif;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar       { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--dark-bg); }
+  ::-webkit-scrollbar-thumb { background: var(--dark-border); border-radius: 2px; }
 }
 
 @layer utilities {
+  /* Zone helpers */
+  .zone-dark {
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+  }
+  .zone-cream {
+    background-color: var(--cream-bg);
+    color: var(--cream-text);
+  }
+
+  /* Typography shorthands */
+  .font-display { font-family: var(--font-display); }
+  .font-mono    { font-family: var(--font-mono); }
+  .font-body    { font-family: var(--font-body); }
+
+  /* Amber accents */
+  .text-amber   { color: var(--amber); }
+  .bg-amber     { background-color: var(--amber); }
+  .border-amber { border-color: var(--amber); }
+
+  /* Scrollbar hide */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Text clamp */
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -56,121 +116,49 @@
 }
 
 @layer components {
-  .btn-primary {
-    @apply inline-block bg-obsidian-900 text-cream text-xs tracking-widest uppercase px-8 py-3.5 hover:bg-obsidian-700 transition-colors duration-200;
+  /* Dark-zone CTA */
+  .btn-dark {
+    @apply inline-block bg-[#B8762A] text-[#0e0b08] font-mono text-[10px] tracking-widest uppercase
+           px-8 py-3.5 transition-colors duration-200 hover:bg-[#9a611f];
   }
-  .btn-secondary {
-    @apply inline-block border border-obsidian-900 text-obsidian-900 text-xs tracking-widest uppercase px-8 py-3.5 hover:bg-obsidian-900 hover:text-cream transition-colors duration-200;
+  /* Cream-zone CTA */
+  .btn-cream {
+    @apply inline-block bg-[#1e1610] text-[#f5ede0] font-mono text-[10px] tracking-widest uppercase
+           px-8 py-3.5 transition-colors duration-200 hover:bg-[#3a2e22];
   }
-  .btn-gold {
-    @apply inline-block bg-gold-500 text-white text-xs tracking-widest uppercase px-8 py-3.5 hover:bg-gold-600 transition-colors duration-200;
+  /* Ghost button */
+  .btn-ghost {
+    @apply inline-block border border-[#2a2018] text-[#6a5a48] font-mono text-[10px] tracking-widest
+           uppercase px-6 py-2.5 transition-colors duration-200 hover:border-[#B8762A] hover:text-[#B8762A];
   }
-  .card {
-    @apply bg-white border border-obsidian-100 hover:border-gold-300 transition-colors duration-200;
-  }
-  .label-overline {
-    @apply text-xs tracking-widest uppercase text-stone font-sans;
-  }
-  .section-heading {
-    @apply font-serif text-4xl md:text-5xl font-light text-obsidian-900;
-  }
-  .section-subheading {
-    @apply font-serif text-2xl md:text-3xl font-light text-obsidian-900;
+  /* Tier pill base */
+  .tier-pill {
+    @apply inline-block font-mono text-[9px] tracking-widest uppercase px-2 py-0.5;
   }
 }
 
-/* Parallax utility */
-.parallax-bg {
-  background-attachment: fixed;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-/* Animated gradient for vibe hero */
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-.animate-gradient {
-  background-size: 300% 300%;
-  animation: gradient-shift 30s ease infinite;
-}
-
-/* Count-up animation */
-@keyframes count-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-count-up {
-  animation: count-up 0.6s ease-out forwards;
-}
-
-/* Fade in from below */
+/* ── Animations ────────────────────────────────────────────────────────────── */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(24px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
 .animate-fade-up {
   animation: fade-up 0.5s ease-out forwards;
 }
 
-/* ── Lumina Slider ─────────────────────────────────────────────────────────── */
-
-/* Right-side navigation items (created dynamically via JS) */
-.lumina-nav-item {
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 6px 0;
-  opacity: 0.4;
-  transition: opacity 0.3s ease;
-  min-width: 160px;
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
-.lumina-nav-item:hover { opacity: 0.7; }
-.lumina-nav-item.lumina-active { opacity: 1; }
-
-/* Progress line */
-.lumina-prog-line {
-  height: 1px;
-  background: rgba(245, 240, 232, 0.2);
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-}
-.lumina-prog-fill {
-  position: absolute;
-  left: 0; top: 0;
-  height: 100%;
-  width: 0%;
-  background: #D4AF37;
-  opacity: 0;
-  transition: width 0.1s linear, opacity 0.3s ease;
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
 }
 
-/* Nav text */
-.lumina-nav-title {
-  font-size: 11px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #F5F0E8;
-  white-space: nowrap;
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
 }
-.lumina-nav-sub {
-  font-size: 10px;
-  color: rgba(245, 240, 232, 0.45);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-/* Mobile: hide right nav on small screens */
-@media (max-width: 767px) {
-  nav[data-l="nav"] {
-    display: none !important;
-  }
+.animate-gradient {
+  background-size: 300% 300%;
+  animation: gradient-shift 30s ease infinite;
 }

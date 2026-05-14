@@ -1,6 +1,6 @@
 # RareTrace — UI Improvement Plan
 
-The design foundation is strong: the obsidian/cream/gold palette, Cormorant serif, and the overall dark-editorial aesthetic are all right. What's missing is execution discipline — the same patterns repeat too uniformly, information hierarchy is weak in places, and a few key UX decisions actively hurt usability. This plan goes component by component with specific changes. Nothing here requires a design overhaul, just targeted surgery.
+The design foundation is strong: the obsidian/cream/gold palette, Playfair Display serif, and the overall dark-editorial aesthetic are all right. What's missing is execution discipline — the same patterns repeat too uniformly, information hierarchy is weak in places, and a few key UX decisions actively hurt usability. This plan goes component by component with specific changes. Nothing here requires a design overhaul, just targeted surgery.
 
 ---
 
@@ -38,7 +38,7 @@ Replace the vibe colored dot with a 2px colored left-border on the card. The ent
 Card bottom section simplified:
 ```
 [Brand name in gold-500 uppercase]
-[Fragrance name in Cormorant, 2 lines max]
+[Fragrance name in Playfair Display, 2 lines max]
 [note pill] [note pill] [note pill]
 ─────────────────────────────────
 From $45 USD          3 stores →
@@ -226,7 +226,7 @@ The footer is the last thing users see on every page — it's also where users g
 
 **Current state:** `grid-cols-2 sm:grid-cols-3 lg:grid-cols-4`
 
-On mobile (375px), 2 columns means each card is ~170px wide. At that size, the card info section (brand name + fragrance name + price) is very cramped, especially with Cormorant serif which renders wide.
+On mobile (375px), 2 columns means each card is ~170px wide. At that size, the card info section (brand name + fragrance name + price) is very cramped, especially with Playfair Display serif which renders wide.
 
 **Change:** On mobile, make the product card info section more compact:
 - Remove the "Price" overline label (already suggested in Priority 1)
@@ -241,7 +241,7 @@ Also: the `gap-6` between cards (24px) is generous for mobile where the cards th
 
 The following are working well and shouldn't be touched:
 - The obsidian/cream/gold color palette — it's distinctive and right
-- Cormorant serif for headings — premium and appropriate
+- Playfair Display serif for headings — premium and appropriate
 - The brand page hero with atmospheric photo + dark overlay
 - The country origin tiles (3:4 portrait grid with photo)
 - The vibe gradient tiles

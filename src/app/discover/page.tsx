@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import HomeClient from '@/components/HomeClient';
+import type { Metadata } from 'next';
+import DiscoverClient from '@/components/DiscoverClient';
 
 export const dynamic = 'force-dynamic';
+export const metadata: Metadata = { title: 'Discover' };
 
 function serverClient() {
   return createClient(
@@ -11,23 +13,21 @@ function serverClient() {
   );
 }
 
-async function getInitialFragrances() {
+export default async function DiscoverPage() {
   const sb = serverClient();
   const { data, count } = await sb
     .from('fragrances')
     .select('*', { count: 'exact' })
     .eq('is_active', true)
-    .neq('house_type', 'designer')
     .order('rank_score', { ascending: false })
     .range(0, 23);
-  return { fragrances: data ?? [], total: count ?? 0 };
-}
 
-export default async function HomePage() {
-  const { fragrances, total } = await getInitialFragrances();
   return (
     <Suspense>
-      <HomeClient initialFragrances={fragrances} initialTotal={total} />
+      <DiscoverClient
+        initialFragrances={data ?? []}
+        initialTotal={count ?? 0}
+      />
     </Suspense>
   );
 }

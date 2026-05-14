@@ -1,219 +1,64 @@
-import type { Metadata } from 'next'
-import { Suspense } from 'react'
-import Link from 'next/link'
-import { supabase } from '@/lib/supabase'
-import AdUnit from '@/components/AdUnit'
-import EmailCapture from '@/components/EmailCapture'
-import InfiniteScrollLoader from '@/components/InfiniteScrollLoader'
-import SortSelect from '@/components/SortSelect'
-import type { Product } from '@/types'
-import dynamicImport from 'next/dynamic'
+import { Suspense } from 'react';
+import { createClient } from '@supabase/supabase-js';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import FragranceCard from '@/components/FragranceCard';
+import FilterPanel from '@/components/FilterPanel';
+import SearchBar from '@/components/SearchBar';
+import type { Fragrance } from '@/components/FragranceCard';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
+export const metadata: Metadata = { title: 'Search' };
 
-const SearchBar = dynamicImport(() => import('@/components/SearchBar'), { ssr: false })
-
-interface Props {
-  searchParams: { q?: string; brand?: string; vibe?: string; type?: string; gender?: string; priceRange?: string; sort?: string }
+function serverClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 }
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const q = searchParams.q
-  return {
-    title: q ? `"${q}" — Fragrance Search` : 'Search Fragrances — Browse All Niche Perfumes',
-    description: q
-      ? `Search results for "${q}" — Discover niche fragrances matching your search.`
-      : 'Browse all niche fragrances from 50+ countries. Filter by vibe, type, price, and more.',
+async function getResults(sp: Record<string, string>) {
+  const sb = serverClient();
+  let query = sb.from('fragrances').select('*', { count: 'exact' }).eq('is_active', true);
+  if (sp.q)          query = query.textSearch('search_vector', sp.q, { type: 'websearch' });
+  if (sp.tier)       query = query.eq('tier', sp.tier);
+  if (sp.house_type) query = query.eq('house_type', sp.house_type);
+  if (sp.gender)     query = query.eq('gender', sp.gender);
+  switch (sp.sort) {
+    case 'new':    query = query.order('created_at', { ascending: false }); break;
+    case 'rating': query = query.order('community_rating', { ascending: false }); break;
+    case 'name':   query = query.order('name'); break;
+    default:       query = query.order('rank_score', { ascending: false }); break;
   }
+  const { data, count } = await query.range(0, 47);
+  return { fragrances: (data ?? []) as Fragrance[], total: count ?? 0 };
 }
 
-async function searchProducts(params: Props['searchParams']): Promise<{ products: Product[]; total: number }> {
-  const { q, brand, vibe, type, gender, priceRange, sort } = params
-
-  let query = supabase
-    .from('products')
-    .select('*, brand:brands(name, slug, country)', { count: 'exact' })
-    .eq('is_active', true)
-    .not('lowest_price', 'is', null)
-    .range(0, 23)
-
-  if (q) {
-    try {
-      query = query.textSearch('search_vector', q.trim(), { type: 'websearch', config: 'english' })
-    } catch {
-      query = query.ilike('name', `%${q}%`)
-    }
-  }
-  if (brand) {
-    // brand param can be a slug or partial name — look up by both
-    const { data: brandRow } = await supabase
-      .from('brands')
-      .select('id')
-      .or(`slug.eq.${brand},name.ilike.%${brand}%`)
-      .limit(1)
-      .single()
-    if (brandRow) query = query.eq('brand_id', brandRow.id)
-  }
-  if (vibe) query = query.eq('primary_vibe_slug', vibe)
-  if (type) query = query.eq('fragrance_type', type)
-  if (gender) query = query.eq('gender', gender)
-  // Support both legacy symbol format ($, $$, $$$) and new numeric range format (0-50, 50-150, 150-99999)
-  if (priceRange) {
-    if (priceRange === '$') { query = query.lt('lowest_price', 50) }
-    else if (priceRange === '$$') { query = query.gte('lowest_price', 50).lt('lowest_price', 150) }
-    else if (priceRange === '$$$') { query = query.gte('lowest_price', 150) }
-    else if (priceRange.includes('-')) {
-      const [minStr, maxStr] = priceRange.split('-')
-      const min = parseFloat(minStr)
-      const max = parseFloat(maxStr)
-      if (!isNaN(min)) query = query.gte('lowest_price', min)
-      if (!isNaN(max) && max < 99999) query = query.lte('lowest_price', max)
-    }
-  }
-
-  if (sort === 'price_asc') query = query.order('lowest_price', { ascending: true })
-  else if (sort === 'price_desc') query = query.order('lowest_price', { ascending: false })
-  else if (sort === 'name') query = query.order('name', { ascending: true })
-  else query = query.order('created_at', { ascending: false })
-
-  const { data, count } = await query
-  return { products: (data ?? []) as Product[], total: count ?? 0 }
-}
-
-const SUGGESTED_SEARCHES = [
-  'Oud', 'Rose & Oud', 'Saffron', 'Bakhoor', 'Attar oil',
-  'Kuwait', 'UAE', 'French niche', 'Sweet amber', 'Leather',
-]
-
-export default async function SearchPage({ searchParams }: Props) {
-  const { q } = searchParams
-  const { products, total } = await searchProducts(searchParams)
-
-  const hasFilters = !!(searchParams.vibe || searchParams.type || searchParams.gender || searchParams.priceRange)
+export default async function SearchPage({ searchParams }: { searchParams: Record<string, string> }) {
+  const { fragrances, total } = await getResults(searchParams);
+  const q = searchParams.q ?? '';
 
   return (
-    <div className="pt-16 bg-cream min-h-screen">
-      {/* ── Search Header ─────────────────────────────────────────────────── */}
-      <section className="bg-obsidian-950 py-14">
-        <div className="max-w-7xl mx-auto px-6">
-          <p className="text-[10px] tracking-widest uppercase text-obsidian-500 mb-4">
-            {q ? `Results for` : 'Browse All Fragrances'}
-          </p>
-          {q && (
-            <h1 className="font-serif text-4xl sm:text-5xl text-cream font-light mb-6">
-              &ldquo;{q}&rdquo;
-            </h1>
-          )}
-          <div className="max-w-2xl">
-            <Suspense fallback={null}>
-              <SearchBar defaultValue={q ?? ''} autoFocus={!q} />
-            </Suspense>
-          </div>
+    <div style={{ backgroundColor: '#0e0b08', minHeight: '100vh', paddingTop: '4rem' }}>
+      <div className="max-w-7xl mx-auto px-8 py-12">
+        <SearchBar variant="dark" className="mb-6 max-w-2xl" />
+        <Suspense><FilterPanel className="mb-8" /></Suspense>
+        <p className="font-mono text-[9px] tracking-widest uppercase mb-8" style={{ color: '#6a5a48' }}>
+          {total} fragrance{total !== 1 ? 's' : ''}{q ? ` matching "${q}"` : ''}
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px">
+          {fragrances.map((f, i) => (
+            <Link key={f.id} href={`/fragrance/${f.slug}`}>
+              <FragranceCard fragrance={f} priority={i < 4} />
+            </Link>
+          ))}
         </div>
-      </section>
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* ── Result count + filter bar ─────────────────────────────────── */}
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-obsidian-500">
-            <span className="font-medium text-obsidian-900">{total.toLocaleString()}</span>{' '}
-            {total === 1 ? 'fragrance' : 'fragrances'}{q ? ` for "${q}"` : ''}
+        {fragrances.length === 0 && (
+          <p className="font-mono text-[11px] tracking-widest uppercase text-center py-24" style={{ color: '#6a5a48' }}>
+            No fragrances found — try a different search.
           </p>
-          <div className="flex items-center gap-3">
-            {/* Sort */}
-            <div className="hidden sm:block">
-              <SortSelect value={searchParams.sort ?? ''} />
-            </div>
-          </div>
-        </div>
-
-        {/* Active filter chips */}
-        {hasFilters && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            {[
-              searchParams.vibe && { label: searchParams.vibe.replace(/-/g, ' '), param: 'vibe' },
-              searchParams.type && { label: searchParams.type.toUpperCase(), param: 'type' },
-              searchParams.gender && { label: searchParams.gender, param: 'gender' },
-              searchParams.priceRange && { label: searchParams.priceRange, param: 'priceRange' },
-            ].filter((x): x is { label: string; param: string } => Boolean(x)).map((chip, i) => chip && (
-              <a
-                key={i}
-                href={(() => {
-                  const p = new URLSearchParams(searchParams as Record<string, string>)
-                  p.delete(chip.param)
-                  return `/search?${p.toString()}`
-                })()}
-                className="flex items-center gap-1.5 text-xs bg-obsidian-100 text-obsidian-700 px-3 py-1.5 hover:bg-obsidian-200 transition-colors"
-              >
-                {chip.label}
-                <span className="text-obsidian-400">×</span>
-              </a>
-            ))}
-            <a
-              href={`/search${q ? `?q=${encodeURIComponent(q)}` : ''}`}
-              className="text-xs text-gold-500 hover:text-gold-600 transition-colors px-2 py-1.5"
-            >
-              Clear filters
-            </a>
-          </div>
-        )}
-
-        {/* ── Ad ─────────────────────────────────────────────────────────── */}
-        <AdUnit position="before_scroll" className="mb-8" />
-
-        {/* ── Grid + Infinite Scroll ─────────────────────────────────────── */}
-        {products.length > 0 ? (
-          <InfiniteScrollLoader
-            initialProducts={products}
-            totalCount={total}
-            fetchUrl="/api/products"
-            context={q ? `results for "${q}"` : 'all fragrances'}
-            category="fragrances"
-            extraParams={{
-              ...(q && { q }),
-              ...(searchParams.vibe && { vibes: searchParams.vibe }),
-              ...(searchParams.type && { types: searchParams.type }),
-              ...(searchParams.gender && { genders: searchParams.gender }),
-              ...(searchParams.priceRange && { priceRange: searchParams.priceRange }),
-              ...(searchParams.sort && { sortBy: searchParams.sort }),
-            }}
-          />
-        ) : (
-          /* Empty state */
-          <div className="text-center py-24 border border-obsidian-100">
-            <div className="max-w-md mx-auto">
-              <p className="font-serif text-3xl text-obsidian-400 font-light mb-3">
-                No results found
-              </p>
-              {q && (
-                <p className="text-sm text-obsidian-400 mb-8">
-                  We couldn&apos;t find any fragrances matching &ldquo;{q}&rdquo;. Try a different search or browse by vibe.
-                </p>
-              )}
-              <p className="text-[10px] tracking-widest uppercase text-obsidian-400 mb-4">Try searching for:</p>
-              <div className="flex flex-wrap justify-center gap-2 mb-10">
-                {SUGGESTED_SEARCHES.map(s => (
-                  <Link
-                    key={s}
-                    href={`/search?q=${encodeURIComponent(s)}`}
-                    className="text-xs text-obsidian-600 border border-obsidian-200 hover:border-gold-400 hover:text-gold-700 px-3 py-1.5 transition-colors"
-                  >
-                    {s}
-                  </Link>
-                ))}
-              </div>
-              <div className="border-t border-obsidian-100 pt-8">
-                <p className="text-sm text-obsidian-500 mb-4">Can&apos;t find what you&apos;re looking for? Let us know.</p>
-                <EmailCapture
-                  source="search_empty_state"
-                  placeholder="your@email.com"
-                  buttonText="Request This Fragrance"
-                />
-              </div>
-            </div>
-          </div>
         )}
       </div>
     </div>
-  )
+  );
 }

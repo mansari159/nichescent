@@ -8,16 +8,22 @@ const nextConfig = {
       { protocol: 'https', hostname: '**.ajmal.com' },
       { protocol: 'https', hostname: '**.lattafa-usa.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
-      // New brand scrapers (Phase 1 additions)
+      { protocol: 'https', hostname: '**.supabase.co' },
       { protocol: 'https', hostname: 'usaibrahimalqurashi.com' },
       { protocol: 'https', hostname: '**.usaibrahimalqurashi.com' },
-      { protocol: 'https', hostname: 'emaratiscents.com' },
-      { protocol: 'https', hostname: '**.emaratiscents.com' },
-      { protocol: 'https', hostname: 'arabiascents.com' },
-      { protocol: 'https', hostname: '**.arabiascents.com' },
-      { protocol: 'https', hostname: 'kayaliofficial.com' },
-      { protocol: 'https', hostname: '**.kayaliofficial.com' },
     ],
+  },
+
+  async redirects() {
+    return [
+      { source: '/brands',          destination: '/houses',          permanent: true },
+      { source: '/brand/:slug',     destination: '/house/:slug',     permanent: true },
+      { source: '/countries',       destination: '/origins',         permanent: true },
+      { source: '/country/:code',   destination: '/origin/:code',    permanent: true },
+      { source: '/product/:slug',   destination: '/fragrance/:slug', permanent: true },
+      { source: '/vibes',           destination: '/discover',        permanent: false },
+      { source: '/vibe/:slug',      destination: '/discover',        permanent: false },
+    ];
   },
 }
 
