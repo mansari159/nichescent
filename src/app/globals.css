@@ -6,12 +6,12 @@
 /* ── CSS design tokens ────────────────────────────────────────────────────── */
 :root {
   /* Dark zone */
-  --dark-bg:        #0e0b08;
-  --dark-surface:   #171210;
-  --dark-border:    #2a2018;
-  --dark-text:      #d4c4a8;
-  --dark-muted:     #6a5a48;
-  --dark-heading:   #ede0cc;
+  --dark-bg:        #141008;
+  --dark-surface:   #1e1812;
+  --dark-border:    #3a2a1a;
+  --dark-text:      #e0d0b8;
+  --dark-muted:     #8a7060;
+  --dark-heading:   #f2e8d8;
 
   /* Cream zone */
   --cream-bg:       #f5ede0;
