@@ -1,4 +1,5 @@
 import { serverClient } from '@/lib/supabase-server';
+import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
@@ -14,7 +15,7 @@ const HOUSE_TYPE_LABEL: Record<string, string> = {
 
 export default async function HousesPage() {
   const sb = serverClient();
-  if (!sb) return <div />;
+  if (!sb) notFound();
   const { data: houses } = await sb
     .from('houses')
     .select('*')

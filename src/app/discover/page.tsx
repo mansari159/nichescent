@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
 import { serverClient } from '@/lib/supabase-server';
 import type { Metadata } from 'next';
 import DiscoverClient from '@/components/DiscoverClient';
@@ -10,7 +11,7 @@ export const metadata: Metadata = { title: 'Discover' };
 
 export default async function DiscoverPage() {
   const sb = serverClient();
-  if (!sb) return <div />;
+  if (!sb) notFound();
   const { data, count } = await sb
     .from('fragrances')
     .select('*', { count: 'exact' })

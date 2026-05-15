@@ -1,4 +1,5 @@
 import { serverClient } from '@/lib/supabase-server';
+import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
@@ -9,7 +10,7 @@ export const metadata: Metadata = { title: 'Origins', description: 'Fragrance ho
 
 export default async function OriginsPage() {
   const sb = serverClient();
-  if (!sb) return <div />;
+  if (!sb) notFound();
   const { data: houses } = await sb
     .from('houses')
     .select('origin_country, id')

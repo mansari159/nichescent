@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
 import { serverClient } from '@/lib/supabase-server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -14,7 +15,7 @@ export const metadata: Metadata = { title: 'Search' };
 
 async function getResults(sp: Record<string, string>) {
   const sb = serverClient();
-  if (!sb) return <div />;
+  if (!sb) notFound();
   let query = sb.from('fragrances').select('*', { count: 'exact' }).eq('is_active', true);
   if (sp.q)          query = query.textSearch('search_vector', sp.q, { type: 'websearch' });
   if (sp.tier)       query = query.eq('tier', sp.tier);

@@ -1,4 +1,5 @@
 import { serverClient } from '@/lib/supabase-server';
+import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import CloneComparisonCard from '@/components/CloneComparisonCard';
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 
 export default async function ClonesPage() {
   const sb = serverClient();
-  if (!sb) return <div />;
+  if (!sb) notFound();
   // Self-join via clone_of FK — filter on clone_of IS NOT NULL, not house_type
   const { data: clones } = await sb
     .from('fragrances')

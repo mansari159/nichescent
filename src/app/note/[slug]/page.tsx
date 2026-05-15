@@ -1,4 +1,5 @@
 import { serverClient } from '@/lib/supabase-server';
+import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import FragranceCard from '@/components/FragranceCard';
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function NotePage({ params }: { params: { slug: string } }) {
   const sb = serverClient();
-  if (!sb) return <div />;
+  if (!sb) notFound();
   const noteTerm = params.slug.replace(/-/g, ' ');
   const termLower = noteTerm.toLowerCase();
 
