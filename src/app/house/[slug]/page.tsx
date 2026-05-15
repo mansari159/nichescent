@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const sb = serverClient();
-  if (!sb) return <div />;
+  if (!sb) return {};
   const { data } = await sb.from('houses').select('name, story').eq('slug', params.slug).single();
   if (!data) return { title: 'House Not Found' };
   return { title: data.name, description: data.story?.slice(0, 160) ?? undefined };
@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function HousePage({ params }: { params: { slug: string } }) {
   const sb = serverClient();
+  if (!sb) notFound();
   const { data: house } = await sb.from('houses').select('*').eq('slug', params.slug).single();
   if (!house) notFound();
 

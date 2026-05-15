@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const sb = serverClient();
-  if (!sb) return <div />;
+  if (!sb) return {};
   const { data } = await sb.from('fragrances').select('name, house_name, plain_description').eq('slug', params.slug).single();
   if (!data) return { title: 'Fragrance Not Found' };
   return {
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function FragrancePage({ params }: { params: { slug: string } }) {
   const sb = serverClient();
+  if (!sb) notFound();
   const { data: frag } = await sb
     .from('fragrances')
     .select('*, house:houses(*)')
