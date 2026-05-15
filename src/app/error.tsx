@@ -1,37 +1,48 @@
-'use client'
-
-import { useEffect } from 'react'
-import Link from 'next/link'
+'use client';
+import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
-  useEffect(() => {
-    console.error(error)
-  }, [error])
+  useEffect(() => { console.error(error); }, [error]);
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col items-center justify-center px-6 py-24 text-center">
-      <p className="font-serif text-[100px] text-obsidian-100 font-light leading-none mb-4">500</p>
-      <h1 className="font-serif text-4xl text-obsidian-900 font-light mb-3">Something went wrong.</h1>
-      <p className="text-obsidian-500 text-lg mb-10 max-w-sm">
-        An unexpected error occurred. Please try again — or get in touch if the problem persists.
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-6 py-24 text-center"
+      style={{ backgroundColor: '#0e0b08' }}
+    >
+      <p
+        className="font-display font-light leading-none mb-4"
+        style={{ fontSize: '120px', color: '#2a2018' }}
+      >
+        500
       </p>
-      <div className="flex gap-4 flex-wrap justify-center">
+      <h1 className="font-display text-4xl font-light mb-3" style={{ color: '#ede0cc' }}>
+        Something went wrong.
+      </h1>
+      <p className="font-body text-lg mb-10 max-w-sm" style={{ color: '#6a5a48' }}>
+        An unexpected error occurred. Please try again or get in touch if the problem persists.
+      </p>
+      <div className="flex flex-wrap gap-3 justify-center">
         <button
           onClick={reset}
-          className="text-xs tracking-widest uppercase bg-obsidian-900 text-cream px-8 py-3.5 hover:bg-gold-600 transition-colors"
+          className="font-mono text-[10px] tracking-widest uppercase px-5 py-2.5 transition-colors duration-200"
+          style={{ border: '1px solid #B8762A', color: '#B8762A' }}
         >
-          Try Again
+          Try again
         </button>
         <Link
           href="/"
-          className="text-xs tracking-widest uppercase border border-obsidian-300 text-obsidian-600 px-8 py-3.5 hover:border-obsidian-500 transition-colors"
+          className="font-mono text-[10px] tracking-widest uppercase px-5 py-2.5 transition-colors duration-200"
+          style={{ border: '1px solid #2a2018', color: '#6a5a48' }}
         >
-          Go Home
+          Go home
         </Link>
       </div>
-      <p className="mt-8 text-xs text-obsidian-400">
-        Error reference: {error.digest ?? 'unknown'}
-      </p>
+      {error.digest && (
+        <p className="font-mono text-[9px] mt-8" style={{ color: '#3a2e22' }}>
+          Error reference: {error.digest}
+        </p>
+      )}
     </div>
-  )
+  );
 }
