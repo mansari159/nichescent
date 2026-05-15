@@ -14,6 +14,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function NotePage({ params }: { params: { slug: string } }) {
   const sb = serverClient();
+  if (!sb) return <div />;
   const noteTerm = params.slug.replace(/-/g, ' ');
   const termLower = noteTerm.toLowerCase();
 

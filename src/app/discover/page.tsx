@@ -10,6 +10,7 @@ export const metadata: Metadata = { title: 'Discover' };
 
 export default async function DiscoverPage() {
   const sb = serverClient();
+  if (!sb) return <div />;
   const { data, count } = await sb
     .from('fragrances')
     .select('*', { count: 'exact' })

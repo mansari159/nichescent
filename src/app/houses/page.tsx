@@ -14,6 +14,7 @@ const HOUSE_TYPE_LABEL: Record<string, string> = {
 
 export default async function HousesPage() {
   const sb = serverClient();
+  if (!sb) return <div />;
   const { data: houses } = await sb
     .from('houses')
     .select('*')

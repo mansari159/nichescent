@@ -9,6 +9,7 @@ export const metadata: Metadata = { title: 'Origins', description: 'Fragrance ho
 
 export default async function OriginsPage() {
   const sb = serverClient();
+  if (!sb) return <div />;
   const { data: houses } = await sb
     .from('houses')
     .select('origin_country, id')

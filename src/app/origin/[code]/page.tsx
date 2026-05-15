@@ -16,6 +16,7 @@ export async function generateMetadata({ params }: { params: { code: string } })
 
 export default async function OriginPage({ params }: { params: { code: string } }) {
   const sb = serverClient();
+  if (!sb) return <div />;
   const code = params.code.toUpperCase();
 
   // Houses from this country

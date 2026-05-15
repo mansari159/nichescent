@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 
 export default async function ClonesPage() {
   const sb = serverClient();
+  if (!sb) return <div />;
   // Self-join via clone_of FK — filter on clone_of IS NOT NULL, not house_type
   const { data: clones } = await sb
     .from('fragrances')
