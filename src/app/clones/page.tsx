@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { serverClient } from '@/lib/supabase-server';
 import type { Metadata } from 'next';
 import CloneComparisonCard from '@/components/CloneComparisonCard';
 
@@ -8,12 +8,7 @@ export const metadata: Metadata = {
   description: 'Find affordable alternatives to luxury fragrances. Curated clone pairs with similarity scores.',
 };
 
-function serverClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+
 
 export default async function ClonesPage() {
   const sb = serverClient();

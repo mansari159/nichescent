@@ -1,26 +1,24 @@
 import { Suspense } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { serverClient } from '@/lib/supabase-server';
 import HomeClient from '@/components/HomeClient';
 
 export const dynamic = 'force-dynamic';
 
-function serverClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
-
 async function getInitialFragrances() {
-  const sb = serverClient();
-  const { data, count } = await sb
-    .from('fragrances')
-    .select('*', { count: 'exact' })
-    .eq('is_active', true)
-    .neq('house_type', 'designer')
-    .order('rank_score', { ascending: false })
-    .range(0, 23);
-  return { fragrances: data ?? [], total: count ?? 0 };
+  try {
+    const sb = serverClient();
+    if (!sb) return { fragrances: [], total: 0 };
+    const { data, count } = await sb
+      .from('fragrances')
+      .select('*', { count: 'exact' })
+      .eq('is_active', true)
+      .neq('house_type', 'designer')
+      .order('rank_score', { ascending: false })
+      .range(0, 23);
+    return { fragrances: data ?? [], total: count ?? 0 };
+  } catch (_e) {
+    return { fragrances: [], total: 0 };
+  }
 }
 
 export default async function HomePage() {

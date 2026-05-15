@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { serverClient } from '@/lib/supabase-server';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 
@@ -10,12 +10,7 @@ const HOUSE_TYPE_LABEL: Record<string, string> = {
   middle_eastern: 'Middle Eastern', indie: 'Indie', niche: 'Niche', designer: 'Designer',
 };
 
-function serverClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+
 
 export default async function HousesPage() {
   const sb = serverClient();

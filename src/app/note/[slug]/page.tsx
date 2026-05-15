@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { serverClient } from '@/lib/supabase-server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import FragranceCard from '@/components/FragranceCard';
@@ -6,12 +6,7 @@ import type { Fragrance } from '@/components/FragranceCard';
 
 export const dynamic = 'force-dynamic';
 
-function serverClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   return { title: `${params.slug.replace(/-/g, ' ')} fragrances` };

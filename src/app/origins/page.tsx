@@ -1,16 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
+import { serverClient } from '@/lib/supabase-server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Origins', description: 'Fragrance houses by country of origin.' };
 
-function serverClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+
 
 export default async function OriginsPage() {
   const sb = serverClient();
