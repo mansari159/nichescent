@@ -28,11 +28,11 @@ export default async function OriginsPage() {
     .map(([code, count]) => ({ code, count }));
 
   return (
-    <div style={{ backgroundColor: '#0e0b08', minHeight: '100vh', paddingTop: '4rem' }}>
+    <div style={{ backgroundColor: '#141008', minHeight: '100vh', paddingTop: '4rem' }}>
       <div className="max-w-7xl mx-auto px-8 py-16">
         <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-4" style={{ color: '#B8762A' }}>Explore</p>
-        <h1 className="font-display text-5xl md:text-7xl font-light mb-4" style={{ color: '#ede0cc' }}>Origins</h1>
-        <p className="font-body text-lg mb-16" style={{ color: '#6a5a48' }}>
+        <h1 className="font-display text-5xl md:text-7xl font-light mb-4" style={{ color: '#f2e8d8' }}>Origins</h1>
+        <p className="font-body text-lg mb-16" style={{ color: '#8a7060' }}>
           Fragrance traditions by country — from Grasse to Kannauj to Dubai.
         </p>
 
@@ -42,13 +42,13 @@ export default async function OriginsPage() {
               key={code}
               href={`/origin/${code.toLowerCase()}`}
               className="p-6 transition-all duration-200 group"
-              style={{ backgroundColor: '#0e0b08', border: '1px solid #2a2018' }}
+              style={{ backgroundColor: '#141008', border: '1px solid #3a2a1a' }}
             >
               <p className="font-display text-2xl mb-1 transition-colors group-hover:text-[#B8762A]"
-                style={{ color: '#ede0cc' }}>
+                style={{ color: '#f2e8d8' }}>
                 {code}
               </p>
-              <p className="font-mono text-[9px] tracking-widest uppercase" style={{ color: '#6a5a48' }}>
+              <p className="font-mono text-[9px] tracking-widest uppercase" style={{ color: '#8a7060' }}>
                 {count} house{count !== 1 ? 's' : ''}
               </p>
             </Link>

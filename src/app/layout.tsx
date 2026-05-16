@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="font-body antialiased" style={{ backgroundColor: '#0e0b08', color: '#d4c4a8' }}>
+      <body className="font-body antialiased" style={{ backgroundColor: '#141008', color: '#e0d0b8' }}>
         <Navbar />
         <main className="min-h-screen">
           <AnimatePresenceWrapper>
@@ -46,23 +46,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </main>
 
         {/* Footer */}
-        <footer style={{ backgroundColor: '#0e0b08', borderTop: '1px solid #2a2018' }}>
+        <footer style={{ backgroundColor: '#141008', borderTop: '1px solid #3a2a1a' }}>
           <div className="max-w-7xl mx-auto px-6 py-16">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
               <div className="md:col-span-2">
-                <p className="font-display text-2xl tracking-widest mb-1" style={{ color: '#ede0cc' }}>
+                <p className="font-display text-2xl tracking-widest mb-1" style={{ color: '#f2e8d8' }}>
                   RARETRACE
                 </p>
-                <p className="font-mono text-[9px] tracking-[0.25em] uppercase mb-4" style={{ color: '#6a5a48' }}>
+                <p className="font-mono text-[9px] tracking-[0.25em] uppercase mb-4" style={{ color: '#8a7060' }}>
                   Niche Fragrance Discovery
                 </p>
-                <p className="font-body text-sm leading-relaxed max-w-xs" style={{ color: '#6a5a48' }}>
+                <p className="font-body text-sm leading-relaxed max-w-xs" style={{ color: '#8a7060' }}>
                   Artisan, indie, and regional fragrance houses from 50+ countries.
                   Ranked by community score and editorial judgment.
                 </p>
               </div>
               <div>
-                <p className="font-mono text-[9px] tracking-widest uppercase mb-5" style={{ color: '#6a5a48' }}>Discover</p>
+                <p className="font-mono text-[9px] tracking-widest uppercase mb-5" style={{ color: '#8a7060' }}>Discover</p>
                 <ul className="space-y-3">
                   {[
                     ['/discover',  'Discover Feed'],
@@ -74,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   ].map(([href, label]) => (
                     <li key={href}>
                       <a href={href} className="font-mono text-[10px] tracking-wide transition-colors duration-200"
-                        style={{ color: '#6a5a48' }}>
+                        style={{ color: '#8a7060' }}>
                         {label}
                       </a>
                     </li>
@@ -82,7 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </ul>
               </div>
               <div>
-                <p className="font-mono text-[9px] tracking-widest uppercase mb-5" style={{ color: '#6a5a48' }}>Company</p>
+                <p className="font-mono text-[9px] tracking-widest uppercase mb-5" style={{ color: '#8a7060' }}>Company</p>
                 <ul className="space-y-3">
                   {[
                     ['/about',                'About RareTrace'],
@@ -92,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   ].map(([href, label]) => (
                     <li key={href}>
                       <a href={href} className="font-mono text-[10px] tracking-wide transition-colors duration-200"
-                        style={{ color: '#6a5a48' }}>
+                        style={{ color: '#8a7060' }}>
                         {label}
                       </a>
                     </li>
@@ -101,7 +101,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </div>
             </div>
             <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4"
-              style={{ borderTop: '1px solid #2a2018' }}>
+              style={{ borderTop: '1px solid #3a2a1a' }}>
               <p className="font-mono text-[9px]" style={{ color: '#3a2e22' }}>
                 &copy; {new Date().getFullYear()} RareTrace. All rights reserved.
               </p>

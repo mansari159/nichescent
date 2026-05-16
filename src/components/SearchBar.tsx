@@ -20,10 +20,10 @@ export default function SearchBar({ variant = 'dark', placeholder = 'Search frag
   const wrapRef = useRef<HTMLDivElement>(null);
 
   const isDark = variant === 'dark';
-  const borderColor = isDark ? '#2a2018' : '#e0cdb5';
-  const textColor   = isDark ? '#d4c4a8' : '#3a2e22';
-  const bgColor     = isDark ? '#171210' : '#fdf7ef';
-  const mutedColor  = isDark ? '#6a5a48' : '#8a7560';
+  const borderColor = isDark ? '#3a2a1a' : '#e0cdb5';
+  const textColor   = isDark ? '#e0d0b8' : '#3a2e22';
+  const bgColor     = isDark ? '#1e1812' : '#fdf7ef';
+  const mutedColor  = isDark ? '#8a7060' : '#8a7560';
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {

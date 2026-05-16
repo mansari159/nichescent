@@ -36,11 +36,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Recor
   const q = searchParams.q ?? '';
 
   return (
-    <div style={{ backgroundColor: '#0e0b08', minHeight: '100vh', paddingTop: '4rem' }}>
+    <div style={{ backgroundColor: '#141008', minHeight: '100vh', paddingTop: '4rem' }}>
       <div className="max-w-7xl mx-auto px-8 py-12">
         <SearchBar variant="dark" className="mb-6 max-w-2xl" />
         <Suspense><FilterPanel className="mb-8" /></Suspense>
-        <p className="font-mono text-[9px] tracking-widest uppercase mb-8" style={{ color: '#6a5a48' }}>
+        <p className="font-mono text-[9px] tracking-widest uppercase mb-8" style={{ color: '#8a7060' }}>
           {total} fragrance{total !== 1 ? 's' : ''}{q ? ` matching "${q}"` : ''}
         </p>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px">
@@ -51,7 +51,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Recor
           ))}
         </div>
         {fragrances.length === 0 && (
-          <p className="font-mono text-[11px] tracking-widest uppercase text-center py-24" style={{ color: '#6a5a48' }}>
+          <p className="font-mono text-[11px] tracking-widest uppercase text-center py-24" style={{ color: '#8a7060' }}>
             No fragrances found — try a different search.
           </p>
         )}

@@ -41,7 +41,7 @@ export default async function ClonesPage() {
       <div className="px-8 py-16 max-w-5xl mx-auto">
         {(clones ?? []).length === 0 ? (
           <p className="font-mono text-[11px] tracking-widest uppercase text-center py-24" style={{ color: '#8a7560' }}>
-            No clone pairs yet — run node scripts/seed-clones.js to seed them.
+            Clone comparisons coming soon.
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

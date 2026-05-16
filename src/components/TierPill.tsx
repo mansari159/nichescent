@@ -15,7 +15,7 @@ interface TierPillProps {
 }
 
 export default function TierPill({ tier, className = '' }: TierPillProps) {
-  const cfg = TIER_CONFIG[tier] ?? { label: tier, color: '#6a5a48' };
+  const cfg = TIER_CONFIG[tier] ?? { label: tier, color: '#8a7060' };
   return (
     <span
       className={`tier-pill ${className}`}

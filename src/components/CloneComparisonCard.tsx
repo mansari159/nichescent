@@ -13,7 +13,7 @@ function BuyButton({ fragrance }: { fragrance: Fragrance }) {
   const url = getAffiliateUrl(fragrance.affiliate_links);
   if (!url) {
     return (
-      <span className="font-mono text-[9px] tracking-widest uppercase" style={{ color: '#6a5a48' }}>
+      <span className="font-mono text-[9px] tracking-widest uppercase" style={{ color: '#8a7060' }}>
         Link coming soon
       </span>
     );
@@ -24,7 +24,7 @@ function BuyButton({ fragrance }: { fragrance: Fragrance }) {
       target="_blank"
       rel="noopener noreferrer nofollow"
       className="font-mono text-[10px] tracking-widest uppercase px-5 py-2.5 transition-colors duration-200"
-      style={{ backgroundColor: '#B8762A', color: '#0e0b08' }}
+      style={{ backgroundColor: '#B8762A', color: '#141008' }}
     >
       Buy
     </a>
@@ -45,7 +45,7 @@ function FragranceHalf({ fragrance, label }: { fragrance: Fragrance; label: stri
         />
         <div
           className="absolute top-2 left-2 font-mono text-[8px] tracking-widest uppercase px-2 py-1"
-          style={{ backgroundColor: '#1e1610', color: '#d4c4a8' }}
+          style={{ backgroundColor: '#1e1610', color: '#e0d0b8' }}
         >
           {label}
         </div>

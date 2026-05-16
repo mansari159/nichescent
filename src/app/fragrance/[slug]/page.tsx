@@ -129,7 +129,7 @@ export default async function FragrancePage({ params }: { params: { slug: string
             {affiliateUrl ? (
               <a href={affiliateUrl} target="_blank" rel="noopener noreferrer nofollow"
                 className="block w-full text-center font-mono text-[11px] tracking-widest uppercase py-4 mb-4 transition-colors"
-                style={{ backgroundColor: '#B8762A', color: '#0e0b08' }}>
+                style={{ backgroundColor: '#B8762A', color: '#141008' }}>
                 Buy Now
               </a>
             ) : (

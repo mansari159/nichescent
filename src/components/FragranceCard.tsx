@@ -46,8 +46,8 @@ export default function FragranceCard({ fragrance, onExpand, priority = false }:
       layoutId={`card-${fragrance.id}`}
       className="relative overflow-hidden cursor-pointer group"
       style={{
-        backgroundColor: '#171210',
-        borderLeft: `2px solid var(--tier-${fragrance.tier === 'niche_tier' ? 'niche' : fragrance.tier}, #6a5a48)`,
+        backgroundColor: '#1e1812',
+        borderLeft: `2px solid var(--tier-${fragrance.tier === 'niche_tier' ? 'niche' : fragrance.tier}, #8a7060)`,
         aspectRatio: '3/4',
       }}
       onClick={() => onExpand?.(fragrance)}
@@ -71,16 +71,16 @@ export default function FragranceCard({ fragrance, onExpand, priority = false }:
           style={{ background: 'linear-gradient(to top, rgba(14,11,8,0.95) 0%, rgba(14,11,8,0.4) 60%, transparent 100%)' }}
         >
           <TierPill tier={fragrance.tier} className="mb-2" />
-          <p className="font-display text-lg leading-tight" style={{ color: '#ede0cc' }}>
+          <p className="font-display text-lg leading-tight" style={{ color: '#f2e8d8' }}>
             {fragrance.name}
           </p>
           {fragrance.house_name && (
-            <p className="font-mono text-[9px] tracking-widest uppercase mt-1" style={{ color: '#6a5a48' }}>
+            <p className="font-mono text-[9px] tracking-widest uppercase mt-1" style={{ color: '#8a7060' }}>
               {fragrance.house_name}
             </p>
           )}
           {fragrance.top_notes?.length > 0 && (
-            <p className="font-mono text-[9px] mt-2" style={{ color: '#6a5a48' }}>
+            <p className="font-mono text-[9px] mt-2" style={{ color: '#8a7060' }}>
               {fragrance.top_notes.slice(0, 3).join(' · ')}
             </p>
           )}

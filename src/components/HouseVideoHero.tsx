@@ -75,11 +75,11 @@ export default function HouseVideoHero({ cityName, houseName, storyLine, fallbac
         <p className="font-mono text-[10px] tracking-[0.25em] uppercase mb-4" style={{ color: '#B8762A' }}>
           {cityName}
         </p>
-        <h1 className="font-display text-5xl md:text-7xl font-light mb-6" style={{ color: '#ede0cc' }}>
+        <h1 className="font-display text-5xl md:text-7xl font-light mb-6" style={{ color: '#f2e8d8' }}>
           {houseName}
         </h1>
         {storyLine && (
-          <p className="font-body text-lg max-w-xl font-light" style={{ color: '#d4c4a8' }}>
+          <p className="font-body text-lg max-w-xl font-light" style={{ color: '#e0d0b8' }}>
             {storyLine}
           </p>
         )}

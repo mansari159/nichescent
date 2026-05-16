@@ -24,3 +24,6 @@ yarn-error.log*
 *.pem
 /coverage
 .vercel
+
+# Local data files (large CSVs — imported to DB, not needed in repo)
+data/

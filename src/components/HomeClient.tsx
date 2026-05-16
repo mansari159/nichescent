@@ -118,14 +118,14 @@ export default function HomeClient({ initialFragrances, initialTotal }: HomeClie
       <section
         id="hero-canvas"
         className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-16"
-        style={{ backgroundColor: '#0e0b08' }}
+        style={{ backgroundColor: '#141008' }}
       >
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
         <div className="relative z-10 text-center max-w-2xl mx-auto">
           <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-6" style={{ color: '#B8762A' }}>
             Niche Fragrance Discovery
           </p>
-          <h1 className="font-display text-5xl md:text-7xl font-light leading-[1.05] mb-8" style={{ color: '#ede0cc' }}>
+          <h1 className="font-display text-5xl md:text-7xl font-light leading-[1.05] mb-8" style={{ color: '#f2e8d8' }}>
             What does your<br />
             <em>mood</em> smell like?
           </h1>
@@ -135,9 +135,9 @@ export default function HomeClient({ initialFragrances, initialTotal }: HomeClie
       </section>
 
       {/* Results grid */}
-      <section className="px-6 py-12" style={{ backgroundColor: '#0e0b08' }}>
+      <section className="px-6 py-12" style={{ backgroundColor: '#141008' }}>
         {loading && (
-          <p className="font-mono text-[10px] tracking-widest uppercase text-center mb-8" style={{ color: '#6a5a48' }}>
+          <p className="font-mono text-[10px] tracking-widest uppercase text-center mb-8" style={{ color: '#8a7060' }}>
             Loading…
           </p>
         )}
@@ -152,7 +152,7 @@ export default function HomeClient({ initialFragrances, initialTotal }: HomeClie
           ))}
         </div>
         {fragrances.length === 0 && !loading && (
-          <p className="font-mono text-[11px] tracking-widest uppercase text-center py-24" style={{ color: '#6a5a48' }}>
+          <p className="font-mono text-[11px] tracking-widest uppercase text-center py-24" style={{ color: '#8a7060' }}>
             No fragrances found — try adjusting the filters.
           </p>
         )}
