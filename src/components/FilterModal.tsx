@@ -51,8 +51,7 @@ export default function FilterModal({ isOpen, onClose, filters, onApply, availab
     setLocal(prev => {
       const arr = (prev[key] as string[] | undefined) ?? []
       const next = arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value]
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return { ...prev, [key]: next.length ? next : undefined } as any
+      return { ...prev, [key]: next.length ? next : undefined } as unknown as typeof prev
     })
   }, [])
 

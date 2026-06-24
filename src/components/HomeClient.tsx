@@ -117,15 +117,15 @@ export default function HomeClient({ initialFragrances, initialTotal }: HomeClie
       {/* Hero */}
       <section
         id="hero-canvas"
-        className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-16"
-        style={{ backgroundColor: '#141008' }}
+        className="relative min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 pt-16"
+        style={{ backgroundColor: 'var(--dark-bg)' }}
       >
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
-        <div className="relative z-10 text-center max-w-2xl mx-auto">
-          <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-6" style={{ color: '#B8762A' }}>
+        <div className="relative z-10 text-center max-w-2xl mx-auto w-full">
+          <p className="font-mono text-[10px] tracking-[0.3em] uppercase mb-6" style={{ color: 'var(--amber)' }}>
             Niche Fragrance Discovery
           </p>
-          <h1 className="font-display text-5xl md:text-7xl font-light leading-[1.05] mb-8" style={{ color: '#f2e8d8' }}>
+          <h1 className="font-display text-3xl sm:text-5xl md:text-7xl font-light leading-[1.05] mb-8" style={{ color: 'var(--dark-heading)' }}>
             What does your<br />
             <em>mood</em> smell like?
           </h1>
@@ -135,13 +135,13 @@ export default function HomeClient({ initialFragrances, initialTotal }: HomeClie
       </section>
 
       {/* Results grid */}
-      <section className="px-6 py-12" style={{ backgroundColor: '#141008' }}>
+      <section className="px-4 sm:px-6 py-12" style={{ backgroundColor: 'var(--dark-bg)' }}>
         {loading && (
-          <p className="font-mono text-[10px] tracking-widest uppercase text-center mb-8" style={{ color: '#8a7060' }}>
+          <p className="font-mono text-[10px] tracking-widest uppercase text-center mb-8" style={{ color: 'var(--dark-muted)' }}>
             Loading…
           </p>
         )}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px max-w-7xl mx-auto">
           {fragrances.map((f, i) => (
             <FragranceCard
               key={f.id}
@@ -152,7 +152,7 @@ export default function HomeClient({ initialFragrances, initialTotal }: HomeClie
           ))}
         </div>
         {fragrances.length === 0 && !loading && (
-          <p className="font-mono text-[11px] tracking-widest uppercase text-center py-24" style={{ color: '#8a7060' }}>
+          <p className="font-mono text-[11px] tracking-widest uppercase text-center py-24" style={{ color: 'var(--dark-muted)' }}>
             No fragrances found — try adjusting the filters.
           </p>
         )}

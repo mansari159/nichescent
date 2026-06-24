@@ -58,19 +58,19 @@ export default function ExpandedFragranceCard({ fragrance, onClose }: ExpandedFr
         key="card"
         layoutId={`card-${fragrance.id}`}
         className="fixed inset-x-0 bottom-0 md:inset-auto md:top-1/2 md:left-1/2 z-[101] w-full md:w-[680px] md:-translate-x-1/2 md:-translate-y-1/2 overflow-y-auto"
-        style={{ maxHeight: '90vh', backgroundColor: '#f5ede0' }}
+        style={{ maxHeight: '90vh', backgroundColor: 'var(--cream-bg)' }}
       >
         {/* Close */}
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 z-10 font-mono text-[10px] tracking-widest uppercase p-2 transition-colors"
-          style={{ color: '#8a7560' }}
+          style={{ color: 'var(--cream-text)' }}
         >
           ✕ Close
         </button>
 
         {/* Top 40%: image */}
-        <motion.div layoutId={`card-image-${fragrance.id}`} className="relative w-full" style={{ height: '40%', minHeight: '220px' }}>
+        <motion.div layoutId={`card-image-${fragrance.id}`} className="relative w-full" style={{ height: '40%', minHeight: '200px' }}>
           <Image
             src={img}
             alt={fragrance.name}
@@ -81,21 +81,21 @@ export default function ExpandedFragranceCard({ fragrance, onClose }: ExpandedFr
         </motion.div>
 
         {/* Bottom 60%: content */}
-        <div className="p-8">
+        <div className="p-5 sm:p-8">
           <TierPill tier={fragrance.tier} className="mb-3" />
-          <h2 className="font-display text-3xl leading-tight mb-1" style={{ color: '#1e1610' }}>
+          <h2 className="font-display text-2xl sm:text-3xl leading-tight mb-1" style={{ color: 'var(--cream-heading)' }}>
             {fragrance.name}
           </h2>
           {fragrance.house_name && (
             <Link href={`/house/${fragrance.slug}`}>
-              <p className="font-mono text-[10px] tracking-widest uppercase mb-6 transition-colors hover:text-[#B8762A]" style={{ color: '#8a7560' }}>
+              <p className="font-mono text-[10px] tracking-widest uppercase mb-6 transition-colors" style={{ color: 'var(--cream-text)', opacity: 0.7 }}>
                 {fragrance.house_name}
               </p>
             </Link>
           )}
 
           {fragrance.plain_description && (
-            <p className="font-body text-base leading-relaxed mb-6" style={{ color: '#3a2e22' }}>
+            <p className="font-body text-sm sm:text-base leading-relaxed mb-6" style={{ color: 'var(--cream-text)' }}>
               {fragrance.plain_description}
             </p>
           )}
@@ -105,7 +105,7 @@ export default function ExpandedFragranceCard({ fragrance, onClose }: ExpandedFr
             <div className="flex flex-wrap gap-2 mb-6">
               {fragrance.mood_tags.map(t => (
                 <span key={t} className="font-mono text-[9px] tracking-widest uppercase px-2 py-1"
-                  style={{ border: '1px solid #e0cdb5', color: '#8a7560' }}>
+                  style={{ border: '1px solid var(--cream-border)', color: 'var(--cream-text)' }}>
                   {t}
                 </span>
               ))}
@@ -126,12 +126,12 @@ export default function ExpandedFragranceCard({ fragrance, onClose }: ExpandedFr
               target="_blank"
               rel="noopener noreferrer nofollow"
               className="block w-full text-center font-mono text-[11px] tracking-widest uppercase py-4 transition-colors"
-              style={{ backgroundColor: '#B8762A', color: '#141008' }}
+              style={{ backgroundColor: 'var(--amber)', color: 'var(--dark-bg)' }}
             >
               Buy Now
             </a>
           ) : (
-            <p className="font-mono text-[10px] tracking-widest uppercase text-center py-4" style={{ color: '#8a7560' }}>
+            <p className="font-mono text-[10px] tracking-widest uppercase text-center py-4" style={{ color: 'var(--cream-text)', opacity: 0.6 }}>
               Link coming soon
             </p>
           )}
@@ -141,7 +141,7 @@ export default function ExpandedFragranceCard({ fragrance, onClose }: ExpandedFr
             <Link
               href={`/fragrance/${fragrance.slug}`}
               className="font-mono text-[10px] tracking-widest uppercase transition-colors"
-              style={{ color: '#8a7560' }}
+              style={{ color: 'var(--amber)' }}
             >
               Full page →
             </Link>

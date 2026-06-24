@@ -45,7 +45,7 @@ export default function FilterPanel({ className = '' }: FilterPanelProps) {
 
   const ChipRow = ({ label, items, paramKey }: { label: string; items: string[]; paramKey: string }) => (
     <div className="mb-3">
-      <p className="font-mono text-[9px] tracking-[0.2em] uppercase mb-2" style={{ color: '#8a7060' }}>{label}</p>
+      <p className="font-mono text-[9px] tracking-[0.2em] uppercase mb-2" style={{ color: 'var(--dark-muted)' }}>{label}</p>
       <div className="flex flex-wrap gap-2">
         {items.map(item => (
           <button
@@ -53,8 +53,8 @@ export default function FilterPanel({ className = '' }: FilterPanelProps) {
             onClick={() => toggle(paramKey, item)}
             className="font-mono text-[9px] tracking-wide uppercase px-3 py-1.5 transition-all duration-150"
             style={{
-              border: `1px solid ${active(paramKey, item) ? '#B8762A' : '#3a2a1a'}`,
-              color: active(paramKey, item) ? '#B8762A' : '#8a7060',
+              border: `1px solid ${active(paramKey, item) ? 'var(--amber)' : 'var(--dark-border)'}`,
+              color: active(paramKey, item) ? 'var(--amber)' : 'var(--dark-muted)',
               backgroundColor: active(paramKey, item) ? 'rgba(184,118,42,0.08)' : 'transparent',
             }}
           >
@@ -73,7 +73,7 @@ export default function FilterPanel({ className = '' }: FilterPanelProps) {
 
       {/* Sort */}
       <div>
-        <p className="font-mono text-[9px] tracking-[0.2em] uppercase mb-2" style={{ color: '#8a7060' }}>Sort</p>
+        <p className="font-mono text-[9px] tracking-[0.2em] uppercase mb-2" style={{ color: 'var(--dark-muted)' }}>Sort</p>
         <div className="flex flex-wrap gap-2">
           {SORT_OPTIONS.map(({ value, label }) => (
             <button
@@ -81,8 +81,8 @@ export default function FilterPanel({ className = '' }: FilterPanelProps) {
               onClick={() => toggle('sort', value)}
               className="font-mono text-[9px] tracking-wide uppercase px-3 py-1.5 transition-all duration-150"
               style={{
-                border: `1px solid ${active('sort', value) ? '#B8762A' : '#3a2a1a'}`,
-                color: active('sort', value) ? '#B8762A' : '#8a7060',
+                border: `1px solid ${active('sort', value) ? 'var(--amber)' : 'var(--dark-border)'}`,
+                color: active('sort', value) ? 'var(--amber)' : 'var(--dark-muted)',
               }}
             >
               {label}
