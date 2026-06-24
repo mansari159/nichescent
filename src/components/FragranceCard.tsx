@@ -39,63 +39,88 @@ export function getAffiliateUrl(links: Record<string, string> | null): string | 
 }
 
 export default function FragranceCard({ fragrance, onExpand, priority = false }: FragranceCardProps) {
+  const hasRealImage = !!(fragrance.image_url || fragrance.image_path);
   const imgSrc = fragrance.image_url || fragrance.image_path || '/placeholder.jpg';
 
   return (
     <motion.div
       layoutId={`card-${fragrance.id}`}
-      className="relative overflow-hidden cursor-pointer group"
+      className="flex flex-col overflow-hidden cursor-pointer group"
       style={{
-        backgroundColor: '#1e1812',
-        borderLeft: `2px solid var(--tier-${fragrance.tier === 'niche_tier' ? 'niche' : fragrance.tier}, #8a7060)`,
-        aspectRatio: '3/4',
+        backgroundColor: 'var(--dark-surface)',
+        borderLeft: `2px solid var(--tier-${fragrance.tier === 'niche_tier' ? 'niche' : fragrance.tier}, var(--dark-muted))`,
       }}
       onClick={() => onExpand?.(fragrance)}
       whileHover={{ scale: 1.01 }}
       transition={{ duration: 0.2 }}
     >
-      {/* Image */}
-      <motion.div layoutId={`card-image-${fragrance.id}`} className="absolute inset-0">
-        <Image
-          src={imgSrc}
-          alt={fragrance.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          priority={priority}
-          onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.jpg'; }}
-        />
-        {/* Dark overlay — shown on hover */}
+      {/* Image area */}
+      <motion.div layoutId={`card-image-${fragrance.id}`} className="relative h-48 flex-shrink-0">
+        {hasRealImage ? (
+          <Image
+            src={imgSrc}
+            alt={fragrance.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            priority={priority}
+            onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.jpg'; }}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ backgroundColor: 'var(--dark-bg)' }}
+          >
+            <span
+              className="w-2 h-2 rounded-full"
+              style={{ backgroundColor: 'var(--amber)' }}
+            />
+          </div>
+        )}
+
+        {/* Hover overlay on image only */}
         <div
-          className="absolute inset-0 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          style={{ background: 'linear-gradient(to top, rgba(14,11,8,0.95) 0%, rgba(14,11,8,0.4) 60%, transparent 100%)' }}
-        >
-          <TierPill tier={fragrance.tier} className="mb-2" />
-          <p className="font-display text-lg leading-tight" style={{ color: '#f2e8d8' }}>
-            {fragrance.name}
-          </p>
-          {fragrance.house_name && (
-            <p className="font-mono text-[9px] tracking-widest uppercase mt-1" style={{ color: '#8a7060' }}>
-              {fragrance.house_name}
-            </p>
-          )}
-          {fragrance.top_notes?.length > 0 && (
-            <p className="font-mono text-[9px] mt-2" style={{ color: '#8a7060' }}>
-              {fragrance.top_notes.slice(0, 3).join(' · ')}
-            </p>
-          )}
-        </div>
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{ backgroundColor: 'rgba(14,11,8,0.25)' }}
+        />
+
+        {/* Clone badge */}
+        {fragrance.house_type === 'clone' && (
+          <div
+            className="absolute top-2 right-2 font-mono text-[8px] tracking-widest uppercase px-2 py-1"
+            style={{ backgroundColor: '#5a7a8a', color: '#fff' }}
+          >
+            Clone
+          </div>
+        )}
       </motion.div>
 
-      {/* Clone badge */}
-      {fragrance.house_type === 'clone' && (
-        <div
-          className="absolute top-2 right-2 font-mono text-[8px] tracking-widest uppercase px-2 py-1"
-          style={{ backgroundColor: '#5a7a8a', color: '#fff' }}
+      {/* Text block — always visible */}
+      <div className="p-3 flex flex-col gap-1" style={{ backgroundColor: 'var(--dark-surface)' }}>
+        <p
+          className="font-display text-sm leading-tight"
+          style={{ color: 'var(--dark-heading)' }}
         >
-          Clone
-        </div>
-      )}
+          {fragrance.name}
+        </p>
+        {fragrance.house_name && (
+          <p
+            className="font-mono text-[9px] tracking-widest uppercase"
+            style={{ color: 'var(--dark-muted)' }}
+          >
+            {fragrance.house_name}
+          </p>
+        )}
+        <TierPill tier={fragrance.tier} className="mt-1 self-start" />
+        {fragrance.top_notes?.length > 0 && (
+          <p
+            className="font-mono text-[9px] mt-1"
+            style={{ color: 'var(--dark-muted)' }}
+          >
+            {fragrance.top_notes.slice(0, 3).join(' · ')}
+          </p>
+        )}
+      </div>
     </motion.div>
   );
 }
